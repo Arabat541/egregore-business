@@ -1,0 +1,402 @@
+/**
+ * Styles optimisés pour impression thermique
+ * Format: 80mm (largeur standard)
+ * Compatible: ESC/POS, Star, Epson TM-T88, etc.
+ */
+
+/* ==================== RESET & BASE ==================== */
+@media print {
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html, body {
+        width: 80mm;
+        margin: 0 auto;
+        padding: 0;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 12px;
+        line-height: 1.3;
+        color: #000;
+        background: #fff;
+    }
+
+    /* Masquer les éléments non imprimables */
+    .no-print,
+    .navbar,
+    .sidebar,
+    .btn,
+    button,
+    nav,
+    footer,
+    .alert,
+    .breadcrumb {
+        display: none !important;
+    }
+}
+
+/* ==================== TICKET CONTAINER ==================== */
+.thermal-ticket {
+    width: 80mm;
+    max-width: 80mm;
+    margin: 0 auto;
+    padding: 2mm;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #000;
+    background: #fff;
+}
+
+/* Version 58mm */
+.thermal-ticket.size-58mm {
+    width: 58mm;
+    max-width: 58mm;
+    font-size: 10px;
+}
+
+/* ==================== EN-TÊTE ==================== */
+.ticket-header {
+    text-align: center;
+    margin-bottom: 3mm;
+    padding-bottom: 2mm;
+    border-bottom: 1px dashed #000;
+}
+
+.ticket-header .shop-logo {
+    max-width: 50mm;
+    max-height: 15mm;
+    margin-bottom: 2mm;
+}
+
+.ticket-header .shop-name {
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 1mm;
+}
+
+.ticket-header .shop-info {
+    font-size: 10px;
+    color: #333;
+}
+
+/* ==================== TITRE TICKET ==================== */
+.ticket-title {
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 3mm 0;
+    padding: 1mm 0;
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+}
+
+/* ==================== INFORMATIONS ==================== */
+.ticket-info {
+    margin-bottom: 3mm;
+}
+
+.ticket-info .info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1mm;
+}
+
+.ticket-info .info-label {
+    font-weight: bold;
+}
+
+.ticket-info .info-value {
+    text-align: right;
+}
+
+/* Bloc client */
+.ticket-customer {
+    padding: 2mm;
+    margin-bottom: 2mm;
+    border: 1px solid #000;
+}
+
+.ticket-customer .customer-name {
+    font-weight: bold;
+    font-size: 13px;
+}
+
+/* ==================== TABLEAU ARTICLES ==================== */
+.ticket-items {
+    width: 100%;
+    margin-bottom: 3mm;
+    border-collapse: collapse;
+}
+
+.ticket-items th {
+    text-align: left;
+    font-size: 10px;
+    border-bottom: 1px solid #000;
+    padding: 1mm 0;
+}
+
+.ticket-items th:last-child,
+.ticket-items td:last-child {
+    text-align: right;
+}
+
+.ticket-items td {
+    padding: 1mm 0;
+    font-size: 11px;
+    vertical-align: top;
+}
+
+.ticket-items .item-name {
+    max-width: 35mm;
+    word-wrap: break-word;
+}
+
+.ticket-items .item-qty {
+    text-align: center;
+    width: 10mm;
+}
+
+.ticket-items .item-price {
+    text-align: right;
+    width: 18mm;
+}
+
+/* ==================== TOTAUX ==================== */
+.ticket-totals {
+    border-top: 1px dashed #000;
+    padding-top: 2mm;
+    margin-bottom: 3mm;
+}
+
+.ticket-totals .total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1mm;
+}
+
+.ticket-totals .total-row.grand-total {
+    font-size: 14px;
+    font-weight: bold;
+    border-top: 1px solid #000;
+    padding-top: 2mm;
+    margin-top: 2mm;
+}
+
+.ticket-totals .total-row.payment-received {
+    color: #000;
+}
+
+.ticket-totals .total-row.change {
+    font-size: 13px;
+    font-weight: bold;
+    background: #f0f0f0;
+    padding: 1mm;
+}
+
+/* ==================== DÉTAILS RÉPARATION ==================== */
+.ticket-repair-details {
+    margin-bottom: 3mm;
+    padding: 2mm;
+    border: 1px dashed #000;
+}
+
+.ticket-repair-details .device-info {
+    font-weight: bold;
+    margin-bottom: 1mm;
+}
+
+.ticket-repair-details .problem-description {
+    font-size: 10px;
+    margin-top: 2mm;
+    padding-top: 2mm;
+    border-top: 1px dotted #000;
+}
+
+/* ==================== QR CODE ==================== */
+.ticket-qrcode {
+    text-align: center;
+    margin: 3mm 0;
+    padding: 2mm 0;
+    border-top: 1px dashed #000;
+    border-bottom: 1px dashed #000;
+}
+
+.ticket-qrcode img,
+.ticket-qrcode svg {
+    width: 25mm;
+    height: 25mm;
+    margin: 0 auto;
+}
+
+.ticket-qrcode .qr-label {
+    font-size: 9px;
+    margin-top: 1mm;
+    color: #333;
+}
+
+/* ==================== GARANTIE ==================== */
+.ticket-warranty {
+    text-align: center;
+    padding: 2mm;
+    margin: 2mm 0;
+    border: 2px solid #000;
+    font-weight: bold;
+}
+
+.ticket-warranty .warranty-days {
+    font-size: 14px;
+}
+
+.ticket-warranty .warranty-until {
+    font-size: 10px;
+    margin-top: 1mm;
+}
+
+/* ==================== CONDITIONS ==================== */
+.ticket-conditions {
+    font-size: 8px;
+    text-align: justify;
+    margin: 2mm 0;
+    padding: 2mm;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+}
+
+.ticket-conditions ul {
+    margin: 0;
+    padding-left: 3mm;
+}
+
+.ticket-conditions li {
+    margin-bottom: 0.5mm;
+}
+
+/* ==================== PIED DE PAGE ==================== */
+.ticket-footer {
+    text-align: center;
+    margin-top: 3mm;
+    padding-top: 2mm;
+    border-top: 1px dashed #000;
+}
+
+.ticket-footer .footer-message {
+    font-size: 11px;
+    font-weight: bold;
+    margin-bottom: 2mm;
+}
+
+.ticket-footer .footer-date {
+    font-size: 9px;
+    color: #666;
+}
+
+.ticket-footer .footer-copy {
+    font-size: 8px;
+    color: #999;
+    margin-top: 2mm;
+}
+
+/* ==================== SÉPARATEURS ==================== */
+.ticket-separator {
+    border: none;
+    border-top: 1px dashed #000;
+    margin: 2mm 0;
+}
+
+.ticket-separator.double {
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    height: 2px;
+}
+
+.ticket-separator.cut {
+    border-top: 2px dashed #000;
+    margin: 4mm 0;
+}
+
+/* ==================== STATUT ==================== */
+.ticket-status {
+    text-align: center;
+    padding: 2mm;
+    margin: 2mm 0;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.ticket-status.status-paid {
+    background: #d4edda;
+    border: 1px solid #28a745;
+}
+
+.ticket-status.status-pending {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+}
+
+.ticket-status.status-delivered {
+    background: #e2e3e5;
+    border: 1px solid #6c757d;
+}
+
+/* ==================== IMPRESSION ==================== */
+@media print {
+    @page {
+        size: 80mm auto;
+        margin: 0;
+    }
+
+    .thermal-ticket {
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+    }
+
+    .ticket-qrcode img,
+    .ticket-qrcode svg {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Forcer les couleurs */
+    .ticket-status,
+    .ticket-warranty {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Éviter les sauts de page */
+    .thermal-ticket {
+        page-break-inside: avoid;
+    }
+}
+
+/* ==================== APERÇU ÉCRAN ==================== */
+@media screen {
+    .thermal-ticket {
+        background: #fff;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        margin: 20px auto;
+        padding: 5mm;
+    }
+
+    .thermal-preview-container {
+        background: #e0e0e0;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .print-actions {
+        text-align: center;
+        margin: 20px auto;
+        max-width: 80mm;
+    }
+
+    .print-actions .btn {
+        margin: 5px;
+    }
+}
