@@ -23,7 +23,7 @@
             </nav>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('admin.resellers.export-statement', ['reseller' => $reseller, 'start_date' => $startDate, 'end_date' => $endDate]) }}" 
+            <a href="{{ route('admin.resellers.export-statement', ['reseller' => $reseller, 'start_date' => $startDate, 'end_date' => $endDate, 'shop_id' => $shopId]) }}"
                class="btn btn-danger">
                 <i class="bi bi-file-pdf me-1"></i>Exporter PDF
             </a>
@@ -42,14 +42,27 @@
             <form method="GET" class="row g-3 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label">Date début</label>
-                    <input type="date" name="start_date" class="form-control" 
+                    <input type="date" name="start_date" class="form-control"
                            value="{{ $startDate }}">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Date fin</label>
-                    <input type="date" name="end_date" class="form-control" 
+                    <input type="date" name="end_date" class="form-control"
                            value="{{ $endDate }}">
                 </div>
+                @if($shops->isNotEmpty())
+                <div class="col-md-3">
+                    <label class="form-label">Boutique</label>
+                    <select name="shop_id" class="form-select">
+                        <option value="">Toutes les boutiques</option>
+                        @foreach($shops as $shop)
+                            <option value="{{ $shop->id }}" @selected($shopId === $shop->id)>
+                                {{ $shop->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
                 <div class="col-md-3">
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-filter me-1"></i>Filtrer
@@ -141,6 +154,9 @@
                             <th>Type</th>
                             <th>Référence</th>
                             <th>Description</th>
+                            @if($shops->isNotEmpty())
+                            <th>Boutique</th>
+                            @endif
                             <th class="text-end">Débit (Achats)</th>
                             <th class="text-end">Crédit (Paiements)</th>
                             <th class="text-end">Créance</th>
@@ -155,6 +171,7 @@
                             <td><span class="badge bg-secondary">Ouverture</span></td>
                             <td>-</td>
                             <td>Créance d'ouverture</td>
+                            @if($shops->isNotEmpty())<td>-</td>@endif
                             <td class="text-end">-</td>
                             <td class="text-end">-</td>
                             <td class="text-end fw-bold">{{ number_format($openingBalance, 0, ',', ' ') }} F</td>
@@ -189,7 +206,7 @@
                                 <td>
                                     {{ $movement['description'] }}
                                     @if(isset($movement['products']) && count($movement['products']) > 0)
-                                        <button class="btn btn-sm btn-link p-0 ms-2" type="button" 
+                                        <button class="btn btn-sm btn-link p-0 ms-2" type="button"
                                                 data-bs-toggle="collapse" data-bs-target="#products-{{ $loop->index }}">
                                             <i class="bi bi-eye"></i> Détails
                                         </button>
@@ -202,6 +219,9 @@
                                         </div>
                                     @endif
                                 </td>
+                                @if($shops->isNotEmpty())
+                                <td class="text-muted small">{{ $movement['shop'] ?? '—' }}</td>
+                                @endif
                                 <td class="text-end text-danger">
                                     @if($movement['debit'] > 0)
                                         {{ number_format($movement['debit'], 0, ',', ' ') }} F
@@ -220,7 +240,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-4 text-muted">
+                                <td colspan="{{ $shops->isNotEmpty() ? 8 : 7 }}" class="text-center py-4 text-muted">
                                     <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                                     Aucun mouvement sur cette période
                                 </td>
@@ -233,6 +253,7 @@
                             <td><span class="badge bg-dark">Clôture</span></td>
                             <td>-</td>
                             <td>Créance de clôture</td>
+                            @if($shops->isNotEmpty())<td>-</td>@endif
                             <td class="text-end fw-bold">{{ number_format($summary['total_purchases'], 0, ',', ' ') }} F</td>
                             <td class="text-end fw-bold">{{ number_format($summary['total_payments'], 0, ',', ' ') }} F</td>
                             <td class="text-end fw-bold">{{ number_format($runningBalance, 0, ',', ' ') }} F</td>
