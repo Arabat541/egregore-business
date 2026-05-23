@@ -109,7 +109,7 @@
                             <a href="{{ route('cashier.sales.receipt', $sale) }}" class="btn btn-sm btn-outline-secondary" target="_blank" title="Ticket">
                                 <i class="bi bi-printer"></i>
                             </a>
-                            @if($sale->payment_status !== 'cancelled')
+                            @if($sale->payment_status !== 'cancelled' && $sale->created_at->isToday())
                                 <button type="button" class="btn btn-sm btn-danger" title="Annuler"
                                         data-bs-toggle="modal" data-bs-target="#cancelModal{{ $sale->id }}">
                                     <i class="bi bi-x-circle"></i>
