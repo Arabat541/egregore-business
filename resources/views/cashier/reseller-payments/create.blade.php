@@ -27,8 +27,8 @@
     <div class="col-md-4">
         <div class="card bg-danger text-white">
             <div class="card-body text-center">
-                <h6>Dette actuelle</h6>
-                <h3 id="currentDebt" data-value="{{ $reseller->current_debt }}">{{ number_format($reseller->current_debt, 0, ',', ' ') }} FCFA</h3>
+                <h6>Dette dans votre boutique</h6>
+                <h3 id="currentDebt" data-value="{{ $shopDebt }}">{{ number_format($shopDebt, 0, ',', ' ') }} FCFA</h3>
             </div>
         </div>
     </div>
@@ -218,7 +218,7 @@
                     <div class="mb-3">
                         <label class="form-label">Montant (FCFA)</label>
                         <input type="number" class="form-control form-control-lg" name="cash_amount" id="cashAmount"
-                               value="0" min="0" max="{{ $reseller->current_debt }}" step="100">
+                               value="0" min="0" max="{{ $shopDebt }}" step="100">
                     </div>
                     
                     <div class="mb-3">
@@ -304,7 +304,7 @@
             
             <div class="alert alert-info mt-3 mb-0" id="newDebtInfo">
                 <strong>Nouvelle dette après paiement:</strong> 
-                <span id="newDebt">{{ number_format($reseller->current_debt, 0, ',', ' ') }} FCFA</span>
+                <span id="newDebt">{{ number_format($shopDebt, 0, ',', ' ') }} FCFA</span>
             </div>
         </div>
         <div class="card-footer">

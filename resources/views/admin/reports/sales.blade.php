@@ -198,7 +198,7 @@
 
     <!-- KPIs Principaux -->
     <div class="row g-4 mb-4">
-        <div class="col-md-3">
+        <div class="col">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
@@ -218,7 +218,7 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
@@ -237,7 +237,7 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
@@ -256,7 +256,7 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
@@ -269,6 +269,25 @@
                         </div>
                         <div class="bg-danger bg-opacity-10 p-3 rounded-circle align-self-start">
                             <i class="bi bi-credit-card fs-4 text-danger"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted mb-2">Remises accordées</h6>
+                            <h3 class="mb-0 text-warning">{{ number_format($totalDiscount, 0, ',', ' ') }} F</h3>
+                            <small class="text-muted">
+                                {{ $totalRevenue > 0 ? round(($totalDiscount / ($totalRevenue + $totalDiscount)) * 100, 1) : 0 }}% du brut
+                            </small>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle align-self-start">
+                            <i class="bi bi-tag fs-4 text-warning"></i>
                         </div>
                     </div>
                 </div>
