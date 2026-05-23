@@ -1,0 +1,87 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers;
+
+use App\Models\Reseller;
+use App\Services\ResellerLoyaltyService;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+
+class ResellerPortalController extends Controller
+{
+    public function __construct(
+        private readonly ResellerLoyaltyService $loyaltyService,
+    ) {}
+
+    public function index(Request $request)
+    {
+        if ($request->session()->has('reseller_portal_id')) {
+            return redirect()->route('reseller-portal.dashboard');
+        }
+
+        return view('public.reseller-portal.login');
+    }
+
+    public function authenticate(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|string|max:30',
+        ]);
+
+        $phone    = preg_replace('/\s+/', '', $request->phone);
+        $reseller = Reseller::where('is_active', true)
+            ->where(fn($q) =>
+                $q->where('phone', $phone)
+                  ->orWhere('phone', ltrim($phone, '0'))
+                  ->orWhere('phone', '0' . ltrim($phone, '0'))
+            )
+            ->first();
+
+        if (! $reseller) {
+            return back()->withErrors(['phone' => 'Aucun compte trouvé pour ce numéro de téléphone.']);
+        }
+
+        $request->session()->put('reseller_portal_id', $reseller->id);
+        $request->session()->put('reseller_portal_name', $reseller->company_name);
+
+        return redirect()->route('reseller-portal.dashboard');
+    }
+
+    public function dashboard(Request $request)
+    {
+        $resellerId = $request->session()->get('reseller_portal_id');
+        if (! $resellerId) {
+            return redirect()->route('reseller-portal.index')
+                ->with('info', 'Veuillez vous connecter pour accéder à votre espace.');
+        }
+
+        $reseller = Reseller::find($resellerId);
+        if (! $reseller || ! $reseller->is_active) {
+            $request->session()->forget(['reseller_portal_id', 'reseller_portal_name']);
+            return redirect()->route('reseller-portal.index')
+                ->withErrors(['phone' => 'Ce compte n\'est plus actif.']);
+        }
+
+        $startDate = $request->get('start_date', Carbon::now()->subMonths(3)->format('Y-m-d'));
+        $endDate   = $request->get('end_date', Carbon::now()->format('Y-m-d'));
+
+        [
+            'openingBalance' => $openingBalance,
+            'movements'      => $movements,
+            'summary'        => $summary,
+        ] = $this->loyaltyService->buildStatement($reseller, $startDate, $endDate);
+
+        return view('public.reseller-portal.dashboard', compact(
+            'reseller', 'movements', 'openingBalance', 'summary', 'startDate', 'endDate'
+        ));
+    }
+
+    public function logout(Request $request)
+    {
+        $request->session()->forget(['reseller_portal_id', 'reseller_portal_name']);
+        return redirect()->route('reseller-portal.index')
+            ->with('success', 'Vous avez été déconnecté.');
+    }
+}

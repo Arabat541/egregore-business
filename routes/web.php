@@ -60,6 +60,14 @@ Route::get('/dashboard', function () {
     return redirect('/');
 })->middleware('auth')->name('dashboard');
 
+// ==================== PORTAIL RÉPARATEUR (Accès public par téléphone) ====================
+Route::prefix('mon-espace')->name('reseller-portal.')->group(function () {
+    Route::get('/',         [App\Http\Controllers\ResellerPortalController::class, 'index'])->name('index');
+    Route::post('/connexion', [App\Http\Controllers\ResellerPortalController::class, 'authenticate'])->name('authenticate');
+    Route::get('/tableau-de-bord', [App\Http\Controllers\ResellerPortalController::class, 'dashboard'])->name('dashboard');
+    Route::get('/deconnexion', [App\Http\Controllers\ResellerPortalController::class, 'logout'])->name('logout');
+});
+
 // ==================== ROUTES PUBLIQUES (Accessibles par QR Code) ====================
 Route::prefix('track')->name('track.')->group(function () {
     // Suivi de réparation (accessible par QR code)
