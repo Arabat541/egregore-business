@@ -233,27 +233,25 @@
                                             {{ $expense->status_label }}
                                         </span>
                                     </td>
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="{{ route('admin.expenses.show', $expense) }}" 
-                                               class="btn btn-outline-primary" title="Voir">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            @if($expense->status === 'pending')
-                                                <form action="{{ route('admin.expenses.approve', $expense) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-outline-success" title="Approuver">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                </form>
-                                                <form action="{{ route('admin.expenses.reject', $expense) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-outline-danger" title="Rejeter">
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        </div>
+                                    <td class="text-center text-nowrap">
+                                        <a href="{{ route('admin.expenses.show', $expense) }}"
+                                           class="btn btn-sm btn-info text-white" title="Voir">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        @if($expense->status === 'pending')
+                                            <form action="{{ route('admin.expenses.approve', $expense) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-success" title="Approuver">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </button>
+                                            </form>
+                                            <form action="{{ route('admin.expenses.reject', $expense) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Rejeter">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
