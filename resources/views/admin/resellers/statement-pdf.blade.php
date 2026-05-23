@@ -261,7 +261,9 @@
                 <p><strong>Période:</strong> {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
                 <p><strong>Boutique:</strong> {{ $shopName ?? 'Toutes boutiques' }}</p>
                 <p><strong>Date édition:</strong> {{ now()->format('d/m/Y à H:i') }}</p>
-                <p><strong>Remise:</strong> {{ $reseller->discount_percentage }}%</p>
+                <p><strong>Palier fidélité:</strong> {{ $reseller->loyalty_tier }}
+                    @if($reseller->loyalty_bonus_rate > 0)({{ $reseller->loyalty_bonus_rate }}%)@endif
+                </p>
                 <p><strong>Plafond crédit:</strong> {{ number_format($reseller->credit_limit, 0, ',', ' ') }} F</p>
             </div>
         </div>

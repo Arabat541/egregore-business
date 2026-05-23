@@ -30,12 +30,15 @@ class ResellerPortalController extends Controller
             'phone' => 'required|string|max:30',
         ]);
 
-        $phone    = preg_replace('/\s+/', '', $request->phone);
+        // Normalize: strip spaces, dashes, dots, parentheses
+        $phone  = preg_replace('/[\s\-\.\(\)]+/', '', $request->phone);
+        $digits = preg_replace('/[^0-9]/', '', $phone); // purely numeric variant
+
         $reseller = Reseller::where('is_active', true)
             ->where(fn($q) =>
                 $q->where('phone', $phone)
-                  ->orWhere('phone', ltrim($phone, '0'))
-                  ->orWhere('phone', '0' . ltrim($phone, '0'))
+                  ->orWhere('phone', $digits)
+                  ->orWhereRaw("REPLACE(REPLACE(REPLACE(phone,' ',''),'-',''),'.','') = ?", [$digits])
             )
             ->first();
 
@@ -43,6 +46,7 @@ class ResellerPortalController extends Controller
             return back()->withErrors(['phone' => 'Aucun compte trouvé pour ce numéro de téléphone.']);
         }
 
+        $request->session()->regenerate(); // prevent session fixation
         $request->session()->put('reseller_portal_id', $reseller->id);
         $request->session()->put('reseller_portal_name', $reseller->company_name);
 
@@ -64,8 +68,17 @@ class ResellerPortalController extends Controller
                 ->withErrors(['phone' => 'Ce compte n\'est plus actif.']);
         }
 
-        $startDate = $request->get('start_date', Carbon::now()->subMonths(3)->format('Y-m-d'));
-        $endDate   = $request->get('end_date', Carbon::now()->format('Y-m-d'));
+        try {
+            $startDate = $request->filled('start_date')
+                ? Carbon::parse($request->get('start_date'))->format('Y-m-d')
+                : Carbon::now()->subMonths(3)->format('Y-m-d');
+            $endDate = $request->filled('end_date')
+                ? Carbon::parse($request->get('end_date'))->format('Y-m-d')
+                : Carbon::now()->format('Y-m-d');
+        } catch (\Exception) {
+            $startDate = Carbon::now()->subMonths(3)->format('Y-m-d');
+            $endDate   = Carbon::now()->format('Y-m-d');
+        }
 
         [
             'openingBalance' => $openingBalance,

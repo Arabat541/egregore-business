@@ -93,7 +93,12 @@
                 <div class="col-md-6 text-md-end">
                     <p class="mb-1"><strong>Période :</strong> {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
                     <p class="mb-1"><strong>Date d'édition :</strong> {{ now()->format('d/m/Y H:i') }}</p>
-                    <p class="mb-1"><strong>Remise appliquée :</strong> {{ $reseller->discount_percentage }}%</p>
+                    @if($reseller->loyalty_tier !== 'Nouveau')
+                    <p class="mb-1"><strong>Palier fidélité :</strong>
+                        {{ $reseller->loyalty_tier }}
+                        @if($reseller->loyalty_bonus_rate > 0)({{ $reseller->loyalty_bonus_rate }}% bonus)@endif
+                    </p>
+                    @endif
                     <div class="mt-3">
                         <span class="badge bg-{{ $reseller->current_debt > 0 ? 'danger' : 'success' }} fs-5">
                             Créance actuelle : {{ number_format($reseller->current_debt, 0, ',', ' ') }} F

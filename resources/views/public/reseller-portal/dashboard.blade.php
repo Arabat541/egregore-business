@@ -334,10 +334,17 @@
                     @if($reseller->email)
                     <tr><td class="text-muted">Email</td><td>{{ $reseller->email }}</td></tr>
                     @endif
-                    @if($reseller->discount_percentage > 0)
+                    @if($reseller->loyalty_tier !== 'Nouveau')
                     <tr>
-                        <td class="text-muted">Remise accordée</td>
-                        <td><span class="badge bg-info text-dark">{{ $reseller->discount_percentage }}%</span></td>
+                        <td class="text-muted">Palier fidélité</td>
+                        <td>
+                            <span class="badge bg-{{ $reseller->loyalty_tier_color }} {{ in_array($reseller->loyalty_tier, ['Standard','Nouveau']) ? 'text-dark' : '' }}">
+                                {{ $reseller->loyalty_tier }}
+                            </span>
+                            @if($reseller->loyalty_bonus_rate > 0)
+                                <small class="text-muted ms-1">({{ $reseller->loyalty_bonus_rate }}% bonus)</small>
+                            @endif
+                        </td>
                     </tr>
                     @endif
                 </table>
