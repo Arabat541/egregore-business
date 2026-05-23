@@ -1,0 +1,1651 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$customer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/CheckStaleRepairsCommand.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Console/Commands/CheckStaleRepairsCommand.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\CashRegister\:\:\$transactions\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Admin/CashRegisterController.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: app/Http/Controllers/Admin/CashRegisterController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\CashRegister model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Admin/CashRegisterController.php
+
+		-
+			message: '#^Relation ''transactions'' is not found in App\\Models\\CashRegister model\.$#'
+			identifier: larastan.relationExistence
+			count: 3
+			path: app/Http/Controllers/Admin/CashRegisterController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\CashRegister model\.$#'
+			identifier: larastan.relationExistence
+			count: 3
+			path: app/Http/Controllers/Admin/CashRegisterController.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type Carbon\\Carbon\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Admin/CashRegisterController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Http/Controllers/Admin/CashRegisterController.php
+
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/Admin/CategoryController.php
+
+		-
+			message: '#^Relation ''parent'' is not found in App\\Models\\Category model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/CategoryController.php
+
+		-
+			message: '#^Relation ''category'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Relation ''creator'' is not found in App\\Models\\SavTicket model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\SavTicket model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Relation ''reseller'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\SavTicket model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Relation ''technician'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Expense\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ExpenseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ExpenseCategory\:\:\$month_total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ExpenseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$shop\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ExpenseController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Expense\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Admin/ExpenseController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\Inventory model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/InventoryController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\Inventory model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/InventoryController.php
+
+		-
+			message: '#^Relation ''validatedBy'' is not found in App\\Models\\Inventory model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/InventoryController.php
+
+		-
+			message: '#^Parameter \#1 \$bytes of method App\\Http\\Controllers\\Admin\\MaintenanceController\:\:formatBytes\(\) expects int, float\|false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/Admin/MaintenanceController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OnlineOrder\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/OnlineOrderController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\OnlineOrder model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/OnlineOrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\:\:\$shop\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ProductController.php
+
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Admin/ProductController.php
+
+		-
+			message: '#^Relation ''category'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 3
+			path: app/Http/Controllers/Admin/ProductController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 3
+			path: app/Http/Controllers/Admin/ProductController.php
+
+		-
+			message: '#^Relation ''supplierPrices'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Admin/ProductController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$count\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$creator\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sale\:\:\$count\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sale\:\:\$customer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sale\:\:\$date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sale\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sale\:\:\$reseller\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sale\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SaleItem\:\:\$margin\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SaleItem\:\:\$margin_pct\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SaleItem\:\:\$total_cost\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SaleItem\:\:\$total_revenue\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SavTicket\:\:\$alerts\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SavTicket\:\:\$sale\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SavTicket\:\:\$sav_count\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SavTicket\:\:\$sav_rate\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SavTicket\:\:\$total_sales\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SavTicket\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$values of method Illuminate\\Support\\Collection\<int,App\\Models\\Sale\>\:\:push\(\) expects App\\Models\\Sale, App\\Models\\Repair given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$values of method Illuminate\\Support\\Collection\<int,App\\Models\\Sale\>\:\:push\(\) expects App\\Models\\Sale, object\{client_type\: string, count\: int, total\: float\|int\|string\}&stdClass given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$values of method Illuminate\\Support\\Collection\<int,App\\Models\\Sale\>\:\:push\(\) expects App\\Models\\Sale, object\{payment_method\: string\|null, count\: mixed, total\: mixed\}&stdClass given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$values of method Illuminate\\Support\\Collection\<int,App\\Models\\Sale\>\:\:push\(\) expects App\\Models\\Sale, object\{user_id\: int, user\: mixed, count\: mixed, total\: mixed\}&stdClass given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''assignedUser'' is not found in App\\Models\\SavTicket model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''cashRegister'' is not found in App\\Models\\CashTransaction model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''category'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 5
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''creator'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''creator'' is not found in App\\Models\\SavTicket model\.$#'
+			identifier: larastan.relationExistence
+			count: 6
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\SavTicket model\.$#'
+			identifier: larastan.relationExistence
+			count: 5
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''items'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 5
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''product'' is not found in App\\Models\\SaleItem model\.$#'
+			identifier: larastan.relationExistence
+			count: 5
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''product'' is not found in App\\Models\\SavTicket model\.$#'
+			identifier: larastan.relationExistence
+			count: 3
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''product'' is not found in App\\Models\\StockMovement model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''reseller'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''sale'' is not found in App\\Models\\ResellerPayment model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''sale'' is not found in App\\Models\\SaleItem model\.$#'
+			identifier: larastan.relationExistence
+			count: 4
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''sale'' is not found in App\\Models\\SavTicket model\.$#'
+			identifier: larastan.relationExistence
+			count: 10
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''saleItems'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''sales'' is not found in App\\Models\\Customer model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''technician'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 3
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''transactions'' is not found in App\\Models\\CashRegister model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\CashRegister model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\ResellerPayment model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\StockMovement model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ReportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Reseller\:\:\$shop\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ResellerController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ResellerLoyaltyBonus\:\:\$reseller\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Admin/ResellerController.php
+
+		-
+			message: '#^Relation ''paidBy'' is not found in App\\Models\\ResellerLoyaltyBonus model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ResellerController.php
+
+		-
+			message: '#^Relation ''reseller'' is not found in App\\Models\\ResellerLoyaltyBonus model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ResellerController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\Reseller model\.$#'
+			identifier: larastan.relationExistence
+			count: 3
+			path: app/Http/Controllers/Admin/ResellerController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>address" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Admin/ResellerController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Admin/ResellerController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>phone" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Admin/ResellerController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SecurityAlert\:\:\$message\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/SecurityController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\LoginAttempt model\.$#'
+			identifier: larastan.relationExistence
+			count: 3
+			path: app/Http/Controllers/Admin/SecurityController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\SecurityAlert model\.$#'
+			identifier: larastan.relationExistence
+			count: 3
+			path: app/Http/Controllers/Admin/SecurityController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\UserSession model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Admin/SecurityController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 3
+			path: app/Http/Controllers/Admin/SecurityController.php
+
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Admin/SettingController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Shop\:\:\$pending_repairs\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ShopController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Shop\:\:\$today_profit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ShopController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Shop\:\:\$today_revenue\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/ShopController.php
+
+		-
+			message: '#^Relation ''transactions'' is not found in App\\Models\\CashRegister model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ShopController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\CashRegister model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/ShopController.php
+
+		-
+			message: '#^Relation ''category'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/StockMovementController.php
+
+		-
+			message: '#^Relation ''product'' is not found in App\\Models\\StockMovement model\.$#'
+			identifier: larastan.relationExistence
+			count: 5
+			path: app/Http/Controllers/Admin/StockMovementController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\StockMovement model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Admin/StockMovementController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\StockMovement model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Admin/StockMovementController.php
+
+		-
+			message: '#^Relation ''category'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/StockTransferController.php
+
+		-
+			message: '#^Relation ''fromShop'' is not found in App\\Models\\StockTransfer model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/StockTransferController.php
+
+		-
+			message: '#^Relation ''toShop'' is not found in App\\Models\\StockTransfer model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/StockTransferController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\StockTransfer model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/StockTransferController.php
+
+		-
+			message: '#^Relation ''validatedBy'' is not found in App\\Models\\StockTransfer model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/StockTransferController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\:\:\$all_prices\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\:\:\$supplierPrices\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SupplierOrder\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$shop\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Relation ''category'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Relation ''items'' is not found in App\\Models\\SupplierOrder model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Relation ''supplier'' is not found in App\\Models\\SupplierOrder model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Relation ''supplierPrices'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\SupplierOrder model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>address" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>email" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>phone" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Admin/SupplierController.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: app/Http/Controllers/Admin/UserController.php
+
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Admin/UserController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\User model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/UserController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$shop\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/AuthController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\:\:\$category\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/ProductController.php
+
+		-
+			message: '#^Relation ''category'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Api/ProductController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$customer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/RepairController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$problem_description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/RepairController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$technician\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/RepairController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Api/RepairController.php
+
+		-
+			message: '#^Relation ''technician'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Api/RepairController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\CashRegister\:\:\$transactions\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/Cashier/CashRegisterController.php
+
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/Cashier/CashRegisterController.php
+
+		-
+			message: '#^Relation ''transactions'' is not found in App\\Models\\CashRegister model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Cashier/CashRegisterController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>closing_balance" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Cashier/CashRegisterController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Customer\:\:\$repairs\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Cashier/CustomerController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Customer\:\:\$sales\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/Cashier/CustomerController.php
+
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/Cashier/CustomerController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Cashier/DashboardController.php
+
+		-
+			message: '#^Relation ''fromShop'' is not found in App\\Models\\StockTransfer model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Cashier/DashboardController.php
+
+		-
+			message: '#^Relation ''items'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Cashier/DashboardController.php
+
+		-
+			message: '#^Relation ''items'' is not found in App\\Models\\StockTransfer model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Cashier/DashboardController.php
+
+		-
+			message: '#^Relation ''technician'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Cashier/DashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ExpenseCategory\:\:\$month_total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Cashier/ExpenseController.php
+
+		-
+			message: '#^Variable \$cashRegister in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.variable
+			count: 1
+			path: app/Http/Controllers/Cashier/ExpenseController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\PendingSale\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Cashier/PendingSaleController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\PendingSaleItem\:\:\$pendingSale\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Cashier/PendingSaleController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\PendingSaleItem\:\:\$product\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Cashier/PendingSaleController.php
+
+		-
+			message: '#^Relation ''items'' is not found in App\\Models\\PendingSale model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Cashier/PendingSaleController.php
+
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 3
+			path: app/Http/Controllers/Cashier/RepairController.php
+
+		-
+			message: '#^Relation ''category'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Cashier/RepairController.php
+
+		-
+			message: '#^Relation ''creator'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Cashier/RepairController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Cashier/RepairController.php
+
+		-
+			message: '#^Relation ''parts'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Cashier/RepairController.php
+
+		-
+			message: '#^Relation ''technician'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Cashier/RepairController.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''cancelled''\|''delivered''\|''in_diagnosis''\|''in_repair''\|''paid_pending…''\|''pending_payment''\|''ready_for_pickup''\|''repaired''\|''waiting_parts'' and ''unrepairable'' will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Http/Controllers/Cashier/RepairController.php
+
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Cashier/ResellerPaymentController.php
+
+		-
+			message: '#^Relation ''reseller'' is not found in App\\Models\\ResellerPayment model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Cashier/ResellerPaymentController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\ResellerPayment model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Cashier/ResellerPaymentController.php
+
+		-
+			message: '#^Relation ''category'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Cashier/SaleController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Cashier/SaleController.php
+
+		-
+			message: '#^Relation ''items'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Cashier/SaleController.php
+
+		-
+			message: '#^Relation ''reseller'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Cashier/SaleController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Cashier/SaleController.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''credit''\|''paid''\|''partial'' and ''cancelled'' will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 2
+			path: app/Http/Controllers/Cashier/SaleController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$shop\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Cashier/StockTransferController.php
+
+		-
+			message: '#^Relation ''category'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Cashier/StockTransferController.php
+
+		-
+			message: '#^Relation ''fromShop'' is not found in App\\Models\\StockTransfer model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Cashier/StockTransferController.php
+
+		-
+			message: '#^Relation ''toShop'' is not found in App\\Models\\StockTransfer model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Cashier/StockTransferController.php
+
+		-
+			message: '#^Relation ''user'' is not found in App\\Models\\StockTransfer model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Cashier/StockTransferController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$customer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/GlobalSearchController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/GlobalSearchController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/GlobalSearchController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$customer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/PublicTrackingController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$parts\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/PublicTrackingController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sale\:\:\$customer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/PublicTrackingController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sale\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/PublicTrackingController.php
+
+		-
+			message: '#^Relation ''items'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/PublicTrackingController.php
+
+		-
+			message: '#^Relation ''parts'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/PublicTrackingController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$customer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sale\:\:\$customer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sale\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SavTicket\:\:\$assignedUser\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SavTicket\:\:\$product\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SavTicket\:\:\$repair\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SavTicket\:\:\$sale\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Relation ''assignedUser'' is not found in App\\Models\\SavTicket model\.$#'
+			identifier: larastan.relationExistence
+			count: 3
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Relation ''category'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Relation ''creator'' is not found in App\\Models\\SavTicket model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 3
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\SavTicket model\.$#'
+			identifier: larastan.relationExistence
+			count: 4
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Relation ''items'' is not found in App\\Models\\Sale model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Relation ''product'' is not found in App\\Models\\SavTicket model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\SavTicket model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/SavController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Storefront/CartController.php
+
+		-
+			message: '#^Relation ''items'' is not found in App\\Models\\OnlineOrder model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/Storefront/CheckoutController.php
+
+		-
+			message: '#^Relation ''shop'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Storefront/CheckoutController.php
+
+		-
+			message: '#^Relation ''category'' is not found in App\\Models\\Product model\.$#'
+			identifier: larastan.relationExistence
+			count: 4
+			path: app/Http/Controllers/Storefront/StorefrontController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 3
+			path: app/Http/Controllers/Technician/DashboardController.php
+
+		-
+			message: '#^Relation ''savTicket'' is not found in App\\Models\\SavReplacedPart model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Technician/DashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Technician/RepairController.php
+
+		-
+			message: '#^Relation ''customer'' is not found in App\\Models\\Repair model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Technician/RepairController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$shop\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Middleware/ShopScope.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\CashRegister\:\:\$transactions\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Models/CashRegister.php
+
+		-
+			message: '#^Match arm comparison between ''adjustment'' and ''adjustment'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 1
+			path: app/Models/CashTransaction.php
+
+		-
+			message: '#^Match arm comparison between ''card'' and ''card'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 1
+			path: app/Models/CashTransaction.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Category\:\:\$parent\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Category.php
+
+		-
+			message: '#^Match arm comparison between ''check'' and ''check'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 1
+			path: app/Models/Expense.php
+
+		-
+			message: '#^Match arm comparison between ''rejected'' and ''rejected'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 2
+			path: app/Models/Expense.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Inventory\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Inventory.php
+
+		-
+			message: '#^Match arm comparison between ''cancelled'' and ''cancelled'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 2
+			path: app/Models/Inventory.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\InventoryItem\:\:\$product\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/InventoryItem.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\PendingSale\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/PendingSale.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between numeric\-string and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Models/Product.php
+
+		-
+			message: '#^Match arm comparison between ''damaged'' and ''damaged'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 2
+			path: app/Models/ProductReturn.php
+
+		-
+			message: '#^Match arm comparison between ''cancelled'' and ''cancelled'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 2
+			path: app/Models/Repair.php
+
+		-
+			message: '#^Match arm comparison between ''cancelled''\|''delivered''\|''ready_for_pickup'' and ''unrepairable'' is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Models/Repair.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ResellerLoyaltyBonus\:\:\$payment_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/ResellerLoyaltyBonus.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ResellerLoyaltyBonus\:\:\$reseller\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/ResellerLoyaltyBonus.php
+
+		-
+			message: '#^Match arm comparison between ''cancelled'' and ''cancelled'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 2
+			path: app/Models/ResellerLoyaltyBonus.php
+
+		-
+			message: '#^Match arm comparison between ''card'' and ''card'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 1
+			path: app/Models/ResellerPayment.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sale\:\:\$customer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Sale.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sale\:\:\$reseller\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Sale.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>company_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/Sale.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>full_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/Sale.php
+
+		-
+			message: '#^Match arm comparison between ''complaint''\|''other''\|''refund'' and ''repair_warranty'' is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Models/SavTicket.php
+
+		-
+			message: '#^Match arm comparison between ''other'' and ''other'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 1
+			path: app/Models/SavTicket.php
+
+		-
+			message: '#^Match arm comparison between ''rejected'' and ''rejected'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 2
+			path: app/Models/SavTicket.php
+
+		-
+			message: '#^Match arm comparison between ''urgent'' and ''urgent'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 2
+			path: app/Models/SavTicket.php
+
+		-
+			message: '#^Match arm comparison between ''repair_usage'' and ''repair_usage'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 2
+			path: app/Models/StockMovement.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/StockMovement.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\StockTransfer\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Models/StockTransfer.php
+
+		-
+			message: '#^Match arm comparison between ''cancelled'' and ''cancelled'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 2
+			path: app/Models/StockTransfer.php
+
+		-
+			message: '#^Match arm comparison between ''cancelled''\|''completed'' and ''in_transit'' is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 2
+			path: app/Models/StockTransfer.php
+
+		-
+			message: '#^Match arm comparison between ''cancelled''\|''completed'' and ''received'' is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 2
+			path: app/Models/StockTransfer.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SupplierOrder\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Models/SupplierOrder.php
+
+		-
+			message: '#^Match arm comparison between ''cancelled'' and ''cancelled'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 2
+			path: app/Models/SupplierOrder.php
+
+		-
+			message: '#^Relation ''supplier'' is not found in App\\Models\\SupplierPriceHistory model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Models/SupplierPriceHistory.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Comparison operation "\>" between int\<1, max\> and 0 is always true\.$#'
+			identifier: greater.alwaysTrue
+			count: 1
+			path: app/Observers/ProductObserver.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$technician\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/NotificationService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/NotificationService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/NotificationService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$reseller_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/NotificationService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\PendingSale\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/PendingSaleService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\PendingSale\:\:\$reseller\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/PendingSaleService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$parts\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RepairService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\RepairPart\:\:\$product\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RepairService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/RepairService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Services/RepairService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/ResellerPaymentService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sale\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/SaleService.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''credit''\|''paid''\|''partial'' and ''cancelled'' will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 2
+			path: app/Services/SaleService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Services/SaleService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SavTicket\:\:\$repair\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Services/SavService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SavTicket\:\:\$sale\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Services/SavService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\StockTransfer\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/StockTransferService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\StockTransfer\:\:\$toShop\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/StockTransferService.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between ''cancelled''\|''completed''\|''pending'' and ''in_transit'' will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Services/StockTransferService.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Services/StockTransferService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SupplierOrder\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/SupplierOrderService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SupplierOrder\:\:\$supplier\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/SupplierOrderService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\SupplierOrderItem\:\:\$product\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/SupplierOrderService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Repair\:\:\$customer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/ThermalPrinterService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sale\:\:\$customer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/ThermalPrinterService.php
