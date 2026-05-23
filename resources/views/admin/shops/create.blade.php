@@ -45,8 +45,18 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="activity" class="form-label">Activité <small class="text-muted">(apparaît sur les factures)</small></label>
+                        <input type="text" class="form-control @error('activity') is-invalid @enderror"
+                               id="activity" name="activity" value="{{ old('activity') }}"
+                               placeholder="Ex: Vente de téléphones et accessoires">
+                        @error('activity')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
                         <label for="address" class="form-label">Adresse</label>
-                        <textarea class="form-control @error('address') is-invalid @enderror" 
+                        <textarea class="form-control @error('address') is-invalid @enderror"
                                   id="address" name="address" rows="2">{{ old('address') }}</textarea>
                         @error('address')
                             <div class="invalid-feedback">{{ $message }}</div>

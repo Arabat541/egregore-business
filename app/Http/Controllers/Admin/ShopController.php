@@ -70,11 +70,12 @@ class ShopController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:10|unique:shops,code',
-            'address' => 'nullable|string|max:500',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'name'     => 'required|string|max:255',
+            'activity' => 'nullable|string|max:255',
+            'code'     => 'nullable|string|max:10|unique:shops,code',
+            'address'  => 'nullable|string|max:500',
+            'phone'    => 'nullable|string|max:20',
+            'email'    => 'nullable|email|max:255',
             'description' => 'nullable|string|max:1000',
         ]);
 
@@ -120,11 +121,12 @@ class ShopController extends Controller
     public function update(Request $request, Shop $shop)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:10|unique:shops,code,' . $shop->id,
-            'address' => 'nullable|string|max:500',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'name'     => 'required|string|max:255',
+            'activity' => 'nullable|string|max:255',
+            'code'     => 'nullable|string|max:10|unique:shops,code,' . $shop->id,
+            'address'  => 'nullable|string|max:500',
+            'phone'    => 'nullable|string|max:20',
+            'email'    => 'nullable|email|max:255',
             'description' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
         ]);
