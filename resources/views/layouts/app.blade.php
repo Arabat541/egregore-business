@@ -559,6 +559,13 @@
             el.value = el.min !== '' ? el.min : '0';
         }
     });
+
+    // Empêche la molette de modifier les champs numériques lors du défilement de la page
+    document.addEventListener('wheel', function(e) {
+        if (e.target.tagName === 'INPUT' && e.target.type === 'number') {
+            e.target.blur();
+        }
+    });
     </script>
 </body>
 </html>
