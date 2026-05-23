@@ -544,5 +544,21 @@
         }
     })();
     </script>
+
+    <script>
+    // Efface le zéro dans les champs numériques au focus, le restaure à la sortie si vide
+    document.addEventListener('focusin', function(e) {
+        const el = e.target;
+        if (el.tagName === 'INPUT' && el.type === 'number' && parseFloat(el.value) === 0) {
+            el.value = '';
+        }
+    });
+    document.addEventListener('focusout', function(e) {
+        const el = e.target;
+        if (el.tagName === 'INPUT' && el.type === 'number' && el.value === '') {
+            el.value = el.min !== '' ? el.min : '0';
+        }
+    });
+    </script>
 </body>
 </html>
