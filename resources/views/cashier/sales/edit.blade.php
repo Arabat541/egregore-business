@@ -110,14 +110,18 @@
                     <div class="row g-2 align-items-end">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold"><i class="bi bi-plus-circle me-1"></i>Ajouter un article</label>
-                            <select id="productSelect" class="form-select">
-                                <option value="">-- Rechercher un produit --</option>
+                            <input type="text" id="productSearch" class="form-control form-control-sm mb-1"
+                                   placeholder="Rechercher par nom, SKU…" autocomplete="off"
+                                   oninput="filterProductSelect(this.value)">
+                            <select id="productSelect" class="form-select" size="1">
+                                <option value="">-- Sélectionner --</option>
                                 @foreach($products as $p)
                                     <option value="{{ $p->id }}"
                                             data-name="{{ $p->name }}"
-                                            data-sku="{{ $p->sku }}"
+                                            data-sku="{{ $p->sku ?? '' }}"
                                             data-price="{{ (int) $p->normal_price }}"
-                                            data-stock="{{ $p->quantity_in_stock }}">
+                                            data-stock="{{ $p->quantity_in_stock }}"
+                                            data-search="{{ strtolower($p->name . ' ' . $p->sku) }}">
                                         {{ $p->name }}
                                         @if($p->sku) ({{ $p->sku }}) @endif
                                         — {{ number_format($p->normal_price, 0, ',', ' ') }} FCFA
@@ -326,11 +330,24 @@ document.getElementById('addItemBtn').addEventListener('click', function() {
     recalculate();
 });
 
+// Filtrer la liste de produits selon la saisie
+function filterProductSelect(query) {
+    const q = query.toLowerCase().trim();
+    const select = document.getElementById('productSelect');
+    Array.from(select.options).forEach(opt => {
+        if (!opt.value) return; // garder l'option vide
+        opt.hidden = q.length > 0 && !opt.dataset.search.includes(q);
+    });
+    // Réinitialiser la sélection si le produit sélectionné est masqué
+    if (select.selectedOptions[0]?.hidden) select.value = '';
+}
+
 // Pré-remplir le prix quand on sélectionne un produit
 document.getElementById('productSelect').addEventListener('change', function() {
     const option = this.options[this.selectedIndex];
     if (option.value) {
         document.getElementById('newPrice').value = option.dataset.price;
+        document.getElementById('productSearch').value = option.dataset.name;
     }
 });
 

@@ -298,16 +298,16 @@ class SaleController extends Controller
 
         $productIds = array_column($request->items, 'product_id');
         $products   = Product::whereIn('id', $productIds)->get()->keyBy('id');
-        $clientType = $sale->client_type === 'reseller' ? 'reseller' : 'customer';
 
         foreach ($request->items as $item) {
             $product = $products->get($item['product_id']);
             if (!$product) {
                 return back()->with('error', 'Produit introuvable.');
             }
-            $correctPrice = $this->saleService->calculateCorrectPrice($product, (int) $item['quantity'], $clientType);
-            if ((float) $item['unit_price'] !== (float) $correctPrice) {
-                return back()->with('error', "⚠️ SÉCURITÉ : le prix de {$product->name} ne peut pas être modifié. Prix attendu : {$correctPrice} FCFA.");
+            // Vérifier uniquement que le prix est supérieur au prix minimum autorisé
+            $minPrice = max(0, (float) ($product->minimum_price ?? $product->purchase_price ?? 0));
+            if ((float) $item['unit_price'] < $minPrice) {
+                return back()->with('error', "Le prix de « {$product->name} » ({$item['unit_price']} FCFA) est inférieur au prix minimum autorisé ({$minPrice} FCFA).");
             }
         }
 
