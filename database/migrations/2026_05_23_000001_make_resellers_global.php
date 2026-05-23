@@ -45,10 +45,14 @@ return new class extends Migration
                 ')
                 ->first();
 
+            $primary = DB::table('resellers')->where('id', $primaryId)
+                ->select('current_debt', 'total_purchases_year', 'loyalty_points')
+                ->first();
+
             DB::table('resellers')->where('id', $primaryId)->update([
-                'current_debt'         => DB::raw("current_debt + {$agg->debt}"),
-                'total_purchases_year' => DB::raw("total_purchases_year + {$agg->purchases}"),
-                'loyalty_points'       => DB::raw("loyalty_points + {$agg->points}"),
+                'current_debt'         => (float) $primary->current_debt + (float) $agg->debt,
+                'total_purchases_year' => (float) $primary->total_purchases_year + (float) $agg->purchases,
+                'loyalty_points'       => (int) $primary->loyalty_points + (int) $agg->points,
             ]);
 
             // Re-pointer les clés étrangères vers le primaire
@@ -84,6 +88,8 @@ return new class extends Migration
 
     public function down(): void
     {
+        // Rollback partiel : la colonne shop_id est recréée nullable mais les données
+        // d'appartenance boutique sont perdues (doublons fusionnés dans up() sont irrecouvrables).
         Schema::table('resellers', function (Blueprint $table) {
             $table->dropUnique(['phone']);
             $table->foreignId('shop_id')->nullable()->after('id')->constrained('shops')->nullOnDelete();

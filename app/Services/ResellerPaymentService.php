@@ -97,7 +97,7 @@ final class ResellerPaymentService
 
             $reseller->reduceDebt($totalPayment);
             ResellerPayment::distributePaymentToSales($reseller, $totalPayment, $shopId);
-            $payment->update(['debt_after' => $reseller->fresh()->current_debt]);
+            $payment->update(['debt_after' => $reseller->getShopDebt($shopId)]);
 
             if ($cashAmount > 0) {
                 $description = "Paiement créance {$reseller->company_name}";
@@ -160,7 +160,7 @@ final class ResellerPaymentService
                 'return_amount'     => 0,
                 'has_product_return'=> false,
                 'debt_before'       => $debtBefore,
-                'debt_after'        => $reseller->fresh()->current_debt,
+                'debt_after'        => $shopId ? $reseller->getShopDebt($shopId) : $reseller->fresh()->current_debt,
                 'payment_method'    => $paymentMethod->type,
                 'notes'             => 'Paiement partiel facture ' . $sale->invoice_number,
             ]);

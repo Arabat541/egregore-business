@@ -67,9 +67,12 @@ final class ResellerLoyaltyService
             ->where('status', 'paid')
             ->exists();
 
-        return compact('totalPurchases', 'totalPaid', 'tier', 'rate', 'bonus', 'isPaid') + [
+        return [
             'total_purchases' => $totalPurchases,
             'total_paid'      => $totalPaid,
+            'tier'            => $tier,
+            'rate'            => $rate,
+            'bonus'           => $bonus,
             'is_paid'         => $isPaid,
         ];
     }
