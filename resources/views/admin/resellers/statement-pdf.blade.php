@@ -186,14 +186,14 @@
             background-color: #6c757d;
             color: white;
         }
-        .products-list {
-            font-size: 7px;
-            color: #666;
-            margin-top: 2px;
-            padding-left: 8px;
+        table tr.product-row {
+            background-color: #fffde7;
         }
-        .products-list li {
-            margin-bottom: 1px;
+        table tr.product-row td {
+            font-size: 7px;
+            color: #555;
+            padding: 2px 3px;
+            border-bottom: none;
         }
         .footer {
             margin-top: 20px;
@@ -297,28 +297,29 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 11%;">Date</th>
-                <th style="width: 9%;">Type</th>
-                <th style="width: 11%;">Référence</th>
-                <th style="width: 27%;">Description</th>
-                @if(!isset($shopId) || !$shopId)<th style="width: 11%;">Boutique</th>@endif
-                <th style="width: 11%;" class="text-end">Débit</th>
-                <th style="width: 11%;" class="text-end">Crédit</th>
-                <th style="width: 9%;" class="text-end">Créance</th>
+                <th style="width:10%;">Date</th>
+                <th style="width:9%;">Type</th>
+                <th style="width:28%;">Référence / Produit</th>
+                @if(!isset($shopId) || !$shopId)<th style="width:10%;">Boutique</th>@endif
+                <th style="width:6%;" class="text-end">Qté</th>
+                <th style="width:12%;" class="text-end">Prix unit.</th>
+                <th style="width:11%;" class="text-end">Débit</th>
+                <th style="width:11%;" class="text-end">Crédit</th>
+                <th style="width:11%;" class="text-end">Créance</th>
             </tr>
         </thead>
         <tbody>
             @php $runningBalance = $openingBalance; @endphp
-            
+
             <!-- Créance d'ouverture -->
             <tr class="opening">
                 <td>{{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }}</td>
                 <td><span class="badge badge-secondary">Ouverture</span></td>
-                <td>-</td>
                 <td>Créance d'ouverture</td>
-                @if(!isset($shopId) || !$shopId)<td>-</td>@endif
-                <td class="text-end">-</td>
-                <td class="text-end">-</td>
+                @if(!isset($shopId) || !$shopId)<td></td>@endif
+                <td></td><td></td>
+                <td class="text-end">—</td>
+                <td class="text-end">—</td>
                 <td class="text-end">{{ number_format($openingBalance, 0, ',', ' ') }} F</td>
             </tr>
 
@@ -329,49 +330,66 @@
                     } else {
                         $runningBalance -= $movement['credit'];
                     }
+                    $isSale      = $movement['type'] === 'sale';
+                    $hasProducts = $isSale && !empty($movement['products']);
                 @endphp
-                <tr class="{{ $movement['type'] }}">
+
+                {{-- Ligne principale --}}
+                <tr class="{{ $movement['type'] }}" style="font-weight:bold;">
                     <td>{{ \Carbon\Carbon::parse($movement['date'])->format('d/m/Y') }}</td>
                     <td>
-                        @if($movement['type'] === 'sale')
+                        @if($isSale)
                             <span class="badge badge-warning">Achat</span>
                         @else
                             <span class="badge badge-success">Paiement</span>
                         @endif
                     </td>
-                    <td>{{ $movement['reference'] }}</td>
                     <td>
-                        {{ $movement['description'] }}
-                        @if(isset($movement['products']) && count($movement['products']) > 0)
-                            <ul class="products-list">
-                                @foreach($movement['products'] as $product)
-                                    <li>{{ $product['name'] }} x{{ $product['quantity'] }} = {{ number_format($product['total'], 0, ',', ' ') }} F</li>
-                                @endforeach
-                            </ul>
-                        @endif
+                        {{ $movement['reference'] }}
+                        <span style="font-weight:normal; color:#666;"> — {{ $movement['description'] }}</span>
                     </td>
                     @if(!isset($shopId) || !$shopId)
-                    <td>{{ $movement['shop'] ?? '—' }}</td>
+                    <td style="font-weight:normal;">{{ $movement['shop'] ?? '—' }}</td>
                     @endif
+                    <td></td>
+                    <td></td>
                     <td class="text-end">
-                        @if($movement['debit'] > 0)
-                            {{ number_format($movement['debit'], 0, ',', ' ') }} F
-                        @else
-                            -
+                        @if($movement['debit'] > 0){{ number_format($movement['debit'], 0, ',', ' ') }} F
+                        @else —
                         @endif
                     </td>
                     <td class="text-end">
-                        @if($movement['credit'] > 0)
-                            {{ number_format($movement['credit'], 0, ',', ' ') }} F
-                        @else
-                            -
+                        @if($movement['credit'] > 0){{ number_format($movement['credit'], 0, ',', ' ') }} F
+                        @else —
                         @endif
                     </td>
                     <td class="text-end">{{ number_format($runningBalance, 0, ',', ' ') }} F</td>
                 </tr>
+
+                {{-- Sous-lignes produits --}}
+                @if($hasProducts)
+                    @foreach($movement['products'] as $product)
+                    <tr class="product-row">
+                        <td></td>
+                        <td></td>
+                        <td style="padding-left:12px;">
+                            └ {{ $product['name'] }}
+                            @if(isset($product['discount']) && $product['discount'] > 0)
+                                <span style="color:#c47a00;"> (-{{ number_format($product['discount'], 0, ',', ' ') }} F)</span>
+                            @endif
+                        </td>
+                        @if(!isset($shopId) || !$shopId)<td></td>@endif
+                        <td class="text-end">{{ $product['quantity'] }}</td>
+                        <td class="text-end">{{ number_format($product['unit_price'], 0, ',', ' ') }} F</td>
+                        <td class="text-end">{{ number_format($product['total'], 0, ',', ' ') }} F</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    @endforeach
+                @endif
             @empty
                 <tr>
-                    <td colspan="{{ (!isset($shopId) || !$shopId) ? 8 : 7 }}" style="text-align: center; padding: 20px;">
+                    <td colspan="{{ (!isset($shopId) || !$shopId) ? 9 : 8 }}" style="text-align:center; padding:20px;">
                         Aucun mouvement sur cette période
                     </td>
                 </tr>
@@ -381,9 +399,9 @@
             <tr class="closing">
                 <td>{{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</td>
                 <td>Clôture</td>
-                <td>-</td>
                 <td>Créance de clôture</td>
-                @if(!isset($shopId) || !$shopId)<td>-</td>@endif
+                @if(!isset($shopId) || !$shopId)<td></td>@endif
+                <td></td><td></td>
                 <td class="text-end">{{ number_format($summary['total_purchases'], 0, ',', ' ') }} F</td>
                 <td class="text-end">{{ number_format($summary['total_payments'], 0, ',', ' ') }} F</td>
                 <td class="text-end">{{ number_format($runningBalance, 0, ',', ' ') }} F</td>

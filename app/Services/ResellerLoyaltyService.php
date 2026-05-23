@@ -148,9 +148,11 @@ final class ResellerLoyaltyService
 
         foreach ($sales as $sale) {
             $products  = $sale->items->map(fn($item) => [
-                'name'     => $item->product->name ?? 'Produit supprimé',
-                'quantity' => $item->quantity,
-                'total'    => $item->total_price,
+                'name'       => $item->product->name ?? 'Produit supprimé',
+                'quantity'   => (int) $item->quantity,
+                'unit_price' => (float) $item->unit_price,
+                'discount'   => (float) ($item->discount ?? 0),
+                'total'      => (float) $item->total_price,
             ])->toArray();
 
             $shopLabel = $sale->shop?->name ?? '—';
@@ -158,9 +160,9 @@ final class ResellerLoyaltyService
             $movements->push([
                 'date'        => $sale->created_at,
                 'type'        => 'sale',
-                'reference'   => $sale->reference ?? 'VTE-' . $sale->id,
+                'reference'   => $sale->invoice_number ?? ('VTE-' . $sale->id),
                 'sale_id'     => $sale->id,
-                'description' => 'Vente - ' . count($sale->items) . ' article(s)',
+                'description' => count($sale->items) . ' article(s)',
                 'products'    => $products,
                 'shop'        => $shopLabel,
                 'debit'       => (float) $sale->total_amount,

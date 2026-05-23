@@ -147,34 +147,36 @@
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
+                <table class="table table-bordered mb-0" style="font-size: 0.88rem;">
+                    <thead class="table-dark">
                         <tr>
-                            <th>Date</th>
-                            <th>Type</th>
-                            <th>Référence</th>
-                            <th>Description</th>
+                            <th style="width:110px">Date</th>
+                            <th style="width:90px">Type</th>
+                            <th>Référence / Produit</th>
                             @if($shops->isNotEmpty())
-                            <th>Boutique</th>
+                            <th style="width:110px">Boutique</th>
                             @endif
-                            <th class="text-end">Débit (Achats)</th>
-                            <th class="text-end">Crédit (Paiements)</th>
-                            <th class="text-end">Créance</th>
+                            <th class="text-center" style="width:60px">Qté</th>
+                            <th class="text-end" style="width:120px">Prix unit.</th>
+                            <th class="text-end" style="width:110px">Débit (Achat)</th>
+                            <th class="text-end" style="width:110px">Crédit (Paiement)</th>
+                            <th class="text-end" style="width:120px">Créance</th>
                         </tr>
                     </thead>
                     <tbody>
                         @php $runningBalance = $openingBalance; @endphp
-                        
+
                         <!-- Créance d'ouverture -->
-                        <tr class="table-secondary">
+                        <tr class="table-secondary fw-semibold">
                             <td>{{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }}</td>
                             <td><span class="badge bg-secondary">Ouverture</span></td>
-                            <td>-</td>
                             <td>Créance d'ouverture</td>
-                            @if($shops->isNotEmpty())<td>-</td>@endif
-                            <td class="text-end">-</td>
-                            <td class="text-end">-</td>
-                            <td class="text-end fw-bold">{{ number_format($openingBalance, 0, ',', ' ') }} F</td>
+                            @if($shops->isNotEmpty())<td>—</td>@endif
+                            <td></td>
+                            <td></td>
+                            <td class="text-end">—</td>
+                            <td class="text-end">—</td>
+                            <td class="text-end">{{ number_format($openingBalance, 0, ',', ' ') }} F</td>
                         </tr>
 
                         @forelse($movements as $movement)
@@ -184,63 +186,81 @@
                                 } else {
                                     $runningBalance -= $movement['credit'];
                                 }
+                                $isSale     = $movement['type'] === 'sale';
+                                $hasProducts = $isSale && !empty($movement['products']);
                             @endphp
-                            <tr>
-                                <td>{{ \Carbon\Carbon::parse($movement['date'])->format('d/m/Y H:i') }}</td>
+
+                            {{-- Ligne principale du mouvement --}}
+                            <tr class="{{ $isSale ? 'table-warning' : 'table-success bg-opacity-10' }} fw-semibold">
+                                <td>{{ \Carbon\Carbon::parse($movement['date'])->format('d/m/Y') }}</td>
                                 <td>
-                                    @if($movement['type'] === 'sale')
+                                    @if($isSale)
                                         <span class="badge bg-warning text-dark">Achat</span>
                                     @else
                                         <span class="badge bg-success">Paiement</span>
                                     @endif
                                 </td>
                                 <td>
-                                    @if($movement['type'] === 'sale' && isset($movement['sale_id']))
-                                        <a href="{{ route('cashier.sales.show', $movement['sale_id']) }}" target="_blank">
-                                            #{{ $movement['reference'] }}
+                                    @if($isSale && isset($movement['sale_id']))
+                                        <a href="{{ route('cashier.sales.show', $movement['sale_id']) }}" target="_blank" class="fw-bold">
+                                            {{ $movement['reference'] }}
                                         </a>
                                     @else
                                         {{ $movement['reference'] }}
                                     @endif
-                                </td>
-                                <td>
-                                    {{ $movement['description'] }}
-                                    @if(isset($movement['products']) && count($movement['products']) > 0)
-                                        <button class="btn btn-sm btn-link p-0 ms-2" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#products-{{ $loop->index }}">
-                                            <i class="bi bi-eye"></i> Détails
-                                        </button>
-                                        <div class="collapse mt-2" id="products-{{ $loop->index }}">
-                                            <ul class="list-unstyled small text-muted mb-0">
-                                                @foreach($movement['products'] as $product)
-                                                    <li>• {{ $product['name'] }} x{{ $product['quantity'] }} = {{ number_format($product['total'], 0, ',', ' ') }} F</li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
+                                    <span class="text-muted fw-normal ms-2">{{ $movement['description'] }}</span>
+                                    @if($isSale && isset($movement['shop']))
+                                        <small class="text-muted d-block">{{ $movement['shop'] }}</small>
                                     @endif
                                 </td>
                                 @if($shops->isNotEmpty())
                                 <td class="text-muted small">{{ $movement['shop'] ?? '—' }}</td>
                                 @endif
+                                <td></td>
+                                <td></td>
                                 <td class="text-end text-danger">
                                     @if($movement['debit'] > 0)
                                         {{ number_format($movement['debit'], 0, ',', ' ') }} F
-                                    @else
-                                        -
+                                    @else —
                                     @endif
                                 </td>
                                 <td class="text-end text-success">
                                     @if($movement['credit'] > 0)
                                         {{ number_format($movement['credit'], 0, ',', ' ') }} F
-                                    @else
-                                        -
+                                    @else —
                                     @endif
                                 </td>
-                                <td class="text-end fw-bold">{{ number_format($runningBalance, 0, ',', ' ') }} F</td>
+                                <td class="text-end">{{ number_format($runningBalance, 0, ',', ' ') }} F</td>
                             </tr>
+
+                            {{-- Sous-lignes produits pour les ventes --}}
+                            @if($hasProducts)
+                                @foreach($movement['products'] as $product)
+                                <tr style="background:#fffde7; font-size:0.83rem;">
+                                    <td class="text-muted ps-3">
+                                        {{ \Carbon\Carbon::parse($movement['date'])->format('d/m/Y') }}
+                                    </td>
+                                    <td class="text-muted ps-3">
+                                        <i class="bi bi-box-seam text-muted"></i>
+                                    </td>
+                                    <td class="ps-4">
+                                        └ {{ $product['name'] }}
+                                        @if(isset($product['discount']) && $product['discount'] > 0)
+                                            <small class="text-warning ms-1">(-{{ number_format($product['discount'], 0, ',', ' ') }} F remise)</small>
+                                        @endif
+                                    </td>
+                                    @if($shops->isNotEmpty())<td></td>@endif
+                                    <td class="text-center text-muted">{{ $product['quantity'] }}</td>
+                                    <td class="text-end text-muted">{{ number_format($product['unit_price'], 0, ',', ' ') }} F</td>
+                                    <td class="text-end text-muted">{{ number_format($product['total'], 0, ',', ' ') }} F</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                @endforeach
+                            @endif
                         @empty
                             <tr>
-                                <td colspan="{{ $shops->isNotEmpty() ? 8 : 7 }}" class="text-center py-4 text-muted">
+                                <td colspan="{{ $shops->isNotEmpty() ? 9 : 8 }}" class="text-center py-4 text-muted">
                                     <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                                     Aucun mouvement sur cette période
                                 </td>
@@ -248,15 +268,16 @@
                         @endforelse
 
                         <!-- Créance de clôture -->
-                        <tr class="table-dark">
+                        <tr class="table-dark fw-bold">
                             <td>{{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</td>
                             <td><span class="badge bg-dark">Clôture</span></td>
-                            <td>-</td>
                             <td>Créance de clôture</td>
-                            @if($shops->isNotEmpty())<td>-</td>@endif
-                            <td class="text-end fw-bold">{{ number_format($summary['total_purchases'], 0, ',', ' ') }} F</td>
-                            <td class="text-end fw-bold">{{ number_format($summary['total_payments'], 0, ',', ' ') }} F</td>
-                            <td class="text-end fw-bold">{{ number_format($runningBalance, 0, ',', ' ') }} F</td>
+                            @if($shops->isNotEmpty())<td></td>@endif
+                            <td></td>
+                            <td></td>
+                            <td class="text-end">{{ number_format($summary['total_purchases'], 0, ',', ' ') }} F</td>
+                            <td class="text-end">{{ number_format($summary['total_payments'], 0, ',', ' ') }} F</td>
+                            <td class="text-end">{{ number_format($runningBalance, 0, ',', ' ') }} F</td>
                         </tr>
                     </tbody>
                 </table>
