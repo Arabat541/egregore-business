@@ -12,6 +12,8 @@ use App\Models\Product;
 use App\Models\Shop;
 use App\Observers\ProductObserver;
 use App\Observers\ShopObserver;
+use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Repositories\Eloquent\EloquentProductRepository;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -23,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(ProductRepositoryInterface::class, EloquentProductRepository::class);
     }
 
     /**
