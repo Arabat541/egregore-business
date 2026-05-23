@@ -57,6 +57,7 @@ final class ResellerPaymentService
             $payment = ResellerPayment::create([
                 'reseller_id'       => $reseller->id,
                 'user_id'           => $userId,
+                'shop_id'           => $shopId,
                 'sale_id'           => $validated['sale_id'] ?? null,
                 'amount'            => $totalPayment,
                 'cash_amount'       => $cashAmount,
@@ -95,7 +96,7 @@ final class ResellerPaymentService
             }
 
             $reseller->reduceDebt($totalPayment);
-            ResellerPayment::distributePaymentToSales($reseller, $totalPayment);
+            ResellerPayment::distributePaymentToSales($reseller, $totalPayment, $shopId);
             $payment->update(['debt_after' => $reseller->fresh()->current_debt]);
 
             if ($cashAmount > 0) {
@@ -129,9 +130,10 @@ final class ResellerPaymentService
         PaymentMethod $paymentMethod,
         CashRegister $cashRegister,
         int $userId,
+        ?int $shopId = null,
     ): ResellerPayment {
         return DB::transaction(function () use (
-            $reseller, $sale, $cashAmount, $paymentMethod, $cashRegister, $userId
+            $reseller, $sale, $cashAmount, $paymentMethod, $cashRegister, $userId, $shopId
         ): ResellerPayment {
             $debtBefore    = (float) $reseller->current_debt;
             $newAmountPaid = (float) $sale->amount_paid + $cashAmount;
@@ -151,6 +153,7 @@ final class ResellerPaymentService
             $payment = ResellerPayment::create([
                 'reseller_id'       => $reseller->id,
                 'user_id'           => $userId,
+                'shop_id'           => $shopId,
                 'sale_id'           => $sale->id,
                 'amount'            => $cashAmount,
                 'cash_amount'       => $cashAmount,

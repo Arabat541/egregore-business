@@ -28,18 +28,6 @@
                 <input type="text" class="form-control" name="search" 
                        placeholder="Rechercher..." value="{{ request('search') }}">
             </div>
-            @if(auth()->user()->hasRole('admin') && $shops->count() > 0)
-            <div class="col-md-3">
-                <select class="form-select" name="shop_id">
-                    <option value="">Toutes les boutiques</option>
-                    @foreach($shops as $shop)
-                        <option value="{{ $shop->id }}" {{ request('shop_id') == $shop->id ? 'selected' : '' }}>
-                            {{ $shop->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            @endif
             <div class="col-md-2">
                 <select class="form-select" name="status">
                     <option value="">Tous les statuts</option>
@@ -71,9 +59,6 @@
                         <th>Entreprise</th>
                         <th>Contact</th>
                         <th>Téléphone</th>
-                        @if(auth()->user()->hasRole('admin'))
-                        <th>Boutique</th>
-                        @endif
                         <th>Limite crédit</th>
                         <th>Dette actuelle</th>
                         <th>Statut</th>
@@ -94,15 +79,6 @@
                         </td>
                         <td>{{ $reseller->contact_name }}</td>
                         <td>{{ $reseller->phone }}</td>
-                        @if(auth()->user()->hasRole('admin'))
-                        <td>
-                            @if($reseller->shop)
-                                <span class="badge bg-info">{{ $reseller->shop->code }}</span>
-                            @else
-                                <span class="text-muted">-</span>
-                            @endif
-                        </td>
-                        @endif
                         <td>{{ number_format($reseller->credit_limit, 0, ',', ' ') }} FCFA</td>
                         <td>
                             @if($reseller->current_debt > 0)
@@ -139,7 +115,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="{{ auth()->user()->hasRole('admin') ? 8 : 7 }}" class="text-center text-muted">Aucun réparateur</td>
+                        <td colspan="7" class="text-center text-muted">Aucun réparateur</td>
                     </tr>
                     @endforelse
                 </tbody>
