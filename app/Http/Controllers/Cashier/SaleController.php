@@ -137,8 +137,13 @@ class SaleController extends Controller
 
         $subtotal       = collect($validated['items'])->sum(fn($i) => ($i['unit_price'] * $i['quantity']) - ($i['discount'] ?? 0));
         $discountAmount = (float) ($validated['discount_amount'] ?? 0);
-        $total          = $subtotal - $discountAmount;
-        $amountDue      = $total - $validated['paid_amount'];
+
+        if ($discountAmount >= $subtotal) {
+            return back()->with('error', 'La remise globale ne peut pas être supérieure ou égale au montant total des articles.');
+        }
+
+        $total     = $subtotal - $discountAmount;
+        $amountDue = $total - $validated['paid_amount'];
 
         $reseller = null;
         if ($validated['client_type'] === 'reseller') {

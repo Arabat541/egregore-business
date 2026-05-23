@@ -192,6 +192,8 @@ productSearch.addEventListener('input', function () {
     renderProducts(this.value);
 });
 
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
 /* ── Rendu du tableau produits ──────────────────────────── */
 function renderProducts(filter) {
     const search   = (filter || '').toLowerCase().trim();
@@ -212,10 +214,10 @@ function renderProducts(filter) {
         const stockCls = p.quantity > 5 ? 'bg-success' : p.quantity > 0 ? 'bg-warning text-dark' : 'bg-danger';
         return `<tr class="${inSel ? 'table-success' : ''}">
             <td>
-                <div class="fw-semibold">${p.name}</div>
-                ${p.sku ? `<small class="text-muted">[${p.sku}]</small>` : ''}
+                <div class="fw-semibold">${esc(p.name)}</div>
+                ${p.sku ? `<small class="text-muted">[${esc(p.sku)}]</small>` : ''}
             </td>
-            <td><span class="badge bg-secondary">${p.category || '—'}</span></td>
+            <td><span class="badge bg-secondary">${esc(p.category || '—')}</span></td>
             <td class="text-center"><span class="badge ${stockCls}">${p.quantity}</span></td>
             <td class="text-center">
                 <input type="number" id="qty-${p.id}"
@@ -293,8 +295,8 @@ function renderSummary() {
     tbody.innerHTML = items.map(item => `
         <tr>
             <td class="small">
-                <div class="fw-semibold">${item.name}</div>
-                <small class="text-muted">${item.category || ''}</small>
+                <div class="fw-semibold">${esc(item.name)}</div>
+                <small class="text-muted">${esc(item.category || '')}</small>
             </td>
             <td class="text-center">
                 <input type="number" class="form-control form-control-sm text-center"
