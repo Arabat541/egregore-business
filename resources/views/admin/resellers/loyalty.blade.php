@@ -130,7 +130,6 @@
                     <thead class="table-light">
                         <tr>
                             <th>Réparateur</th>
-                            <th>Boutique</th>
                             <th class="text-end">CA Annuel</th>
                             <th class="text-end">CA Payé</th>
                             <th class="text-center">Niveau</th>
@@ -174,7 +173,6 @@
                                     </a>
                                     <br><small class="text-muted">{{ $reseller->contact_name }}</small>
                                 </td>
-                                <td>{{ $reseller->shop->name ?? '-' }}</td>
                                 <td class="text-end">{{ number_format($data['total_purchases'], 0, ',', ' ') }} F</td>
                                 <td class="text-end">{{ number_format($data['total_paid'], 0, ',', ' ') }} F</td>
                                 <td class="text-center">

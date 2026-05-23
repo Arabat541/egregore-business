@@ -20,7 +20,7 @@ body { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; color: #222; line
 
 /* KPI bar */
 .kpi-bar { display: table; width: 100%; margin-bottom: 12px; border-collapse: separate; border-spacing: 4px 0; }
-.kpi { display: table-cell; width: 25%; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 6px 8px; text-align: center; }
+.kpi { display: table-cell; width: 20%; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 6px 8px; text-align: center; }
 .kpi-value { font-size: 13px; font-weight: bold; color: #212529; }
 .kpi-label { font-size: 7.5px; color: #6c757d; margin-top: 1px; }
 .kpi-blue .kpi-value { color: #0d6efd; }
@@ -89,6 +89,10 @@ tfoot td.num { text-align: right; }
     <div class="kpi kpi-red">
         <div class="kpi-value">{{ number_format($totalCredit, 0, ',', ' ') }} F</div>
         <div class="kpi-label">Créances</div>
+    </div>
+    <div class="kpi" style="background:#fff8e1;border-color:#ffe082;">
+        <div class="kpi-value" style="color:#e65100;">{{ number_format($totalDiscount, 0, ',', ' ') }} F</div>
+        <div class="kpi-label">Remises accordées</div>
     </div>
 </div>
 

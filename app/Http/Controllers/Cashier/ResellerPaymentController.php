@@ -29,18 +29,38 @@ class ResellerPaymentController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Reseller::where('current_debt', '>', 0);
+        $shopId = auth()->user()->shop_id;
+
+        // Resellers avec des ventes à crédit non soldées dans cette boutique
+        $query = Reseller::withSum(
+            ['sales as shop_debt' => fn($q) => $q->withoutGlobalScope('shop')
+                ->where('shop_id', $shopId)
+                ->where('amount_due', '>', 0)
+            ], 'amount_due'
+        )
+        ->whereHas('sales', fn($q) => $q->withoutGlobalScope('shop')
+            ->where('shop_id', $shopId)
+            ->where('amount_due', '>', 0)
+        );
 
         if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
+            $query->where(function ($q) use ($request) {
                 $q->where('company_name', 'like', "%{$request->search}%")
                   ->orWhere('contact_name', 'like', "%{$request->search}%");
             });
         }
 
-        $resellersWithDebt = $query->orderByDesc('current_debt')->paginate(20);
-        $totalDebt = Reseller::sum('current_debt');
-        $todayPayments = ResellerPayment::whereDate('created_at', today())->sum('amount');
+        $resellersWithDebt = $query->orderByDesc('shop_debt')->paginate(20);
+
+        $totalDebt = Sale::withoutGlobalScope('shop')
+            ->where('shop_id', $shopId)
+            ->where('amount_due', '>', 0)
+            ->sum('amount_due');
+
+        $todayPayments = ResellerPayment::where('shop_id', $shopId)
+            ->whereDate('created_at', today())
+            ->sum('amount');
+
         $paymentMethods = PaymentMethod::where('is_active', true)->orderBy('sort_order')->get();
 
         return view('cashier.reseller-payments.index', compact('resellersWithDebt', 'totalDebt', 'todayPayments', 'paymentMethods'));
@@ -51,14 +71,24 @@ class ResellerPaymentController extends Controller
      */
     public function show(Reseller $reseller)
     {
+        $shopId = auth()->user()->shop_id;
+
+        // Sale global scope filtre déjà par shop pour les caissières.
+        // On charge explicitement en précisant le scope pour clarté.
         $reseller->load([
-            'sales' => fn($q) => $q->onCredit()->latest(),
-            'payments' => fn($q) => $q->with('user')->latest(),
+            'sales'    => fn($q) => $q->withoutGlobalScope('shop')
+                ->where('shop_id', $shopId)
+                ->onCredit()
+                ->latest(),
+            'payments' => fn($q) => $q->where('shop_id', $shopId)
+                ->with('user')
+                ->latest(),
         ]);
 
+        $shopDebt = $reseller->getShopDebt($shopId);
         $paymentMethods = PaymentMethod::where('is_active', true)->orderBy('sort_order')->get();
 
-        return view('cashier.reseller-payments.show', compact('reseller', 'paymentMethods'));
+        return view('cashier.reseller-payments.show', compact('reseller', 'shopDebt', 'paymentMethods'));
     }
 
     /**
@@ -66,15 +96,22 @@ class ResellerPaymentController extends Controller
      */
     public function createPayment(Request $request, Reseller $reseller)
     {
-        if ($reseller->current_debt <= 0) {
-            return back()->with('info', 'Ce revendeur n\'a pas de dette.');
+        $shopId   = auth()->user()->shop_id;
+        $shopDebt = $reseller->getShopDebt($shopId);
+
+        if ($shopDebt <= 0) {
+            return back()->with('info', 'Ce revendeur n\'a pas de dette dans votre boutique.');
         }
 
-        $dateFrom = $request->get('date_from');
-        $dateTo = $request->get('date_to');
+        $dateFrom       = $request->get('date_from');
+        $dateTo         = $request->get('date_to');
         $selectedSaleId = $request->get('sale_id');
 
-        $salesQuery = $reseller->sales()->where('amount_due', '>', 0)->with('items.product');
+        $salesQuery = Sale::withoutGlobalScope('shop')
+            ->where('reseller_id', $reseller->id)
+            ->where('shop_id', $shopId)
+            ->where('amount_due', '>', 0)
+            ->with('items.product');
 
         if ($dateFrom) {
             $salesQuery->whereDate('created_at', '>=', $dateFrom);
@@ -87,12 +124,19 @@ class ResellerPaymentController extends Controller
 
         $selectedSale = null;
         if ($selectedSaleId) {
-            $selectedSale = $reseller->sales()->where('id', $selectedSaleId)->with('items.product')->first();
+            $selectedSale = Sale::withoutGlobalScope('shop')
+                ->where('id', $selectedSaleId)
+                ->where('reseller_id', $reseller->id)
+                ->where('shop_id', $shopId)
+                ->with('items.product')
+                ->first();
         }
 
         $paymentMethods = PaymentMethod::where('is_active', true)->orderBy('sort_order')->get();
 
-        return view('cashier.reseller-payments.create', compact('reseller', 'paymentMethods', 'filteredSales', 'dateFrom', 'dateTo', 'selectedSale'));
+        return view('cashier.reseller-payments.create', compact(
+            'reseller', 'shopDebt', 'paymentMethods', 'filteredSales', 'dateFrom', 'dateTo', 'selectedSale'
+        ));
     }
 
     /**
@@ -164,13 +208,14 @@ class ResellerPaymentController extends Controller
         }
 
         $totalPayment = $cashAmount + $returnAmount;
+        $shopDebt     = $reseller->getShopDebt(auth()->user()->shop_id);
 
         if ($totalPayment <= 0) {
             return back()->with('error', 'Veuillez entrer un montant ou sélectionner des produits à retourner.');
         }
 
-        if ($totalPayment > (float) $reseller->current_debt) {
-            return back()->with('error', 'Le montant total (' . number_format($totalPayment, 0, ',', ' ') . ' FCFA) dépasse la dette (' . number_format((float) $reseller->current_debt, 0, ',', ' ') . ' FCFA).');
+        if ($totalPayment > $shopDebt) {
+            return back()->with('error', 'Le montant total (' . number_format($totalPayment, 0, ',', ' ') . ' FCFA) dépasse la dette de votre boutique (' . number_format($shopDebt, 0, ',', ' ') . ' FCFA).');
         }
 
         $paymentMethod = null;
@@ -237,7 +282,7 @@ class ResellerPaymentController extends Controller
 
         try {
             $payment = $this->resellerPaymentService->processInvoicePartialPayment(
-                $reseller, $sale, $cashAmount, $paymentMethod, $cashRegister, auth()->id()
+                $reseller, $sale, $cashAmount, $paymentMethod, $cashRegister, auth()->id(), auth()->user()->shop_id
             );
 
             $message  = 'Paiement enregistré pour la facture ' . $sale->invoice_number . '. ';
