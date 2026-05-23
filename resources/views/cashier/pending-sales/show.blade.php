@@ -117,12 +117,12 @@
                     <div class="mb-2">
                         <label class="form-label form-label-sm mb-1">Remise globale (FCFA)</label>
                         <input type="number" name="discount_amount" class="form-control form-control-sm"
-                               id="discountAmount" value="0" min="0" step="100"
+                               id="discountAmount" value="{{ old('discount_amount', 0) }}" min="0" step="100"
                                max="{{ $pendingSale->total_amount }}"
                                oninput="updateCalculations()">
                     </div>
 
-                    <div class="d-flex justify-content-between mb-1 text-success small" id="discountRow" style="display:none!important">
+                    <div class="d-flex justify-content-between mb-1 text-success small" id="discountRow" style="display:none">
                         <span>Remise globale:</span>
                         <span id="discountDisplay">- 0 FCFA</span>
                     </div>

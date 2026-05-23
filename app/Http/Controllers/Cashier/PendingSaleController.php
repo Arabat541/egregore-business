@@ -183,7 +183,7 @@ class PendingSaleController extends Controller
             'amount_given'      => 'required|numeric|min:0',
             'is_credit'         => 'nullable|boolean',
             'notes'             => 'nullable|string',
-            'discount_amount'   => 'nullable|numeric|min:0',
+            'discount_amount'   => ['nullable', 'numeric', 'min:0', 'max:' . $pendingSale->total_amount],
         ]);
 
         $cashRegister = CashRegister::getOpenRegisterForUser(auth()->id());
