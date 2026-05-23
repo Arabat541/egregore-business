@@ -66,12 +66,15 @@ final class SalesReportService
         $totalRevenue += $repairParts;
         $totalPaid    += $repairParts;
 
+        $globalDiscount = (float) (clone $q)->sum('discount_amount');
+        $itemDiscount   = (float) SaleItem::whereIn('sale_id', (clone $q)->select('id'))->sum('discount');
+
         return [
             'totalSales'    => (clone $q)->count(),
             'totalRevenue'  => (float) $totalRevenue,
             'totalPaid'     => (float) $totalPaid,
             'totalCredit'   => (float) (clone $q)->where('payment_status', 'credit')->sum('total_amount'),
-            'totalDiscount' => (float) (clone $q)->sum('discount_amount'),
+            'totalDiscount' => $globalDiscount + $itemDiscount,
         ];
     }
 
@@ -273,7 +276,7 @@ final class SalesReportService
         if ($shopId) $q->where('shop_id', $shopId);
 
         return $q->whereNotNull('customer_id')
-            ->with('customer')
+            ->with(['customer' => fn($cq) => $cq->withoutGlobalScope('shop')])
             ->select('customer_id', DB::raw('COUNT(*) as count'), DB::raw('SUM(total_amount) as total'))
             ->groupBy('customer_id')
             ->orderByDesc('total')
