@@ -188,18 +188,16 @@
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="{{ route('cashier.expenses.show', $expense) }}" 
-                                               class="btn btn-outline-primary" title="Voir">
-                                                <i class="bi bi-eye"></i>
+                                        <a href="{{ route('cashier.expenses.show', $expense) }}"
+                                           class="btn btn-sm btn-info text-white" title="Voir">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        @if($expense->status !== 'approved')
+                                            <a href="{{ route('cashier.expenses.edit', $expense) }}"
+                                               class="btn btn-sm btn-warning" title="Modifier">
+                                                <i class="bi bi-pencil"></i>
                                             </a>
-                                            @if($expense->status !== 'approved')
-                                                <a href="{{ route('cashier.expenses.edit', $expense) }}" 
-                                                   class="btn btn-outline-warning" title="Modifier">
-                                                    <i class="bi bi-pencil"></i>
-                                                </a>
-                                            @endif
-                                        </div>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
