@@ -50,28 +50,51 @@
                 <i class="bi bi-cart"></i> Articles ({{ $pendingSale->items->count() }})
             </div>
             <div class="card-body p-0">
+                @php
+                    $grossSubtotal = $pendingSale->items->sum(fn($i) => $i->unit_price * $i->quantity);
+                    $lineDiscounts = $pendingSale->items->sum('discount');
+                @endphp
                 <table class="table table-striped mb-0">
                     <thead>
                         <tr>
                             <th>Produit</th>
                             <th class="text-center">Qté</th>
                             <th class="text-end">Prix unit.</th>
+                            <th class="text-end">Remise</th>
                             <th class="text-end">Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($pendingSale->items as $item)
                             <tr>
-                                <td>{{ $item->product->name }}</td>
+                                <td>
+                                    {{ $item->product->name }}
+                                    @if($item->product->category)
+                                        <br><span class="badge bg-secondary" style="font-size:.65rem;">{{ $item->product->category->name }}</span>
+                                    @endif
+                                </td>
                                 <td class="text-center">{{ $item->quantity }}</td>
                                 <td class="text-end">{{ number_format($item->unit_price, 0, ',', ' ') }}</td>
+                                <td class="text-end text-success">
+                                    {{ $item->discount > 0 ? '- ' . number_format($item->discount, 0, ',', ' ') : '—' }}
+                                </td>
                                 <td class="text-end"><strong>{{ number_format($item->total_price, 0, ',', ' ') }}</strong></td>
                             </tr>
                         @endforeach
                     </tbody>
-                    <tfoot class="table-dark">
-                        <tr>
-                            <th colspan="3" class="text-end">TOTAL</th>
+                    <tfoot>
+                        @if($lineDiscounts > 0)
+                        <tr class="table-light">
+                            <td colspan="3" class="text-end text-muted">Sous-total brut</td>
+                            <td colspan="2" class="text-end text-muted">{{ number_format($grossSubtotal, 0, ',', ' ') }} FCFA</td>
+                        </tr>
+                        <tr class="table-light">
+                            <td colspan="3" class="text-end text-success">Remises lignes</td>
+                            <td colspan="2" class="text-end text-success">- {{ number_format($lineDiscounts, 0, ',', ' ') }} FCFA</td>
+                        </tr>
+                        @endif
+                        <tr class="table-dark">
+                            <th colspan="4" class="text-end">TOTAL ARTICLES</th>
                             <th class="text-end">{{ number_format($pendingSale->total_amount, 0, ',', ' ') }} FCFA</th>
                         </tr>
                     </tfoot>
@@ -90,9 +113,23 @@
                 <form action="{{ route('cashier.pending-sales.validate', $pendingSale) }}" method="POST">
                     @csrf
 
+                    <!-- Remise globale -->
+                    <div class="mb-2">
+                        <label class="form-label form-label-sm mb-1">Remise globale (FCFA)</label>
+                        <input type="number" name="discount_amount" class="form-control form-control-sm"
+                               id="discountAmount" value="0" min="0" step="100"
+                               max="{{ $pendingSale->total_amount }}"
+                               oninput="updateCalculations()">
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-1 text-success small" id="discountRow" style="display:none!important">
+                        <span>Remise globale:</span>
+                        <span id="discountDisplay">- 0 FCFA</span>
+                    </div>
+
                     <div class="mb-3">
-                        <label class="form-label">Montant total</label>
-                        <div class="form-control bg-light fw-bold fs-4 text-end">
+                        <label class="form-label">Montant à payer</label>
+                        <div class="form-control bg-light fw-bold fs-4 text-end" id="netTotal">
                             {{ number_format($pendingSale->total_amount, 0, ',', ' ') }} FCFA
                         </div>
                     </div>
@@ -110,7 +147,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Montant reçu</label>
-                        <input type="number" name="amount_given" class="form-control form-control-lg" 
+                        <input type="number" name="amount_given" class="form-control form-control-lg"
                                value="0" min="0" step="any" required id="amountGiven"
                                placeholder="Saisir le montant reçu...">
                     </div>
@@ -167,52 +204,67 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const totalAmount = {{ $pendingSale->total_amount }};
-    const amountGivenInput = document.getElementById('amountGiven');
-    const isCreditCheckbox = document.getElementById('isCredit');
-    const amountDueSection = document.getElementById('amountDueSection');
-    const amountDueDisplay = document.getElementById('amountDue');
-    const changeSection = document.getElementById('changeSection');
+    const baseTotal = {{ $pendingSale->total_amount }};
+    const fmt = v => new Intl.NumberFormat('fr-FR').format(Math.round(v)) + ' FCFA';
+
+    const discountAmountInput = document.getElementById('discountAmount');
+    const discountRow         = document.getElementById('discountRow');
+    const discountDisplay     = document.getElementById('discountDisplay');
+    const netTotalDisplay     = document.getElementById('netTotal');
+    const amountGivenInput    = document.getElementById('amountGiven');
+    const isCreditCheckbox    = document.getElementById('isCredit');
+    const amountDueSection    = document.getElementById('amountDueSection');
+    const amountDueDisplay    = document.getElementById('amountDue');
+    const changeSection       = document.getElementById('changeSection');
     const changeAmountDisplay = document.getElementById('changeAmount');
 
-    function updateCalculations() {
+    window.updateCalculations = function() {
+        const discount   = Math.min(parseFloat(discountAmountInput.value) || 0, baseTotal);
+        const netTotal   = Math.max(0, baseTotal - discount);
         const amountGiven = parseFloat(amountGivenInput.value) || 0;
-        const change = amountGiven - totalAmount;
-        const amountDue = Math.max(0, totalAmount - amountGiven);
-        
-        // Afficher la monnaie à rendre si positive
+        const change     = amountGiven - netTotal;
+        const amountDue  = Math.max(0, netTotal - amountGiven);
+
+        // Remise globale
+        if (discount > 0) {
+            discountRow.style.removeProperty('display');
+            discountDisplay.textContent = '- ' + fmt(discount);
+        } else {
+            discountRow.style.display = 'none';
+        }
+        netTotalDisplay.textContent = fmt(netTotal);
+
+        // Monnaie à rendre
         if (change > 0) {
             changeSection.style.display = 'block';
-            changeAmountDisplay.textContent = new Intl.NumberFormat('fr-FR').format(change) + ' FCFA';
+            changeAmountDisplay.textContent = fmt(change);
         } else {
             changeSection.style.display = 'none';
         }
-        
-        // Auto-cocher crédit si montant insuffisant
+
+        // Auto-cocher crédit
         if (amountDue > 0 && amountGiven > 0) {
             isCreditCheckbox.checked = true;
-        } else if (amountGiven >= totalAmount) {
+        } else if (amountGiven >= netTotal) {
             isCreditCheckbox.checked = false;
         }
-        
-        // Afficher le reste à payer si montant insuffisant
+
+        // Reste à payer
         if (amountDue > 0) {
             amountDueSection.style.display = 'block';
-            amountDueDisplay.textContent = new Intl.NumberFormat('fr-FR').format(amountDue) + ' FCFA';
-            if (isCreditCheckbox.checked) {
-                amountDueDisplay.className = 'form-control bg-danger text-white fw-bold fs-5 text-end';
-            } else {
-                amountDueDisplay.className = 'form-control bg-warning fw-bold fs-5 text-end';
-            }
+            amountDueDisplay.textContent = fmt(amountDue);
+            amountDueDisplay.className = isCreditCheckbox.checked
+                ? 'form-control bg-danger text-white fw-bold fs-5 text-end'
+                : 'form-control bg-warning fw-bold fs-5 text-end';
         } else {
             amountDueSection.style.display = 'none';
         }
-    }
+    };
 
+    discountAmountInput.addEventListener('input', updateCalculations);
     amountGivenInput.addEventListener('input', updateCalculations);
     isCreditCheckbox.addEventListener('change', updateCalculations);
-    
-    // Calcul initial
+
     updateCalculations();
 });
 </script>

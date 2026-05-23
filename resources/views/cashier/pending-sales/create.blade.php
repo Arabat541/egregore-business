@@ -133,6 +133,17 @@
                         </div>
                     </div>
 
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Remise (FCFA)</label>
+                            <input type="number" name="discount" class="form-control" id="discountInput" value="0" min="0" step="100">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Total estimé</label>
+                            <div class="form-control bg-light fw-bold text-end" id="lineTotalPreview">—</div>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn btn-success btn-lg w-100">
                         <i class="bi bi-plus-lg"></i> Ajouter à la vente
                     </button>
@@ -177,15 +188,22 @@
                                 @foreach($pendingSale->items as $item)
                                     <tr>
                                         <td>
-                                            <small>{{ $item->product->name }}</small>
-                                            <br><small class="text-muted">{{ number_format($item->unit_price, 0, ',', ' ') }}/u</small>
+                                            <small class="fw-bold">{{ $item->product->name }}</small>
+                                            @if($item->product->category)
+                                                <br><span class="badge bg-secondary" style="font-size:.65rem;">{{ $item->product->category->name }}</span>
+                                            @endif
+                                            <br><small class="text-muted">{{ number_format($item->unit_price, 0, ',', ' ') }}/u
+                                                @if($item->discount > 0)
+                                                    <span class="text-success ms-1">-{{ number_format($item->discount, 0, ',', ' ') }}</span>
+                                                @endif
+                                            </small>
                                         </td>
                                         <td class="text-center">
                                             <form action="{{ route('cashier.pending-sales.update-item', $item) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('PUT')
-                                                <input type="number" name="quantity" value="{{ $item->quantity }}" 
-                                                       class="form-control form-control-sm text-center" 
+                                                <input type="number" name="quantity" value="{{ $item->quantity }}"
+                                                       class="form-control form-control-sm text-center"
                                                        style="width: 60px;" min="1"
                                                        onchange="this.form.submit()">
                                             </form>
@@ -209,8 +227,22 @@
                         </table>
                     </div>
 
-                    <div class="border-top pt-3 mt-3">
-                        <h4 class="text-end">
+                    @php
+                        $lineDiscounts = $pendingSale->items->sum('discount');
+                        $grossSubtotal = $pendingSale->items->sum(fn($i) => $i->unit_price * $i->quantity);
+                    @endphp
+                    <div class="border-top pt-2 mt-2">
+                        @if($lineDiscounts > 0)
+                            <div class="d-flex justify-content-between text-muted small mb-1">
+                                <span>Sous-total:</span>
+                                <span>{{ number_format($grossSubtotal, 0, ',', ' ') }} FCFA</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-success small mb-1">
+                                <span>Remises lignes:</span>
+                                <span>- {{ number_format($lineDiscounts, 0, ',', ' ') }} FCFA</span>
+                            </div>
+                        @endif
+                        <h4 class="text-end mb-0">
                             Total: <strong class="text-success">{{ number_format($pendingSale->total_amount, 0, ',', ' ') }} FCFA</strong>
                         </h4>
                     </div>
@@ -237,6 +269,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const productIdInput = document.getElementById('productId');
     const priceInput = document.getElementById('priceInput');
     const quantityInput = document.getElementById('quantityInput');
+    const discountInput = document.getElementById('discountInput');
+    const lineTotalPreview = document.getElementById('lineTotalPreview');
     const stockInfo = document.getElementById('stockInfo');
     const selectedProductDiv = document.getElementById('selectedProduct');
     const selectedProductName = document.getElementById('selectedProductName');
@@ -264,6 +298,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const price = getResellerPrice(selectedProduct, quantity);
             priceInput.value = price;
         }
+        updateLineTotal();
+    }
+
+    function updateLineTotal() {
+        const price = parseFloat(priceInput.value) || 0;
+        const qty   = parseInt(quantityInput.value) || 1;
+        const disc  = parseFloat(discountInput.value) || 0;
+        const total = Math.max(0, price * qty - disc);
+        lineTotalPreview.textContent = formatNumber(Math.round(total)) + ' FCFA';
     }
 
     // Sélectionner un produit
@@ -373,6 +416,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (quantityInput) {
         quantityInput.addEventListener('change', updatePrice);
         quantityInput.addEventListener('input', updatePrice);
+    }
+    if (discountInput) {
+        discountInput.addEventListener('input', updateLineTotal);
     }
 });
 </script>
