@@ -22,15 +22,17 @@ final class SalesReportService
         string $start,
         string $end,
         ?int $shopId,
-        ?int $customerId = null,
-        ?int $categoryId = null,
-        ?int $productId  = null,
+        ?int $customerId  = null,
+        ?int $categoryId  = null,
+        ?int $productId   = null,
+        ?int $resellerId  = null,
     ): Builder {
         $q = Sale::withoutGlobalScope('shop')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59']);
 
-        if ($shopId)     $q->where('shop_id', $shopId);
+        if ($shopId)    $q->where('shop_id', $shopId);
         if ($customerId) $q->where('customer_id', $customerId);
+        if ($resellerId) $q->where('reseller_id', $resellerId);
         if ($categoryId) $q->whereHas('items.product', fn($sq) => $sq->where('category_id', $categoryId));
         if ($productId)  $q->whereHas('items', fn($sq) => $sq->where('product_id', $productId));
 
@@ -49,8 +51,9 @@ final class SalesReportService
         ?int $customerId = null,
         ?int $categoryId = null,
         ?int $productId  = null,
+        ?int $resellerId = null,
     ): array {
-        $q = $this->baseQuery($start, $end, $shopId, $customerId, $categoryId, $productId);
+        $q = $this->baseQuery($start, $end, $shopId, $customerId, $categoryId, $productId, $resellerId);
 
         $totalRevenue = (clone $q)->sum('total_amount');
         $totalPaid    = (clone $q)->sum('amount_paid');
@@ -83,8 +86,9 @@ final class SalesReportService
         ?int $customerId = null,
         ?int $categoryId = null,
         ?int $productId  = null,
+        ?int $resellerId = null,
     ): Collection {
-        $q = $this->baseQuery($start, $end, $shopId, $customerId, $categoryId, $productId);
+        $q = $this->baseQuery($start, $end, $shopId, $customerId, $categoryId, $productId, $resellerId);
 
         $salesByDay = (clone $q)
             ->select(
@@ -130,8 +134,9 @@ final class SalesReportService
         ?int $customerId = null,
         ?int $categoryId = null,
         ?int $productId  = null,
+        ?int $resellerId = null,
     ): Collection {
-        $q = $this->baseQuery($start, $end, $shopId, $customerId, $categoryId, $productId);
+        $q = $this->baseQuery($start, $end, $shopId, $customerId, $categoryId, $productId, $resellerId);
 
         $byPayment = (clone $q)
             ->select('payment_method', DB::raw('COUNT(*) as count'), DB::raw('SUM(total_amount) as total'))
@@ -168,8 +173,9 @@ final class SalesReportService
         ?int $customerId = null,
         ?int $categoryId = null,
         ?int $productId  = null,
+        ?int $resellerId = null,
     ): Collection {
-        $q = $this->baseQuery($start, $end, $shopId, $customerId, $categoryId, $productId);
+        $q = $this->baseQuery($start, $end, $shopId, $customerId, $categoryId, $productId, $resellerId);
 
         $byType = (clone $q)
             ->select('client_type', DB::raw('COUNT(*) as count'), DB::raw('SUM(total_amount) as total'))
@@ -242,11 +248,13 @@ final class SalesReportService
         ?int $categoryId = null,
         ?int $productId  = null,
         int $limit = 10,
+        ?int $resellerId = null,
     ): Collection {
-        return SaleItem::whereHas('sale', function ($q) use ($start, $end, $shopId, $customerId) {
+        return SaleItem::whereHas('sale', function ($q) use ($start, $end, $shopId, $customerId, $resellerId) {
             $q->withoutGlobalScope('shop')->whereBetween('created_at', [$start, $end . ' 23:59:59']);
             if ($shopId)     $q->where('shop_id', $shopId);
             if ($customerId) $q->where('customer_id', $customerId);
+            if ($resellerId) $q->where('reseller_id', $resellerId);
         })
             ->when($categoryId, fn($q) => $q->whereHas('product', fn($sq) => $sq->where('category_id', $categoryId)))
             ->when($productId,  fn($q) => $q->where('product_id', $productId))

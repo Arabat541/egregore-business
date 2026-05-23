@@ -88,22 +88,38 @@
 
                 <div class="col-md-4">
                     <label class="form-label">
-                        <i class="bi bi-person me-1 text-muted"></i>Client
+                        <i class="bi bi-person me-1 text-muted"></i>Client / Revendeur
                     </label>
                     <div class="input-group input-group-sm">
                         <input type="text" class="form-control" id="customerSearch"
                                placeholder="Rechercher…" autocomplete="off"
                                oninput="filterSelect('customerSelect', this.value)">
-                        <select name="customer_id" id="customerSelect" class="form-select" style="max-width:60%">
-                            <option value="">Tous les clients</option>
-                            @foreach($customers as $c)
-                                <option value="{{ $c->id }}"
-                                    data-search="{{ strtolower($c->first_name . ' ' . $c->last_name . ' ' . $c->phone) }}"
-                                    {{ $customerId == $c->id ? 'selected' : '' }}>
-                                    {{ $c->first_name }} {{ $c->last_name }}
-                                    @if($c->phone) — {{ $c->phone }} @endif
-                                </option>
-                            @endforeach
+                        <select name="client_filter" id="customerSelect" class="form-select" style="max-width:60%">
+                            <option value="">Tous</option>
+                            @if($customers->isNotEmpty())
+                            <optgroup label="— Particuliers">
+                                @foreach($customers as $c)
+                                    <option value="c_{{ $c->id }}"
+                                        data-search="{{ strtolower($c->first_name . ' ' . $c->last_name . ' ' . $c->phone) }}"
+                                        {{ $clientFilter === 'c_'.$c->id ? 'selected' : '' }}>
+                                        {{ $c->first_name }} {{ $c->last_name }}
+                                        @if($c->phone) — {{ $c->phone }} @endif
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                            @endif
+                            @if($resellers->isNotEmpty())
+                            <optgroup label="— Revendeurs">
+                                @foreach($resellers as $r)
+                                    <option value="r_{{ $r->id }}"
+                                        data-search="{{ strtolower($r->company_name . ' ' . $r->contact_name . ' ' . $r->phone) }}"
+                                        {{ $clientFilter === 'r_'.$r->id ? 'selected' : '' }}>
+                                        🏢 {{ $r->company_name }}
+                                        @if($r->phone) — {{ $r->phone }} @endif
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                            @endif
                         </select>
                     </div>
                 </div>
@@ -146,13 +162,18 @@
             </form>
 
             {{-- Badges des filtres actifs --}}
-            @if($customerId || $categoryId || $productId)
+            @if($clientFilter || $categoryId || $productId)
             <div class="mt-2 d-flex gap-2 flex-wrap">
                 <span class="text-muted small">Filtres actifs :</span>
                 @if($customerId)
                     @php $c = $customers->find($customerId) @endphp
                     <span class="badge bg-primary">
                         <i class="bi bi-person me-1"></i>{{ $c ? $c->first_name.' '.$c->last_name : $customerId }}
+                    </span>
+                @elseif($resellerId)
+                    @php $r = $resellers->find($resellerId) @endphp
+                    <span class="badge bg-warning text-dark">
+                        <i class="bi bi-shop me-1"></i>{{ $r ? $r->company_name : $resellerId }}
                     </span>
                 @endif
                 @if($categoryId)
@@ -585,7 +606,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const productSel  = document.getElementById('productSelect');
     if (customerSel && customerSel.value) {
         document.getElementById('customerSearch').value =
-            customerSel.options[customerSel.selectedIndex].text.split('—')[0].trim();
+            customerSel.options[customerSel.selectedIndex].text
+                .replace(/^🏢\s*/, '').split('—')[0].trim();
     }
     if (productSel && productSel.value) {
         document.getElementById('productSearch').value =

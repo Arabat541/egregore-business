@@ -53,14 +53,30 @@ class ReportController extends Controller
         $startDate  = $request->get('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
         $endDate    = $request->get('end_date', Carbon::now()->format('Y-m-d'));
         $shopId     = $request->get('shop_id') ? (int) $request->get('shop_id') : null;
-        $customerId = $request->get('customer_id') ? (int) $request->get('customer_id') : null;
         $categoryId = $request->get('category_id') ? (int) $request->get('category_id') : null;
         $productId  = $request->get('product_id') ? (int) $request->get('product_id') : null;
+
+        // Filtre client unifié : "c_{id}" = particulier, "r_{id}" = revendeur
+        $clientFilter = $request->get('client_filter', '');
+        $customerId   = null;
+        $resellerId   = null;
+        if (str_starts_with($clientFilter, 'c_')) {
+            $customerId = (int) substr($clientFilter, 2) ?: null;
+        } elseif (str_starts_with($clientFilter, 'r_')) {
+            $resellerId = (int) substr($clientFilter, 2) ?: null;
+        } elseif ($request->get('customer_id')) {
+            // Rétro-compatibilité avec les anciens liens
+            $customerId   = (int) $request->get('customer_id');
+            $clientFilter = 'c_' . $customerId;
+        }
 
         $shops      = Shop::active()->orderBy('name')->get();
         $customers  = Customer::withoutGlobalScope('shop')
             ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
             ->orderBy('first_name')->orderBy('last_name')->get();
+        $resellers  = Reseller::withoutGlobalScope('shop')
+            ->when($shopId, fn($q) => $q->whereHas('sales', fn($s) => $s->where('shop_id', $shopId)))
+            ->orderBy('company_name')->get();
         $categories = Category::where('is_active', true)->orderBy('name')->get();
         $products   = Product::withoutGlobalScope('shop')
             ->where('is_active', true)
@@ -73,13 +89,13 @@ class ReportController extends Controller
             'totalPaid'     => $totalPaid,
             'totalCredit'   => $totalCredit,
             'totalDiscount' => $totalDiscount,
-        ] = $this->salesService->getKpis($startDate, $endDate, $shopId, $customerId, $categoryId, $productId);
+        ] = $this->salesService->getKpis($startDate, $endDate, $shopId, $customerId, $categoryId, $productId, $resellerId);
 
-        $salesByDay        = $this->salesService->getByDay($startDate, $endDate, $shopId, $customerId, $categoryId, $productId);
-        $salesByClientType = $this->salesService->getByClientType($startDate, $endDate, $shopId, $customerId, $categoryId, $productId);
-        $salesByPayment    = $this->salesService->getByPayment($startDate, $endDate, $shopId, $customerId, $categoryId, $productId);
+        $salesByDay        = $this->salesService->getByDay($startDate, $endDate, $shopId, $customerId, $categoryId, $productId, $resellerId);
+        $salesByClientType = $this->salesService->getByClientType($startDate, $endDate, $shopId, $customerId, $categoryId, $productId, $resellerId);
+        $salesByPayment    = $this->salesService->getByPayment($startDate, $endDate, $shopId, $customerId, $categoryId, $productId, $resellerId);
         $salesByUser       = $this->salesService->getByUser($startDate, $endDate, $shopId);
-        $topProducts       = $this->salesService->getTopProducts($startDate, $endDate, $shopId, $customerId, $categoryId, $productId);
+        $topProducts       = $this->salesService->getTopProducts($startDate, $endDate, $shopId, $customerId, $categoryId, $productId, 10, $resellerId);
         $topCustomers      = $this->salesService->getTopCustomers($startDate, $endDate, $shopId);
         $topResellers      = $this->salesService->getTopResellers($startDate, $endDate, $shopId);
 
@@ -97,8 +113,8 @@ class ReportController extends Controller
 
         return view('admin.reports.sales', compact(
             'startDate', 'endDate', 'shops', 'shopId',
-            'customerId', 'categoryId', 'productId',
-            'customers', 'categories', 'products',
+            'customerId', 'resellerId', 'clientFilter', 'categoryId', 'productId',
+            'customers', 'resellers', 'categories', 'products',
             'totalSales', 'totalRevenue', 'totalPaid', 'totalCredit', 'totalDiscount',
             'salesByDay', 'salesByClientType', 'salesByPayment', 'salesByUser',
             'topProducts', 'topCustomers', 'topResellers',
