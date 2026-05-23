@@ -42,6 +42,15 @@ final class ProductRepositoryTest extends TestCase
         $this->assertNull($this->repo->find(999_999));
     }
 
+    public function test_find_or_fail_returns_product(): void
+    {
+        $product = Product::factory()->create(['shop_id' => $this->shop->id]);
+
+        $found = $this->repo->findOrFail($product->id);
+
+        $this->assertSame($product->id, $found->id);
+    }
+
     public function test_find_or_fail_throws_for_unknown_id(): void
     {
         $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
@@ -93,6 +102,17 @@ final class ProductRepositoryTest extends TestCase
 
         $this->assertCount(1, $results);
         $this->assertStringContainsString('Samsung', $results->first()->name);
+    }
+
+    public function test_search_does_not_return_products_from_other_shops(): void
+    {
+        $other = Shop::create(['name' => 'Other', 'code' => 'OT2', 'is_active' => true]);
+        Product::factory()->create(['shop_id' => $other->id,      'name' => 'Samsung Note', 'is_active' => true]);
+        Product::factory()->create(['shop_id' => $this->shop->id, 'name' => 'Pixel 7',      'is_active' => true]);
+
+        $results = $this->repo->search($this->shop->id, 'Samsung');
+
+        $this->assertCount(0, $results);
     }
 
     public function test_decrement_stock_reduces_quantity(): void

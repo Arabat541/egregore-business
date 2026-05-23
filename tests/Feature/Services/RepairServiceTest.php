@@ -243,10 +243,10 @@ final class RepairServiceTest extends TestCase
             'total_cost' => 6_000,
         ]);
 
-        $this->service->cancel($repair, 'Annulation test', $this->user);
+        $result = $this->service->cancel($repair, 'Annulation test', $this->user);
 
         $this->assertSame(7, (int) $part->fresh()->quantity_in_stock);
-        $this->assertSame(1, $result['parts_count'] ?? 1); // parts restored
+        $this->assertSame(1, $result['parts_count']);
     }
 
     public function test_cancel_issues_refund_when_amount_was_paid(): void

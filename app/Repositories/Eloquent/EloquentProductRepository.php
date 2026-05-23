@@ -10,11 +10,13 @@ use Illuminate\Support\Collection;
 
 final class EloquentProductRepository implements ProductRepositoryInterface
 {
+    /** Cross-shop lookup — callers must verify ownership when shop isolation matters. */
     public function find(int $id): ?Product
     {
         return Product::withoutGlobalScope('shop')->find($id);
     }
 
+    /** @throws \Illuminate\Database\Eloquent\ModelNotFoundException — Cross-shop lookup, see find(). */
     public function findOrFail(int $id): Product
     {
         return Product::withoutGlobalScope('shop')->findOrFail($id);
