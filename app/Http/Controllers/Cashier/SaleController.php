@@ -240,6 +240,10 @@ class SaleController extends Controller
      */
     public function cancel(Request $request, Sale $sale)
     {
+        if (!$sale->created_at->isToday()) {
+            return back()->with('error', 'Seules les ventes du jour peuvent être annulées.');
+        }
+
         $request->validate([
             'cancel_reason' => 'required|string|max:500',
         ]);
