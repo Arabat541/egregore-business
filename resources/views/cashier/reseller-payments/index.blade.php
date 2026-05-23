@@ -62,7 +62,7 @@
                         <th>Contact</th>
                         <th>Téléphone</th>
                         <th>Limite crédit</th>
-                        <th>Dette actuelle</th>
+                        <th>Dette boutique</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -79,7 +79,7 @@
                         <td>{{ $reseller->phone }}</td>
                         <td>{{ number_format($reseller->credit_limit, 0, ',', ' ') }} FCFA</td>
                         <td>
-                            <span class="badge bg-danger fs-6">{{ number_format($reseller->current_debt, 0, ',', ' ') }} FCFA</span>
+                            <span class="badge bg-danger fs-6">{{ number_format($reseller->shop_debt, 0, ',', ' ') }} FCFA</span>
                         </td>
                         <td>
                             <a href="{{ route('cashier.reseller-payments.show', $reseller) }}" class="btn btn-sm btn-outline-info">
@@ -106,13 +106,13 @@
                                     </div>
                                     <div class="modal-body">
                                         <div class="alert alert-info">
-                                            <strong>Dette actuelle:</strong> {{ number_format($reseller->current_debt, 0, ',', ' ') }} FCFA
+                                            <strong>Dette actuelle:</strong> {{ number_format($reseller->shop_debt, 0, ',', ' ') }} FCFA
                                         </div>
                                         
                                         <div class="mb-3">
                                             <label class="form-label">Montant du paiement (FCFA) <span class="text-danger">*</span></label>
                                             <input type="number" class="form-control form-control-lg" name="cash_amount" 
-                                                   min="1" max="{{ $reseller->current_debt }}" required>
+                                                   min="1" max="{{ $reseller->shop_debt }}" required>
                                         </div>
                                         
                                         <div class="mb-3">

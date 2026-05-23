@@ -1,41 +1,21 @@
 <h5 class="mb-3"><i class="bi bi-building"></i> Informations entreprise</h5>
 
 <div class="row">
-    <div class="col-md-4">
-        <div class="mb-3">
-            <label class="form-label">Boutique <span class="text-danger">*</span></label>
-            <select class="form-select @error('shop_id') is-invalid @enderror" name="shop_id" required>
-                <option value="">Sélectionner une boutique</option>
-                @php
-                    $shops = \App\Models\Shop::active()->orderBy('name')->get();
-                @endphp
-                @foreach($shops as $shop)
-                    <option value="{{ $shop->id }}" 
-                            {{ old('shop_id', $reseller->shop_id ?? auth()->user()->shop_id) == $shop->id ? 'selected' : '' }}>
-                        {{ $shop->name }} ({{ $shop->code }})
-                    </option>
-                @endforeach
-            </select>
-            @error('shop_id')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
-    </div>
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="mb-3">
             <label class="form-label">Nom de l'entreprise <span class="text-danger">*</span></label>
-            <input type="text" class="form-control @error('company_name') is-invalid @enderror" 
+            <input type="text" class="form-control @error('company_name') is-invalid @enderror"
                    name="company_name" value="{{ old('company_name', $reseller->company_name ?? '') }}" required>
             @error('company_name')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="mb-3">
             <label class="form-label">Code réparateur</label>
-            <input type="text" class="form-control @error('reseller_code') is-invalid @enderror" 
-                   name="reseller_code" value="{{ old('reseller_code', $reseller->reseller_code ?? '') }}" 
+            <input type="text" class="form-control @error('reseller_code') is-invalid @enderror"
+                   name="reseller_code" value="{{ old('reseller_code', $reseller->reseller_code ?? '') }}"
                    placeholder="Ex: REP-001">
             @error('reseller_code')
                 <div class="invalid-feedback">{{ $message }}</div>

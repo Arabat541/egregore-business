@@ -70,7 +70,7 @@ tfoot td.num { text-align: right; }
         <div class="kpi-label">CA Réparations</div>
     </div>
     <div class="kpi kpi-red">
-        <div class="kpi-value">{{ number_format($savRefunds + $savExchangeLosses, 0, ',', ' ') }} F</div>
+        <div class="kpi-value">{{ number_format($savTotalImpact, 0, ',', ' ') }} F</div>
         <div class="kpi-label">Impact S.A.V</div>
     </div>
     <div class="kpi kpi-red">
@@ -89,7 +89,7 @@ tfoot td.num { text-align: right; }
     <table>
         <thead><tr><th>Poste</th><th class="num">Montant (F)</th></tr></thead>
         <tbody>
-            <tr><td>CA Ventes encaissées</td><td class="num" style="color:#0d6efd">+{{ number_format($salesRevenue, 0, ',', ' ') }}</td></tr>
+            <tr><td>CA Ventes (facturé)</td><td class="num" style="color:#0d6efd">+{{ number_format($salesRevenue, 0, ',', ' ') }}</td></tr>
             <tr><td>CA Réparations (MO)</td><td class="num" style="color:#198754">+{{ number_format($repairsRevenue, 0, ',', ' ') }}</td></tr>
             <tr><td>Gains échanges S.A.V</td><td class="num" style="color:#198754">+{{ number_format($savExchangeGains, 0, ',', ' ') }}</td></tr>
             <tr><td>Remboursements S.A.V</td><td class="num" style="color:#dc3545">-{{ number_format($savRefunds, 0, ',', ' ') }}</td></tr>
@@ -117,7 +117,7 @@ tfoot td.num { text-align: right; }
 <div class="col">
     <div class="section-title">Ventes par mode de paiement</div>
     <table>
-        <thead><tr><th>Mode</th><th class="num">CA encaissé (F)</th></tr></thead>
+        <thead><tr><th>Mode</th><th class="num">CA total (F)</th></tr></thead>
         <tbody>
         @foreach($revenueByPayment as $row)
         <tr><td>{{ ucfirst($row->payment_method) }}</td><td class="num">{{ number_format($row->total, 0, ',', ' ') }}</td></tr>
