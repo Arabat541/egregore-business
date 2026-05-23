@@ -77,8 +77,9 @@ final class PendingSaleService
         ?string $notes,
         CashRegister $cashRegister,
         User $user,
+        float $globalDiscount = 0.0,
     ): Sale {
-        return DB::transaction(function () use ($pendingSale, $paymentMethod, $amountGiven, $notes, $cashRegister, $user): Sale {
+        return DB::transaction(function () use ($pendingSale, $paymentMethod, $amountGiven, $notes, $cashRegister, $user, $globalDiscount): Sale {
             $reseller = $pendingSale->reseller;
 
             foreach ($pendingSale->items as $item) {
@@ -87,7 +88,11 @@ final class PendingSaleService
                 }
             }
 
-            $totalAmount   = (float) $pendingSale->total_amount;
+            $grossSubtotal  = $pendingSale->items->sum(fn($i) => $i->unit_price * $i->quantity);
+            $lineDiscounts  = (float) $pendingSale->items->sum('discount');
+            $totalDiscounts = $lineDiscounts + $globalDiscount;
+            $totalAmount    = max(0.0, (float) $pendingSale->total_amount - $globalDiscount);
+
             $amountPaid    = min($amountGiven, $totalAmount);
             $amountDue     = max(0.0, $totalAmount - $amountGiven);
             $isCredit      = $amountDue > 0 && $reseller !== null;
@@ -100,9 +105,6 @@ final class PendingSaleService
             if ($isCredit && !$reseller->canPurchaseOnCredit($amountDue)) {
                 throw new \DomainException("Crédit insuffisant pour ce revendeur. Disponible: {$reseller->available_credit} FCFA");
             }
-
-            $grossSubtotal  = $pendingSale->items->sum(fn($i) => $i->unit_price * $i->quantity);
-            $totalDiscounts = $pendingSale->items->sum('discount');
 
             $sale = Sale::create([
                 'user_id'         => $user->id,
