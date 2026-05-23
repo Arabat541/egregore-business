@@ -67,7 +67,7 @@ class ThermalPrinterService
     public function getRepairTrackingUrl(Repair $repair): string
     {
         $ticketNumber = $repair->ticket_number ?? $repair->repair_number;
-        return route('track.repair', ['ticket' => $ticketNumber]);
+        return route('repair.track', ['ticket' => $ticketNumber]);
     }
 
     /**

@@ -386,8 +386,8 @@ class RepairController extends Controller
     {
         $repair->load(['customer']);
 
-        // QR code : numéro de réparation seulement (scannable directement dans le champ de recherche SAV)
-        $qrData = $repair->repair_number;
+        // QR code : URL de suivi public (le scan ouvre la page de tracking)
+        $qrData = route('repair.track', ['ticket' => $repair->repair_number]);
 
         $qrCode = null;
         try {
