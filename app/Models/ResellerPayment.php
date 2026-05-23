@@ -17,6 +17,7 @@ class ResellerPayment extends Model
     protected $fillable = [
         'reseller_id',
         'user_id',
+        'shop_id',
         'sale_id',
         'amount',
         'cash_amount',
@@ -51,6 +52,11 @@ class ResellerPayment extends Model
     public function sale()
     {
         return $this->belongsTo(Sale::class);
+    }
+
+    public function shop()
+    {
+        return $this->belongsTo(\App\Models\Shop::class);
     }
 
     public function productReturns()
@@ -115,15 +121,16 @@ class ResellerPayment extends Model
     }
 
     /**
-     * Distribue le paiement sur les ventes à crédit individuelles
-     * Les ventes les plus anciennes sont remboursées en premier (FIFO)
+     * Distribue le paiement sur les ventes à crédit d'une boutique (FIFO).
+     * Si $shopId est null, toutes les boutiques sont ciblées (usage admin).
      */
-    public static function distributePaymentToSales(Reseller $reseller, float $amount): void
+    public static function distributePaymentToSales(Reseller $reseller, float $amount, ?int $shopId = null): void
     {
         $remainingAmount = $amount;
 
-        // Récupérer les ventes à crédit avec dette restante, les plus anciennes d'abord
-        $salesWithDebt = Sale::where('reseller_id', $reseller->id)
+        $salesWithDebt = Sale::withoutGlobalScope('shop')
+            ->where('reseller_id', $reseller->id)
+            ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
             ->where('payment_status', 'credit')
             ->where('amount_due', '>', 0)
             ->orderBy('created_at', 'asc')

@@ -177,6 +177,13 @@
                                     <i class="bi bi-dash fs-3 text-muted"></i>
                                 </div>
                                 <div>
+                                    <small class="text-muted d-block">Coût d'achats</small>
+                                    <span class="fw-bold fs-5 text-secondary">{{ number_format($costOfGoodsSold, 0, ',', ' ') }} F</span>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-dash fs-3 text-muted"></i>
+                                </div>
+                                <div>
                                     <small class="text-muted d-block">Pertes S.A.V</small>
                                     <span class="fw-bold fs-5" style="color: #6f42c1;">{{ number_format($savTotalImpact, 0, ',', ' ') }} F</span>
                                 </div>
@@ -191,19 +198,19 @@
                                     <i class="bi bi-equal fs-3 text-muted"></i>
                                 </div>
                                 <div class="border-start ps-4">
-                                    <small class="text-muted d-block">= REVENU NET</small>
-                                    <span class="fw-bold fs-4 {{ ($netRevenue - ($totalExpenses ?? 0)) >= 0 ? 'text-success' : 'text-danger' }}">
-                                        {{ number_format($netRevenue - ($totalExpenses ?? 0), 0, ',', ' ') }} F
+                                    <small class="text-muted d-block">= BÉNÉFICE NET</small>
+                                    <span class="fw-bold fs-4 {{ $finalNetProfit >= 0 ? 'text-success' : 'text-danger' }}">
+                                        {{ number_format($finalNetProfit, 0, ',', ' ') }} F
                                     </span>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4 text-end border-start">
                             <small class="text-muted d-block">BÉNÉFICE NET FINAL</small>
-                            <span class="fw-bold fs-3 {{ ($finalNetProfit ?? $netProfit) >= 0 ? 'text-success' : 'text-danger' }}">
-                                {{ number_format($finalNetProfit ?? $netProfit, 0, ',', ' ') }} F
+                            <span class="fw-bold fs-3 {{ $finalNetProfit >= 0 ? 'text-success' : 'text-danger' }}">
+                                {{ number_format($finalNetProfit, 0, ',', ' ') }} F
                             </span>
-                            <small class="text-muted d-block">(Marge + Réparations - S.A.V - Dépenses)</small>
+                            <small class="text-muted d-block">(CA − COGS + Réparations − S.A.V − Dépenses)</small>
                         </div>
                     </div>
                 </div>
@@ -457,9 +464,12 @@
                         </small>
                     </div>
 
-                    <!-- Taux de recouvrement -->
+                    <!-- Taux de recouvrement : montant encaissé / montant facturé -->
                     @php
-                        $recoverRate = $totalRevenue > 0 ? round((($salesRevenue + $repairsRevenue) / ($totalRevenue + $resellerDebt)) * 100, 1) : 100;
+                        $billedTotal  = $salesRevenue + $repairsRevenue; // total_amount + parts + MO
+                        $recoverRate  = $billedTotal > 0
+                            ? round(($totalCashCollected / $billedTotal) * 100, 1)
+                            : 100;
                     @endphp
                     <div class="mb-4">
                         <div class="d-flex justify-content-between mb-2">

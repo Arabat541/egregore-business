@@ -259,6 +259,7 @@
             <div class="info-box">
                 <h3>INFORMATIONS DOCUMENT</h3>
                 <p><strong>Période:</strong> {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
+                <p><strong>Boutique:</strong> {{ $shopName ?? 'Toutes boutiques' }}</p>
                 <p><strong>Date édition:</strong> {{ now()->format('d/m/Y à H:i') }}</p>
                 <p><strong>Remise:</strong> {{ $reseller->discount_percentage }}%</p>
                 <p><strong>Plafond crédit:</strong> {{ number_format($reseller->credit_limit, 0, ',', ' ') }} F</p>
@@ -296,13 +297,14 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 12%;">Date</th>
-                <th style="width: 10%;">Type</th>
-                <th style="width: 12%;">Référence</th>
-                <th style="width: 30%;">Description</th>
-                <th style="width: 12%;" class="text-end">Débit</th>
-                <th style="width: 12%;" class="text-end">Crédit</th>
-                <th style="width: 12%;" class="text-end">Créance</th>
+                <th style="width: 11%;">Date</th>
+                <th style="width: 9%;">Type</th>
+                <th style="width: 11%;">Référence</th>
+                <th style="width: 27%;">Description</th>
+                @if(!isset($shopId) || !$shopId)<th style="width: 11%;">Boutique</th>@endif
+                <th style="width: 11%;" class="text-end">Débit</th>
+                <th style="width: 11%;" class="text-end">Crédit</th>
+                <th style="width: 9%;" class="text-end">Créance</th>
             </tr>
         </thead>
         <tbody>
@@ -314,6 +316,7 @@
                 <td><span class="badge badge-secondary">Ouverture</span></td>
                 <td>-</td>
                 <td>Créance d'ouverture</td>
+                @if(!isset($shopId) || !$shopId)<td>-</td>@endif
                 <td class="text-end">-</td>
                 <td class="text-end">-</td>
                 <td class="text-end">{{ number_format($openingBalance, 0, ',', ' ') }} F</td>
@@ -347,6 +350,9 @@
                             </ul>
                         @endif
                     </td>
+                    @if(!isset($shopId) || !$shopId)
+                    <td>{{ $movement['shop'] ?? '—' }}</td>
+                    @endif
                     <td class="text-end">
                         @if($movement['debit'] > 0)
                             {{ number_format($movement['debit'], 0, ',', ' ') }} F
@@ -365,7 +371,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" style="text-align: center; padding: 20px;">
+                    <td colspan="{{ (!isset($shopId) || !$shopId) ? 8 : 7 }}" style="text-align: center; padding: 20px;">
                         Aucun mouvement sur cette période
                     </td>
                 </tr>
@@ -377,6 +383,7 @@
                 <td>Clôture</td>
                 <td>-</td>
                 <td>Créance de clôture</td>
+                @if(!isset($shopId) || !$shopId)<td>-</td>@endif
                 <td class="text-end">{{ number_format($summary['total_purchases'], 0, ',', ' ') }} F</td>
                 <td class="text-end">{{ number_format($summary['total_payments'], 0, ',', ' ') }} F</td>
                 <td class="text-end">{{ number_format($runningBalance, 0, ',', ' ') }} F</td>

@@ -41,10 +41,10 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card {{ $reseller->current_debt > 0 ? 'bg-danger text-white' : 'bg-success text-white' }}">
+        <div class="card {{ $shopDebt > 0 ? 'bg-danger text-white' : 'bg-success text-white' }}">
             <div class="card-body text-center">
-                <h6>Dette actuelle</h6>
-                <h3>{{ number_format($reseller->current_debt, 0, ',', ' ') }} FCFA</h3>
+                <h6>Dette dans votre boutique</h6>
+                <h3>{{ number_format($shopDebt, 0, ',', ' ') }} FCFA</h3>
             </div>
         </div>
     </div>
@@ -220,7 +220,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-info" id="modalDebtInfo">
-                        <strong>Dette actuelle:</strong> {{ number_format($reseller->current_debt, 0, ',', ' ') }} FCFA
+                        <strong>Dette actuelle:</strong> {{ number_format($shopDebt, 0, ',', ' ') }} FCFA
                     </div>
                     
                     <div class="alert alert-warning d-none" id="modalSaleInfo">
@@ -231,7 +231,7 @@
                     <div class="mb-3">
                         <label class="form-label">Montant du paiement (FCFA)</label>
                         <input type="number" class="form-control form-control-lg" name="cash_amount" id="modalAmount"
-                               min="1" max="{{ $reseller->current_debt }}" required>
+                               min="1" max="{{ $shopDebt }}" required>
                     </div>
                     
                     <div class="mb-3">
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
             modalSaleId.value = '';
             modalSaleInfo.classList.add('d-none');
             modalDebtInfo.classList.remove('d-none');
-            modalAmount.max = {{ $reseller->current_debt }};
+            modalAmount.max = {{ $shopDebt }};
             modalAmount.value = '';
             modalNotes.value = '';
         }

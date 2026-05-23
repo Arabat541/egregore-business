@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Traits\BelongsToShop;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,10 +15,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Reseller extends Model
 {
-    use HasFactory, SoftDeletes, BelongsToShop;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'shop_id',
         'company_name',
         'contact_name',
         'phone',
@@ -107,6 +105,19 @@ class Reseller extends Model
     }
 
     // Méthodes métier
+    /**
+     * Dette du reseller dans une boutique spécifique, calculée dynamiquement
+     * à partir des ventes dont le montant restant est > 0.
+     */
+    public function getShopDebt(int $shopId): float
+    {
+        return (float) Sale::withoutGlobalScope('shop')
+            ->where('reseller_id', $this->id)
+            ->where('shop_id', $shopId)
+            ->where('amount_due', '>', 0)
+            ->sum('amount_due');
+    }
+
     public function canPurchaseOnCredit(float $amount): bool
     {
         if (!$this->credit_allowed || !$this->is_active) {
