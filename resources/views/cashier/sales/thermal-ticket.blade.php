@@ -107,7 +107,7 @@
         <!-- En-tête boutique -->
         <div class="ticket-header">
             @if(($settings['print_logo'] ?? '1') == '1')
-                <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-height: 50px; margin-bottom: 4px;"><br>
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-height: 80px; margin-bottom: 4px;"><br>
             @endif
             <div class="shop-name">{{ $settings['shop_name'] ?? 'EGREGORE BUSINESS' }}</div>
             <div class="shop-info">

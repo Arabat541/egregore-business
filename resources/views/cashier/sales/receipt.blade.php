@@ -96,7 +96,7 @@
 <body>
     <div class="header">
         @if(($settings['print_logo'] ?? '1') == '1')
-            <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-height: 60px; margin-bottom: 5px;">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-height: 90px; margin-bottom: 5px;">
         @endif
         <h1>{{ $settings['company_name'] ?? 'EGREGORE BUSINESS' }}</h1>
         <p>{{ $settings['company_address'] ?? '' }}</p>
