@@ -80,7 +80,7 @@
                                         <div>
                                             <strong><i class="bi bi-cart-check"></i> Vente sélectionnée</strong><br>
                                             <span class="fw-bold">{{ $sale->invoice_number }}</span><br>
-                                            Client : {{ $sale->customer->full_name ?? 'Anonyme' }}<br>
+                                            Client : {{ $sale->client_name }}<br>
                                             Date : {{ $sale->created_at->format('d/m/Y') }}
                                         </div>
                                         <a href="{{ route('sav.create') }}" class="btn btn-sm btn-outline-danger">
@@ -658,7 +658,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div>
                         <strong><i class="bi bi-cart-check"></i> Vente sélectionnée</strong><br>
                         <span class="fw-bold">${sale.invoice_number}</span><br>
-                        Client : ${sale.customer ? sale.customer.full_name : 'Anonyme'}<br>
+                        Client : ${sale.client_name || (sale.customer ? sale.customer.full_name : 'Anonyme')}<br>
                         Articles : ${itemsList}<br>
                         Date : ${new Date(sale.created_at).toLocaleDateString('fr-FR')}
                     </div>
@@ -720,7 +720,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         ${warrantyBadge}
                                     </div>
                                     <small class="text-muted">
-                                        ${sale.customer ? sale.customer.full_name : 'Client anonyme'}
+                                        ${sale.client_name || (sale.customer ? sale.customer.full_name : 'Client anonyme')}
                                         ${itemsList ? ' — ' + itemsList : ''}
                                     </small>
                                     <div class="mt-2">

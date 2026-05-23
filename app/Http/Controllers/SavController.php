@@ -304,7 +304,7 @@ class SavController extends Controller
 
         $saleWarrantyDays = (int) Setting::get('sale_warranty_days', 7);
 
-        $sales = Sale::with(['customer', 'items.product'])
+        $sales = Sale::with(['customer', 'reseller', 'items.product'])
             ->where(function($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%")
                   ->orWhereHas('customer', function($q2) use ($search) {
@@ -318,7 +318,7 @@ class SavController extends Controller
                 $warrantyExpiry = $saleDate->copy()->addDays($saleWarrantyDays);
                 $warrantyValid = now()->lte($warrantyExpiry);
                 $daysRemaining = now()->diffInDays($warrantyExpiry, false);
-                
+
                 return [
                     'id' => $sale->id,
                     'invoice_number' => $sale->invoice_number,
@@ -328,6 +328,7 @@ class SavController extends Controller
                     'warranty_valid' => $warrantyValid,
                     'warranty_expiry' => $warrantyExpiry->format('d/m/Y'),
                     'warranty_days_remaining' => $warrantyValid ? $daysRemaining : 0,
+                    'client_name' => $sale->client_name,
                     'customer' => $sale->customer ? [
                         'id'        => $sale->customer->id,
                         'full_name' => trim($sale->customer->full_name) ?: ($sale->customer->phone ?? 'Client'),

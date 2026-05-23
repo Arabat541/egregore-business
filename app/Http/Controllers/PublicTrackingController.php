@@ -99,21 +99,20 @@ class PublicTrackingController extends Controller
     public function sale(string $invoice)
     {
         // Ne pas charger 'user' pour ne pas exposer le nom de l'employé.
-        // Ne pas charger 'reseller' pour ne pas exposer les données B2B.
-        $sale = Sale::with(['customer:id,first_name,last_name,phone', 'items.product:id,name'])
+        $sale = Sale::with(['customer:id,first_name,last_name,phone', 'reseller:id,company_name,phone', 'items.product:id,name'])
             ->where('invoice_number', $invoice)
             ->firstOrFail();
 
-        // Données publiques limitées (pas les prix d'achat, pas le détail revendeur)
+        // Données publiques limitées (pas les prix d'achat)
         $publicSale = [
             'invoice_number'  => $sale->invoice_number,
             'created_at'      => $sale->created_at,
             'total_amount'    => $sale->total_amount,
             'payment_status'  => $sale->payment_status,
-            'customer_name'   => $sale->customer
-                ? $sale->customer->first_name . ' ' . substr($sale->customer->last_name, 0, 1) . '.'
-                : 'Client anonyme',
-            'customer_phone_masked' => $this->maskPhone($sale->customer->phone ?? null),
+            'customer_name'   => $sale->client_name,
+            'customer_phone_masked' => $this->maskPhone(
+                $sale->customer->phone ?? $sale->reseller->phone ?? null
+            ),
             'items' => $sale->items->map(fn($i) => [
                 'name'       => $i->product->name ?? 'Article',
                 'quantity'   => $i->quantity,
