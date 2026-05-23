@@ -29,7 +29,7 @@ class PendingSaleController extends Controller
      */
     public function index(Request $request)
     {
-        $query = PendingSale::with(['reseller', 'user', 'items.product'])
+        $query = PendingSale::with(['reseller', 'user', 'items.product.category'])
             ->pending();
 
         if ($request->filled('reseller_id')) {
@@ -56,6 +56,7 @@ class PendingSaleController extends Controller
         $resellers = Reseller::active()->orderBy('company_name')->get();
         $products = Product::where('is_active', true)
             ->where('quantity_in_stock', '>', 0)
+            ->with('category')
             ->orderBy('name')
             ->get();
 
@@ -95,9 +96,12 @@ class PendingSaleController extends Controller
             return back()->with('error', "Stock insuffisant pour {$product->name}. Disponible: {$product->quantity_in_stock}");
         }
 
-        $minimumPrice = $product->wholesale_price ?? $product->semi_wholesale_price ?? $product->normal_price;
-        if ($validated['unit_price'] < $minimumPrice) {
-            return back()->with('error', "Le prix de vente de {$product->name} ({$validated['unit_price']} FCFA) est inférieur au prix minimum ({$minimumPrice} FCFA).");
+        $minimumPrice = (float) ($product->wholesale_price ?? $product->semi_wholesale_price ?? $product->normal_price);
+        if ((float) $validated['unit_price'] < $minimumPrice) {
+            return back()->with('error',
+                "Le prix de vente de {$product->name} (" . number_format((float) $validated['unit_price'], 0, ',', ' ') . ' FCFA) '
+                . 'est inférieur au prix minimum (' . number_format($minimumPrice, 0, ',', ' ') . ' FCFA).'
+            );
         }
 
         try {
@@ -155,7 +159,7 @@ class PendingSaleController extends Controller
      */
     public function show(PendingSale $pendingSale)
     {
-        $pendingSale->load(['reseller', 'user', 'items.product']);
+        $pendingSale->load(['reseller', 'user', 'items.product.category']);
         $paymentMethods = PaymentMethod::where('is_active', true)->orderBy('sort_order')->get();
 
         return view('cashier.pending-sales.show', compact('pendingSale', 'paymentMethods'));
@@ -179,6 +183,7 @@ class PendingSaleController extends Controller
             'amount_given'      => 'required|numeric|min:0',
             'is_credit'         => 'nullable|boolean',
             'notes'             => 'nullable|string',
+            'discount_amount'   => 'nullable|numeric|min:0',
         ]);
 
         $cashRegister = CashRegister::getOpenRegisterForUser(auth()->id());
@@ -196,6 +201,7 @@ class PendingSaleController extends Controller
                 $validated['notes'] ?? null,
                 $cashRegister,
                 auth()->user(),
+                (float) ($validated['discount_amount'] ?? 0),
             );
 
             return redirect()->route('cashier.sales.receipt', ['sale' => $sale, 'auto' => 1])

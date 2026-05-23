@@ -84,7 +84,12 @@
                             <table class="table table-sm table-borderless mb-0">
                                 @foreach($pendingSale->items as $item)
                                     <tr>
-                                        <td>{{ $item->product->name }}</td>
+                                        <td>
+                                            {{ $item->product->name }}
+                                            @if($item->product->category)
+                                                <span class="badge bg-secondary ms-1" style="font-size:.6rem;">{{ $item->product->category->name }}</span>
+                                            @endif
+                                        </td>
                                         <td class="text-end">x{{ $item->quantity }}</td>
                                         <td class="text-end">{{ number_format($item->total_price, 0, ',', ' ') }}</td>
                                     </tr>
