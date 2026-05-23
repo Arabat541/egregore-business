@@ -239,13 +239,15 @@
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         @if($expense->status === 'pending')
-                                            <form action="{{ route('admin.expenses.approve', $expense) }}" method="POST" class="d-inline">
+                                            <form action="{{ route('admin.expenses.approve', $expense) }}" method="POST" class="d-inline"
+                                                  onsubmit="return confirm('Approuver cette dépense de {{ number_format($expense->amount, 0, ',', ' ') }} FCFA ?')">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-success" title="Approuver">
                                                     <i class="bi bi-check-lg"></i>
                                                 </button>
                                             </form>
-                                            <form action="{{ route('admin.expenses.reject', $expense) }}" method="POST" class="d-inline">
+                                            <form action="{{ route('admin.expenses.reject', $expense) }}" method="POST" class="d-inline"
+                                                  onsubmit="return confirm('Rejeter cette dépense de {{ number_format($expense->amount, 0, ',', ' ') }} FCFA ?')">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-danger" title="Rejeter">
                                                     <i class="bi bi-x-lg"></i>
