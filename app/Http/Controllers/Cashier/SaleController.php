@@ -210,15 +210,15 @@ class SaleController extends Controller
      */
     public function printReceipt(Sale $sale)
     {
-        $sale->load(['customer', 'reseller', 'items.product', 'user']);
-        
-        // Récupérer les paramètres de la boutique
+        $sale->load(['customer', 'reseller', 'items.product', 'user', 'shop']);
+
+        $shop = $sale->shop;
         $settings = [
-            'shop_name' => Setting::get('shop_name', 'EGREGORE BUSINESS'),
-            'shop_phone' => Setting::get('shop_phone', ''),
-            'shop_address' => Setting::get('shop_address', ''),
-            'shop_email' => Setting::get('shop_email', ''),
-            'shop_siret' => Setting::get('shop_siret', ''),
+            'shop_name'    => $shop?->name    ?: Setting::get('shop_name', 'EGREGORE BUSINESS'),
+            'shop_address' => $shop?->address ?: Setting::get('shop_address', ''),
+            'shop_phone'   => $shop?->phone   ?: Setting::get('shop_phone', ''),
+            'shop_email'   => $shop?->email   ?: Setting::get('shop_email', ''),
+            'shop_siret'   => Setting::get('shop_siret', ''),
         ];
         
         // Générer l'URL de suivi public
