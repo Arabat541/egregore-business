@@ -102,22 +102,52 @@
                                 <span class="badge bg-danger">Annulé</span>
                             @endif
                         </td>
-                        <td>
-                            <a href="{{ route('cashier.sales.show', $sale) }}" class="btn btn-sm btn-outline-info" title="Détail">
+                        <td class="text-nowrap">
+                            <a href="{{ route('cashier.sales.show', $sale) }}" class="btn btn-sm btn-info text-white" title="Détail">
                                 <i class="bi bi-eye"></i>
                             </a>
                             <a href="{{ route('cashier.sales.receipt', $sale) }}" class="btn btn-sm btn-outline-secondary" target="_blank" title="Ticket">
                                 <i class="bi bi-printer"></i>
                             </a>
-                            @if($sale->payment_status !== 'cancelled' && $sale->created_at->isToday())
-                                <form action="{{ route('cashier.sales.cancel', $sale) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Annuler"
-                                            onclick="return confirm('Annuler cette vente ?')">
-                                        <i class="bi bi-x-circle"></i>
-                                    </button>
-                                </form>
+                            @if($sale->payment_status !== 'cancelled')
+                                <button type="button" class="btn btn-sm btn-danger" title="Annuler"
+                                        data-bs-toggle="modal" data-bs-target="#cancelModal{{ $sale->id }}">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+
+                                <!-- Modal annulation -->
+                                <div class="modal fade" id="cancelModal{{ $sale->id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form action="{{ route('cashier.sales.cancel', $sale) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title text-danger">
+                                                        <i class="bi bi-exclamation-triangle me-1"></i> Annuler la vente
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p class="mb-1">
+                                                        Facture <strong>{{ $sale->invoice_number }}</strong> —
+                                                        <strong>{{ number_format($sale->total_amount, 0, ',', ' ') }} FCFA</strong>
+                                                    </p>
+                                                    <p class="text-muted small mb-3">Le stock sera restitué et la vente annulée définitivement.</p>
+                                                    <label class="form-label fw-semibold">Motif de l'annulation <span class="text-danger">*</span></label>
+                                                    <textarea name="cancel_reason" class="form-control" rows="3"
+                                                              placeholder="Expliquez la raison de l'annulation…" required maxlength="500"></textarea>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                    <button type="submit" class="btn btn-danger">
+                                                        <i class="bi bi-x-circle me-1"></i> Confirmer l'annulation
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             @endif
                         </td>
                     </tr>
