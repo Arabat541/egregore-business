@@ -153,9 +153,9 @@
                                             </div>
                                         </th>
                                         <th>Produit</th>
-                                        <th width="100">Quantité</th>
+                                        <th width="120">Quantité</th>
                                         <th width="180">État</th>
-                                        <th class="text-end">Stock actuel</th>
+                                        <th class="text-end">Facture / Stock</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -183,9 +183,11 @@
                                                    value="{{ $product->id }}" class="product-id-input">
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control form-control-sm quantity-input" 
-                                                   name="products[{{ $index }}][quantity]" 
-                                                   value="1" min="1" max="100">
+                                            @php $maxQty = $invoiceQuantities[$product->id] ?? 1; @endphp
+                                            <input type="number" class="form-control form-control-sm quantity-input"
+                                                   name="products[{{ $index }}][quantity]"
+                                                   value="{{ $maxQty }}" min="1" max="{{ $maxQty }}">
+                                            <small class="text-muted">max {{ $maxQty }}</small>
                                         </td>
                                         <td>
                                             <select class="form-select form-select-sm condition-select" 
@@ -197,9 +199,14 @@
                                             </select>
                                         </td>
                                         <td class="text-end">
-                                            <span class="badge bg-{{ $product->quantity_in_stock > 5 ? 'success' : ($product->quantity_in_stock > 0 ? 'warning' : 'danger') }}">
-                                                {{ $product->quantity_in_stock }}
-                                            </span>
+                                            <div><small class="text-muted">Facture:</small>
+                                                <span class="badge bg-primary">{{ $invoiceQuantities[$product->id] ?? '?' }}</span>
+                                            </div>
+                                            <div class="mt-1"><small class="text-muted">Stock:</small>
+                                                <span class="badge bg-{{ $product->quantity_in_stock > 5 ? 'success' : ($product->quantity_in_stock > 0 ? 'warning' : 'danger') }}">
+                                                    {{ $product->quantity_in_stock }}
+                                                </span>
+                                            </div>
                                         </td>
                                     </tr>
                                     @endforeach

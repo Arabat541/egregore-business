@@ -89,7 +89,20 @@ final class SavService
                 $product   = Product::findOrFail($productData['product_id']);
                 $quantity  = (int) $productData['quantity'];
                 $condition = $productData['condition'];
-                $refund    = $this->calculateRefundAmount($ticket, $product, $quantity);
+
+                // Vérifier que la quantité ne dépasse pas ce qui figure sur la facture
+                if ($ticket->sale_id) {
+                    $saleItem = SaleItem::where('sale_id', $ticket->sale_id)
+                        ->where('product_id', $product->id)
+                        ->first();
+                    if ($saleItem && $quantity > (int) $saleItem->quantity) {
+                        throw new \DomainException(
+                            "La quantité retournée ({$quantity}) dépasse la quantité achetée ({$saleItem->quantity}) pour « {$product->name} »."
+                        );
+                    }
+                }
+
+                $refund = $this->calculateRefundAmount($ticket, $product, $quantity);
 
                 if (in_array($condition, ['new', 'good'], true)) {
                     $before = $product->quantity_in_stock;
@@ -123,13 +136,18 @@ final class SavService
                 }
             }
 
-            if ($totalRefund > 0) {
+            // Plafonner le remboursement caisse au montant réellement encaissé.
+            // Une vente à crédit a amount_paid = 0 → aucun argent ne sort de la caisse.
+            $amountPaid = $ticket->sale ? (float) $ticket->sale->amount_paid : $totalRefund;
+            $cashRefund = min($totalRefund, $amountPaid);
+
+            if ($cashRefund > 0) {
                 $cashRegister = CashRegister::getOpenRegisterForUser($userId);
                 if ($cashRegister) {
                     $cashRegister->addTransaction(
                         CashTransaction::TYPE_EXPENSE,
                         CashTransaction::CATEGORY_SAV_REFUND,
-                        $totalRefund,
+                        $cashRefund,
                         $validated['refund_method'] ?? 'cash',
                         $ticket,
                         "Remboursement SAV #{$ticket->ticket_number} - {$totalReturned} article(s)"
@@ -138,12 +156,18 @@ final class SavService
 
                 if ($ticket->sale) {
                     $ticket->sale->update([
-                        'refund_amount' => ($ticket->sale->refund_amount ?? 0) + $totalRefund,
+                        'refund_amount' => ($ticket->sale->refund_amount ?? 0) + $cashRefund,
                         'notes' => ($ticket->sale->notes ? $ticket->sale->notes . "\n" : '')
                             . "[" . now()->format('d/m/Y H:i') . "] Remboursement SAV: "
-                            . number_format($totalRefund, 0, ',', ' ') . " F",
+                            . number_format($cashRefund, 0, ',', ' ') . " F",
                     ]);
                 }
+            } elseif ($totalRefund > 0 && $ticket->sale) {
+                // Vente à crédit : retour stock sans remboursement espèces
+                $ticket->sale->update([
+                    'notes' => ($ticket->sale->notes ? $ticket->sale->notes . "\n" : '')
+                        . "[" . now()->format('d/m/Y H:i') . "] Retour SAV (crédit — aucun remboursement espèces).",
+                ]);
             }
 
             $ticket->update([
@@ -151,13 +175,15 @@ final class SavService
                 'stock_returned_at' => now(),
                 'stock_returned_by' => $userId,
                 'quantity_returned' => $totalReturned,
-                'refund_amount'     => $totalRefund,
+                'refund_amount'     => $cashRefund,
                 'return_notes'      => $validated['return_notes'] ?? implode(', ', $returnDetails),
             ]);
 
             $commentText = "🔄 Retour en stock effectué:\n" . implode("\n", $returnDetails);
-            if ($totalRefund > 0) {
-                $commentText .= "\n\n💰 Montant remboursé: " . number_format($totalRefund, 0, ',', ' ') . " F";
+            if ($cashRefund > 0) {
+                $commentText .= "\n\n💰 Montant remboursé: " . number_format($cashRefund, 0, ',', ' ') . " F";
+            } elseif ($totalRefund > 0) {
+                $commentText .= "\n\n⚠️ Vente à crédit — aucun remboursement espèces.";
             }
 
             SavTicketComment::create([

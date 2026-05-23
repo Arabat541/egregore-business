@@ -457,16 +457,23 @@ class SavController extends Controller
     {
         $ticket->load(['customer', 'product', 'sale.items.product']);
         
-        // Récupérer les produits concernés
+        // Récupérer les produits concernés et les quantités de la facture
         $products = collect();
-        
+        $invoiceQuantities = []; // product_id => quantité sur la facture
+
         if ($ticket->product_id) {
             $products->push($ticket->product);
+            $invoiceQuantities[$ticket->product_id] = 1;
         } elseif ($ticket->sale_id) {
-            $products = $ticket->sale->items->map(fn($item) => $item->product)->filter();
+            foreach ($ticket->sale->items as $item) {
+                if ($item->product) {
+                    $products->push($item->product);
+                    $invoiceQuantities[$item->product_id] = (int) $item->quantity;
+                }
+            }
         }
-        
-        return view('sav.stock-return', compact('ticket', 'products'));
+
+        return view('sav.stock-return', compact('ticket', 'products', 'invoiceQuantities'));
     }
 
     /**
@@ -492,8 +499,11 @@ class SavController extends Controller
                 $message .= " Remboursement de " . number_format($result['total_refund'], 0, ',', ' ') . " F enregistré.";
             }
 
+
             return redirect()->route('sav.show', $ticket)->with('success', $message);
 
+        } catch (\DomainException|\LogicException $e) {
+            return back()->with('error', $e->getMessage());
         } catch (\Exception $e) {
             return back()->with('error', $this->handleException($e, 'Erreur lors du retour en stock'));
         }
