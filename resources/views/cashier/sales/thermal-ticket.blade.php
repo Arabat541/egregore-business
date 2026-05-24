@@ -111,6 +111,9 @@
             @endif
             <div class="shop-name">{{ $settings['shop_name'] ?? 'EGREGORE BUSINESS' }}</div>
             <div class="shop-info">
+                @if(!empty($settings['shop_activity']))
+                    {{ $settings['shop_activity'] }}<br>
+                @endif
                 @if(!empty($settings['shop_address']))
                     {{ $settings['shop_address'] }}<br>
                 @endif

@@ -214,11 +214,12 @@ class SaleController extends Controller
 
         $shop = $sale->shop;
         $settings = [
-            'shop_name'    => $shop?->name    ?: Setting::get('shop_name', 'EGREGORE BUSINESS'),
-            'shop_address' => $shop?->address ?: Setting::get('shop_address', ''),
-            'shop_phone'   => $shop?->phone   ?: Setting::get('shop_phone', ''),
-            'shop_email'   => $shop?->email   ?: Setting::get('shop_email', ''),
-            'shop_siret'   => Setting::get('shop_siret', ''),
+            'shop_name'     => $shop?->name     ?: Setting::get('shop_name', 'EGREGORE BUSINESS'),
+            'shop_activity' => $shop?->activity ?: '',
+            'shop_phone'    => $shop?->phone    ?: Setting::get('shop_phone', ''),
+            'shop_address'  => $shop?->address  ?: Setting::get('shop_address', ''),
+            'shop_email'    => $shop?->email    ?: Setting::get('shop_email', ''),
+            'shop_siret'    => Setting::get('shop_siret', ''),
         ];
         
         // Générer l'URL de suivi public

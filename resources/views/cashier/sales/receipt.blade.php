@@ -98,9 +98,14 @@
         @if(($settings['print_logo'] ?? '1') == '1')
             <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-height: 90px; margin-bottom: 5px;">
         @endif
-        <h1>{{ $settings['company_name'] ?? 'EGREGORE BUSINESS' }}</h1>
-        <p>{{ $settings['company_address'] ?? '' }}</p>
-        <p>Tél: {{ $settings['company_phone'] ?? '' }}</p>
+        <h1>{{ $settings['shop_name'] ?? $settings['company_name'] ?? 'EGREGORE BUSINESS' }}</h1>
+        @if(!empty($settings['shop_activity']))
+        <p>{{ $settings['shop_activity'] }}</p>
+        @endif
+        <p>{{ $settings['shop_address'] ?? $settings['company_address'] ?? '' }}</p>
+        @if(!empty($settings['shop_phone'] ?? $settings['company_phone'] ?? ''))
+        <p>Tél: {{ $settings['shop_phone'] ?? $settings['company_phone'] ?? '' }}</p>
+        @endif
     </div>
 
     <div class="info">
