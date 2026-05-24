@@ -185,6 +185,10 @@ final class ResellerLoyaltyService
         }
 
         foreach ($payments as $payment) {
+            // Skip phantom payments (made when debt was already 0 — no real accounting effect)
+            if ((float) ($payment->debt_before ?? 0) <= 0) {
+                continue;
+            }
             $movements->push([
                 'date'        => $payment->created_at,
                 'type'        => 'payment',

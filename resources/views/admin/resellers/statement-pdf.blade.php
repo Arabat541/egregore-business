@@ -330,7 +330,7 @@
                     if ($movement['type'] === 'sale') {
                         $runningBalance += $movement['debit'];
                     } else {
-                        $runningBalance -= $movement['credit'];
+                        $runningBalance = max(0.0, $runningBalance - $movement['credit']);
                     }
                     $isSale      = $movement['type'] === 'sale';
                     $hasProducts = $isSale && !empty($movement['products']);
@@ -410,6 +410,44 @@
             </tr>
         </tbody>
     </table>
+
+    @if(isset($payments) && $payments->isNotEmpty())
+    <!-- Versements reçus -->
+    <table>
+        <thead>
+            <tr>
+                <th colspan="{{ (!isset($shopId) || !$shopId) ? 7 : 6 }}" style="text-align:left; background:#198754;">VERSEMENTS REÇUS SUR LA PÉRIODE</th>
+            </tr>
+            <tr>
+                <th style="width:12%;">Date</th>
+                <th style="width:15%;">Référence</th>
+                <th style="width:12%;">Mode</th>
+                <th style="width:18%;" class="text-end">Montant</th>
+                <th style="width:18%;" class="text-end">Dette avant</th>
+                <th style="width:18%;" class="text-end">Dette après</th>
+                <th>Note</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($payments as $p)
+            <tr style="{{ (float)($p->debt_before ?? 0) <= 0 ? 'color:#888;background:#f8f9fa;' : 'background:#d1e7dd;' }}">
+                <td>{{ $p->created_at->format('d/m/Y') }}</td>
+                <td>{{ $p->reference ?? 'PAY-' . $p->id }}</td>
+                <td>{{ $p->payment_method ?? 'Espèces' }}</td>
+                <td class="text-end">{{ number_format($p->amount, 0, ',', ' ') }} F</td>
+                <td class="text-end">{{ number_format($p->debt_before ?? 0, 0, ',', ' ') }} F</td>
+                <td class="text-end">{{ number_format(max(0, $p->debt_after ?? 0), 0, ',', ' ') }} F</td>
+                <td style="font-size:7px;">{{ (float)($p->debt_before ?? 0) <= 0 ? 'Avance (dette = 0)' : ($p->notes ?? '') }}</td>
+            </tr>
+            @endforeach
+            <tr style="background:#e9ecef;font-weight:bold;">
+                <td colspan="3">Total versements</td>
+                <td class="text-end">{{ number_format($payments->sum('amount'), 0, ',', ' ') }} F</td>
+                <td colspan="3"></td>
+            </tr>
+        </tbody>
+    </table>
+    @endif
 
     <!-- Signatures -->
     <div class="signature-section">

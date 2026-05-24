@@ -189,7 +189,7 @@
                                 if ($movement['type'] === 'sale') {
                                     $runningBalance += $movement['debit'];
                                 } else {
-                                    $runningBalance -= $movement['credit'];
+                                    $runningBalance = max(0.0, $runningBalance - $movement['credit']);
                                 }
                                 $isSale     = $movement['type'] === 'sale';
                                 $hasProducts = $isSale && !empty($movement['products']);
@@ -283,6 +283,61 @@
             </div>
         </div>
     </div>
+
+    @if($payments->isNotEmpty())
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="bi bi-cash-coin me-2 text-success"></i>Versements reçus sur la période</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered mb-0" style="font-size:0.88rem;">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width:110px">Date</th>
+                            <th>Référence</th>
+                            <th>Mode</th>
+                            <th class="text-end" style="width:120px">Montant</th>
+                            <th class="text-end" style="width:120px">Dette avant</th>
+                            <th class="text-end" style="width:120px">Dette après</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($payments as $p)
+                        <tr class="{{ (float)($p->debt_before ?? 0) <= 0 ? 'table-light text-muted' : 'table-success bg-opacity-10' }}">
+                            <td>{{ $p->created_at->format('d/m/Y') }}</td>
+                            <td>{{ $p->reference ?? 'PAY-' . $p->id }}</td>
+                            <td><span class="badge bg-info text-dark">{{ $p->payment_method ?? 'Espèces' }}</span></td>
+                            <td class="text-end fw-bold {{ (float)($p->debt_before ?? 0) <= 0 ? 'text-muted' : 'text-success' }}">
+                                {{ number_format($p->amount, 0, ',', ' ') }} F
+                            </td>
+                            <td class="text-end text-muted">{{ number_format($p->debt_before ?? 0, 0, ',', ' ') }} F</td>
+                            <td class="text-end {{ (float)($p->debt_before ?? 0) <= 0 ? 'text-muted' : 'text-success fw-bold' }}">
+                                {{ number_format(max(0, $p->debt_after ?? 0), 0, ',', ' ') }} F
+                            </td>
+                            <td class="text-muted small">
+                                @if((float)($p->debt_before ?? 0) <= 0)
+                                    <em>Avance (dette = 0 au moment du versement)</em>
+                                @else
+                                    {{ $p->notes ?? '' }}
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot class="table-secondary fw-bold">
+                        <tr>
+                            <td colspan="3">Total versements</td>
+                            <td class="text-end">{{ number_format($payments->sum('amount'), 0, ',', ' ') }} F</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 
 @push('styles')

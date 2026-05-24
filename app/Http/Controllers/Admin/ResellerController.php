@@ -175,13 +175,14 @@ class ResellerController extends Controller
         [
             'openingBalance' => $openingBalance,
             'movements'      => $movements,
+            'payments'       => $payments,
             'summary'        => $summary,
         ] = $this->loyaltyService->buildStatement($reseller, $startDate, $endDate, $shopId);
 
         $shops = Shop::active()->orderBy('name')->get();
 
         return view('admin.resellers.statement', compact(
-            'reseller', 'movements', 'startDate', 'endDate', 'openingBalance', 'summary', 'shops', 'shopId'
+            'reseller', 'movements', 'payments', 'startDate', 'endDate', 'openingBalance', 'summary', 'shops', 'shopId'
         ));
     }
 
@@ -198,6 +199,7 @@ class ResellerController extends Controller
         [
             'openingBalance' => $openingBalance,
             'movements'      => $movements,
+            'payments'       => $payments,
             'summary'        => $summary,
         ] = $this->loyaltyService->buildStatement($reseller, $startDate, $endDate, $shopId);
 
@@ -213,7 +215,7 @@ class ResellerController extends Controller
         }
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.resellers.statement-pdf', compact(
-            'reseller', 'movements', 'startDate', 'endDate',
+            'reseller', 'movements', 'payments', 'startDate', 'endDate',
             'openingBalance', 'summary',
             'shopName', 'shopAddress', 'shopPhone', 'shopId'
         ))->setPaper('A4', 'portrait');
