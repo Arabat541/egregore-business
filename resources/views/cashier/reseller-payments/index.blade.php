@@ -49,9 +49,30 @@
     </div>
 </div>
 
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <form method="GET" action="{{ route('cashier.reseller-payments.index') }}" class="d-flex gap-2">
+            <input type="text" name="search" class="form-control"
+                   placeholder="Rechercher par nom ou contact…"
+                   value="{{ request('search') }}" autofocus>
+            <button class="btn btn-primary px-4" type="submit">
+                <i class="bi bi-search"></i>
+            </button>
+            @if(request('search'))
+            <a href="{{ route('cashier.reseller-payments.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg"></i>
+            </a>
+            @endif
+        </form>
+    </div>
+</div>
+
 <div class="card">
-    <div class="card-header">
-        <i class="bi bi-building"></i> Réparateurs avec créances
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-building"></i> Réparateurs avec créances</span>
+        @if(request('search'))
+            <small class="text-muted">Résultats pour « {{ request('search') }} »</small>
+        @endif
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -152,6 +173,11 @@
                 </tbody>
             </table>
         </div>
+        @if($resellersWithDebt->hasPages())
+        <div class="mt-3">
+            {{ $resellersWithDebt->withQueryString()->links() }}
+        </div>
+        @endif
     </div>
 </div>
 @endsection
