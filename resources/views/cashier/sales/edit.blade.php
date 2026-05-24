@@ -117,6 +117,7 @@
                                 <option value="">-- Sélectionner --</option>
                                 @foreach($products as $p)
                                     <option value="{{ $p->id }}"
+                                            {{ $p->quantity_in_stock <= 0 ? 'disabled' : '' }}
                                             data-name="{{ $p->name }}"
                                             data-sku="{{ $p->sku ?? '' }}"
                                             data-price="{{ (int) $p->normal_price }}"
