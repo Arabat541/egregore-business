@@ -107,7 +107,7 @@ final class ResellerLoyaltyService
             ->orderBy('created_at')
             ->get();
 
-        $movements = $this->buildMovements($sales, $payments);
+        $movements = $this->buildMovements($sales);
 
         $totalPurchases = (float) $sales->sum('total_amount');
         // amount_paid est mis à jour par distributePaymentToSales() lors de chaque paiement :
@@ -144,7 +144,7 @@ final class ResellerLoyaltyService
         return max(0.0, $salesBefore - $paidBefore);
     }
 
-    private function buildMovements(Collection $sales, Collection $payments): Collection
+    private function buildMovements(Collection $sales): Collection
     {
         $movements = collect();
 
@@ -184,21 +184,11 @@ final class ResellerLoyaltyService
             }
         }
 
-        foreach ($payments as $payment) {
-            // Skip phantom payments (made when debt was already 0 — no real accounting effect)
-            if ((float) ($payment->debt_before ?? 0) <= 0) {
-                continue;
-            }
-            $movements->push([
-                'date'        => $payment->created_at,
-                'type'        => 'payment',
-                'reference'   => $payment->reference ?? 'PAY-' . $payment->id,
-                'description' => 'Paiement - ' . ucfirst($payment->payment_method ?? 'Espèces'),
-                'shop'        => '—',
-                'debit'       => 0.0,
-                'credit'      => (float) $payment->amount,
-            ]);
-        }
+        // ResellerPayments are intentionally NOT added to movements.
+        // distributePaymentToSales() already updates sale->amount_paid, so ACPs above
+        // capture all credits (initial deposit + subsequent distributions).
+        // Adding PAY entries would double-count every distributed payment.
+        // PAYs remain visible in the separate versements table.
 
         return $movements->sortBy('date')->values();
     }

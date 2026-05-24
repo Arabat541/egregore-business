@@ -267,7 +267,6 @@
                         @endforelse
 
                         <!-- Créance de clôture -->
-                        @php $closingCredit = $openingBalance + $summary['total_purchases'] - $runningBalance; @endphp
                         <tr class="table-dark fw-bold">
                             <td>{{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</td>
                             <td><span class="badge bg-dark">Clôture</span></td>
@@ -275,8 +274,8 @@
                             @if($shops->isNotEmpty())<td></td>@endif
                             <td></td>
                             <td></td>
-                            <td class="text-end">{{ number_format($openingBalance + $summary['total_purchases'], 0, ',', ' ') }} F</td>
-                            <td class="text-end">{{ number_format($closingCredit, 0, ',', ' ') }} F</td>
+                            <td class="text-end">{{ number_format($summary['total_purchases'], 0, ',', ' ') }} F</td>
+                            <td class="text-end">{{ number_format($summary['total_payments'], 0, ',', ' ') }} F</td>
                             <td class="text-end">{{ number_format($runningBalance, 0, ',', ' ') }} F</td>
                         </tr>
                     </tbody>
