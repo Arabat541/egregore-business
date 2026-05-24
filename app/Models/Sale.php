@@ -199,6 +199,6 @@ class Sale extends Model
     // Stats
     public function getItemCountAttribute(): int
     {
-        return $this->items()->sum('quantity');
+        return (int) $this->items()->sum('quantity');
     }
 }
