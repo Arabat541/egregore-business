@@ -324,6 +324,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <div class="mb-3">
+                    <input type="text" id="productSearchInput" class="form-control"
+                           placeholder="Rechercher un produit par nom…" autocomplete="off">
+                </div>
                 <div class="alert alert-info small">
                     <i class="bi bi-info-circle"></i>
                     <strong>Produits retournables :</strong> tous les articles non encore retournés, y compris ceux des factures déjà soldées.
@@ -589,6 +593,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialisation
     updateTotals();
+
+    // Recherche dans la liste des produits retournables
+    document.getElementById('productSearchInput').addEventListener('input', function () {
+        const term = this.value.toLowerCase().trim();
+        document.querySelectorAll('#productModal .card.mb-3').forEach(function (invoiceCard) {
+            let invoiceHasMatch = false;
+            invoiceCard.querySelectorAll('tbody tr').forEach(function (row) {
+                const productName = row.querySelector('td strong')?.textContent.toLowerCase() ?? '';
+                const match = !term || productName.includes(term);
+                row.style.display = match ? '' : 'none';
+                if (match) invoiceHasMatch = true;
+            });
+            invoiceCard.style.display = invoiceHasMatch ? '' : 'none';
+        });
+    });
+
+    // Vider la recherche à chaque ouverture du modal
+    document.getElementById('productModal').addEventListener('show.bs.modal', function () {
+        const input = document.getElementById('productSearchInput');
+        input.value = '';
+        input.dispatchEvent(new Event('input'));
+    });
 });
 </script>
 @endsection
