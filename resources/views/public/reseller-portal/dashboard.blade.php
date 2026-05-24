@@ -82,9 +82,12 @@
             <div class="brand"><i class="bi bi-shop me-2"></i>Espace Réparateur</div>
             <div class="reseller-name"><i class="bi bi-person-circle me-1"></i>{{ $reseller->company_name }}</div>
         </div>
-        <a href="{{ route('reseller-portal.logout') }}" class="btn btn-sm btn-outline-light">
-            <i class="bi bi-box-arrow-right me-1"></i>Déconnexion
-        </a>
+        <form method="POST" action="{{ route('reseller-portal.logout') }}" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-outline-light">
+                <i class="bi bi-box-arrow-right me-1"></i>Déconnexion
+            </button>
+        </form>
     </div>
 </nav>
 

@@ -28,6 +28,7 @@ final class SalesReportService
         ?int $resellerId  = null,
     ): Builder {
         $q = Sale::withoutGlobalScope('shop')
+            ->where('payment_status', '!=', 'cancelled')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59']);
 
         if ($shopId)    $q->where('shop_id', $shopId);

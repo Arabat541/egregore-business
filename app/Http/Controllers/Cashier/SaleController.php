@@ -130,7 +130,7 @@ class SaleController extends Controller
             }
 
             $correctPrice = $this->saleService->calculateCorrectPrice($product, (int) $item['quantity'], $validated['client_type']);
-            if ((float) $item['unit_price'] !== (float) $correctPrice) {
+            if (abs((float) $item['unit_price'] - (float) $correctPrice) > 0.01) {
                 return back()->with('error', "⚠️ SÉCURITÉ: Le prix du produit {$product->name} ne peut pas être modifié! Prix attendu: {$correctPrice} FCFA.");
             }
         }

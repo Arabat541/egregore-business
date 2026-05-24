@@ -63,9 +63,11 @@ Route::get('/dashboard', function () {
 // ==================== PORTAIL RÉPARATEUR (Accès public par téléphone) ====================
 Route::prefix('mon-espace')->name('reseller-portal.')->group(function () {
     Route::get('/',         [App\Http\Controllers\ResellerPortalController::class, 'index'])->name('index');
-    Route::post('/connexion', [App\Http\Controllers\ResellerPortalController::class, 'authenticate'])->name('authenticate');
+    Route::post('/connexion', [App\Http\Controllers\ResellerPortalController::class, 'authenticate'])
+        ->middleware('throttle:5,1')
+        ->name('authenticate');
     Route::get('/tableau-de-bord', [App\Http\Controllers\ResellerPortalController::class, 'dashboard'])->name('dashboard');
-    Route::get('/deconnexion', [App\Http\Controllers\ResellerPortalController::class, 'logout'])->name('logout');
+    Route::post('/deconnexion', [App\Http\Controllers\ResellerPortalController::class, 'logout'])->name('logout');
 });
 
 // ==================== ROUTES PUBLIQUES (Accessibles par QR Code) ====================

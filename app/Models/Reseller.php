@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Modèle pour les revendeurs
@@ -132,18 +133,20 @@ class Reseller extends Model
             return;
         }
 
-        $currentDebt = (float) $this->current_debt;
-        $newDebt = $currentDebt + $amount;
-        $this->current_debt = $newDebt;
-        $this->save();
+        $this->increment('current_debt', $amount);
     }
 
     public function reduceDebt(float $amount): void
     {
-        $currentDebt = (float) $this->current_debt;
-        $newDebt = max(0, $currentDebt - $amount);
-        $this->current_debt = $newDebt;
-        $this->save();
+        if ($amount <= 0) {
+            return;
+        }
+
+        // Clamp to 0: only decrement by what's actually owed
+        $actual = min($amount, (float) $this->current_debt);
+        if ($actual > 0) {
+            $this->decrement('current_debt', $actual);
+        }
     }
 
     /**
@@ -160,30 +163,24 @@ class Reseller extends Model
      */
     public function addPurchase(float $amount): void
     {
-        // Vérifier si on est dans une nouvelle année civile
-        $currentYear = now()->year;
-        if ($this->loyalty_year_start && $this->loyalty_year_start->year < $currentYear) {
-            // Nouvelle année, réinitialiser le total
-            $this->update([
-                'total_purchases_year' => $amount,
-                'loyalty_year_start' => now()->startOfYear(),
-            ]);
-        } else {
-            $this->increment('total_purchases_year', $amount);
-            if (!$this->loyalty_year_start) {
-                $this->update(['loyalty_year_start' => now()->startOfYear()]);
+        DB::transaction(function () use ($amount): void {
+            $currentYear = now()->year;
+            if ($this->loyalty_year_start && $this->loyalty_year_start->year < $currentYear) {
+                $this->update([
+                    'total_purchases_year' => $amount,
+                    'loyalty_year_start'   => now()->startOfYear(),
+                ]);
+            } else {
+                $this->increment('total_purchases_year', $amount);
+                if (!$this->loyalty_year_start) {
+                    $this->update(['loyalty_year_start' => now()->startOfYear()]);
+                }
             }
-        }
 
-        // Calculer les points de fidélité (1 point par 10 000 FCFA d'achat)
-        $points = $amount / 10000;
-        $this->increment('loyalty_points', $points);
-
-        // Rafraîchir l'objet pour que total_purchases_year reflète la valeur DB
-        $this->refresh();
-
-        // Mettre à jour le taux de bonus selon le palier
-        $this->updateLoyaltyBonusRate();
+            $this->increment('loyalty_points', $amount / 10000);
+            $this->refresh();
+            $this->updateLoyaltyBonusRate();
+        });
     }
 
     /**

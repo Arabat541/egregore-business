@@ -206,13 +206,7 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($isSale && isset($movement['sale_id']))
-                                        <a href="{{ route('cashier.sales.show', $movement['sale_id']) }}" target="_blank" class="fw-bold">
-                                            {{ $movement['reference'] }}
-                                        </a>
-                                    @else
-                                        {{ $movement['reference'] }}
-                                    @endif
+                                    <span class="fw-bold">{{ $movement['reference'] }}</span>
                                     <span class="text-muted fw-normal ms-2">{{ $movement['description'] }}</span>
                                     @if($isSale && isset($movement['shop']))
                                         <small class="text-muted d-block">{{ $movement['shop'] }}</small>

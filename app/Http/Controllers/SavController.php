@@ -258,12 +258,13 @@ class SavController extends Controller
         ]);
 
         $sav->update($validated);
+        $sav->refresh();
 
         if ($sav->assigned_to) {
             SavTicketComment::create([
                 'sav_ticket_id' => $sav->id,
                 'user_id' => Auth::id(),
-                'comment' => "Ticket assigné à " . $sav->assignedUser->name,
+                'comment' => "Ticket assigné à " . ($sav->assignedUser?->name ?? 'inconnu'),
                 'is_internal' => true,
             ]);
         }
@@ -437,7 +438,7 @@ class SavController extends Controller
         // Tickets ouverts récents
         $recentOpen = SavTicket::open()
             ->with(['customer', 'assignedUser'])
-            ->orderByRaw("FIELD(priority, 'urgent', 'high', 'medium', 'low')")
+            ->orderByRaw("CASE priority WHEN 'urgent' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 ELSE 4 END")
             ->latest()
             ->limit(10)
             ->get();
