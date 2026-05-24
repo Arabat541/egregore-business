@@ -122,6 +122,28 @@ class ResellerPaymentController extends Controller
 
         $filteredSales = $salesQuery->oldest()->get();
 
+        // Ventes avec produits physiquement retournables : inclut les factures payées
+        // (payment_status = 'paid') car les paiements automatiques FIFO peuvent avoir
+        // soldé une facture dont le client rapporte encore physiquement les articles.
+        $returnableSalesQuery = Sale::withoutGlobalScope('shop')
+            ->where('reseller_id', $reseller->id)
+            ->where('shop_id', $shopId)
+            ->whereIn('payment_status', ['credit', 'paid'])
+            ->with('items.product');
+
+        if ($dateFrom) {
+            $returnableSalesQuery->whereDate('created_at', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $returnableSalesQuery->whereDate('created_at', '<=', $dateTo);
+        }
+        // Si aucune période sélectionnée, limiter aux 6 derniers mois pour la lisibilité
+        if (!$dateFrom && !$dateTo) {
+            $returnableSalesQuery->where('created_at', '>=', now()->subMonths(6));
+        }
+
+        $returnableSales = $returnableSalesQuery->oldest()->get();
+
         $selectedSale = null;
         if ($selectedSaleId) {
             $selectedSale = Sale::withoutGlobalScope('shop')
@@ -135,7 +157,7 @@ class ResellerPaymentController extends Controller
         $paymentMethods = PaymentMethod::where('is_active', true)->orderBy('sort_order')->get();
 
         return view('cashier.reseller-payments.create', compact(
-            'reseller', 'shopDebt', 'paymentMethods', 'filteredSales', 'dateFrom', 'dateTo', 'selectedSale'
+            'reseller', 'shopDebt', 'paymentMethods', 'filteredSales', 'dateFrom', 'dateTo', 'selectedSale', 'returnableSales'
         ));
     }
 

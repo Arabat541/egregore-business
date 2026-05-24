@@ -325,70 +325,48 @@
             </div>
             <div class="modal-body">
                 <div class="alert alert-info small">
-                    <i class="bi bi-info-circle"></i> 
-                    <strong>Important:</strong> Seuls les produits dont la valeur ne dépasse pas la dette restante de la facture peuvent être retournés.
-                    Si le réparateur a déjà payé une partie, la quantité retournable est réduite proportionnellement.
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Produits retournables :</strong> tous les articles non encore retournés, y compris ceux des factures déjà soldées.
+                    La valeur des retours est imputée sur les factures encore dues (de la plus ancienne à la plus récente).
                 </div>
                 
-                <!-- Produits des ventes à crédit -->
-                @php
-                    $salesForReturns = $filteredSales ?? $reseller->sales()->where('amount_due', '>', 0)->with('items.product')->oldest()->get();
-                @endphp
-                @if($salesForReturns->count() > 0)
-                    @foreach($salesForReturns as $sale)
+                <!-- Produits retournables : toutes les factures de la période (crédit ET payées) -->
+                @php $hasAnyReturnableItem = false; @endphp
+                @if($returnableSales->count() > 0)
+                    @foreach($returnableSales as $sale)
                         @php
-                            // Calculer la valeur restante retournable pour cette vente
-                            $amountDue = (float) $sale->amount_due;
-                            $totalSaleValue = (float) $sale->total_amount;
-                            
-                            // Calculer les items retournables
                             $returnableItems = [];
-                            $remainingReturnValue = $amountDue;
-                            
-                            // Trier les items par prix unitaire croissant (retourner les moins chers d'abord)
-                            $sortedItems = $sale->items->sortBy('unit_price');
-                            
-                            foreach ($sortedItems as $item) {
-                                if ($remainingReturnValue <= 0) break;
-                                
+                            foreach ($sale->items as $item) {
                                 $unitPrice = (float) $item->unit_price;
-                                if ($unitPrice <= 0) continue;
-                                
-                                // Calculer la quantité déjà retournée pour cet article
+                                if ($unitPrice <= 0 || !$item->product) continue;
+
                                 $alreadyReturned = \App\Models\ProductReturn::where('sale_item_id', $item->id)->sum('quantity');
-                                $remainingQty = max(0, $item->quantity - $alreadyReturned);
-                                
+                                $remainingQty    = max(0, $item->quantity - $alreadyReturned);
                                 if ($remainingQty <= 0) continue;
-                                
-                                // Combien d'unités de ce produit peuvent être retournées?
-                                $maxReturnableQty = min(
-                                    $remainingQty,
-                                    floor($remainingReturnValue / $unitPrice)
-                                );
-                                
-                                if ($maxReturnableQty > 0) {
-                                    $returnableItems[] = [
-                                        'item' => $item,
-                                        'max_qty' => $maxReturnableQty,
-                                        'remaining_qty' => $remainingQty,
-                                        'value' => $maxReturnableQty * $unitPrice,
-                                    ];
-                                    $remainingReturnValue -= ($maxReturnableQty * $unitPrice);
-                                }
+
+                                $returnableItems[] = [
+                                    'item'          => $item,
+                                    'remaining_qty' => $remainingQty,
+                                    'value'         => $remainingQty * $unitPrice,
+                                ];
                             }
                         @endphp
-                        
+
                         @if(count($returnableItems) > 0)
+                        @php $hasAnyReturnableItem = true; @endphp
                         <div class="card mb-3">
                             <div class="card-header bg-light py-2">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span>
-                                        <i class="bi bi-receipt"></i> 
+                                        <i class="bi bi-receipt"></i>
                                         <code>{{ $sale->invoice_number }}</code>
+                                        <small class="text-muted ms-1">{{ $sale->created_at->format('d/m/Y') }}</small>
                                     </span>
-                                    <span class="badge bg-danger">
-                                        Reste: {{ number_format($amountDue, 0, ',', ' ') }} FCFA
-                                    </span>
+                                    @if($sale->amount_due > 0)
+                                        <span class="badge bg-danger">Reste dû: {{ number_format($sale->amount_due, 0, ',', ' ') }} F</span>
+                                    @else
+                                        <span class="badge bg-success">Facture soldée</span>
+                                    @endif
                                 </div>
                             </div>
                             <div class="card-body p-0">
@@ -397,40 +375,35 @@
                                         <tr>
                                             <th>Produit</th>
                                             <th>Prix unit.</th>
-                                            <th>Qté retournable</th>
-                                            <th>Valeur max</th>
+                                            <th>Qté disponible</th>
                                             <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($returnableItems as $returnableItem)
-                                            @php $item = $returnableItem['item']; @endphp
+                                        @foreach($returnableItems as $ri)
+                                            @php $item = $ri['item']; @endphp
                                             <tr>
                                                 <td>
-                                                    <strong>{{ $item->product->name ?? 'Produit supprimé' }}</strong>
-                                                    @if($item->product)
+                                                    <strong>{{ $item->product->name }}</strong>
+                                                    @if($item->product->sku)
                                                         <br><small class="text-muted">{{ $item->product->sku }}</small>
                                                     @endif
                                                 </td>
-                                                <td>{{ number_format($item->unit_price, 0, ',', ' ') }}</td>
+                                                <td>{{ number_format($item->unit_price, 0, ',', ' ') }} F</td>
                                                 <td>
-                                                    <span class="badge bg-info">Max: {{ $returnableItem['max_qty'] }}</span>
-                                                    <small class="text-muted">/ {{ $returnableItem['remaining_qty'] }} restants</small>
+                                                    <span class="badge bg-info">{{ $ri['remaining_qty'] }}</span>
                                                 </td>
-                                                <td>{{ number_format($returnableItem['value'], 0, ',', ' ') }}</td>
                                                 <td>
-                                                    @if($item->product)
-                                                        <button type="button" class="btn btn-sm btn-outline-primary select-product-btn"
-                                                                data-product-id="{{ $item->product_id }}"
-                                                                data-product-name="{{ $item->product->name }}"
-                                                                data-unit-price="{{ $item->unit_price }}"
-                                                                data-max-qty="{{ $returnableItem['max_qty'] }}"
-                                                                data-sale-id="{{ $sale->id }}"
-                                                                data-sale-item-id="{{ $item->id }}"
-                                                                data-sale-amount-due="{{ $amountDue }}">
-                                                            <i class="bi bi-plus"></i>
-                                                        </button>
-                                                    @endif
+                                                    <button type="button" class="btn btn-sm btn-outline-primary select-product-btn"
+                                                            data-product-id="{{ $item->product_id }}"
+                                                            data-product-name="{{ $item->product->name }}"
+                                                            data-unit-price="{{ $item->unit_price }}"
+                                                            data-max-qty="{{ $ri['remaining_qty'] }}"
+                                                            data-sale-id="{{ $sale->id }}"
+                                                            data-sale-item-id="{{ $item->id }}"
+                                                            data-sale-amount-due="{{ $sale->amount_due }}">
+                                                        <i class="bi bi-plus"></i>
+                                                    </button>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -440,18 +413,12 @@
                         </div>
                         @endif
                     @endforeach
-                    
-                    @php
-                        $hasReturnableItems = $salesForReturns->sum(function($sale) {
-                            return $sale->amount_due > 0 ? 1 : 0;
-                        }) > 0;
-                    @endphp
-                    
-                    @if(!$hasReturnableItems)
-                        <p class="text-muted text-center">Aucun produit retournable disponible.</p>
+
+                    @if(!$hasAnyReturnableItem)
+                        <p class="text-muted text-center">Aucun produit à retourner sur la période sélectionnée.</p>
                     @endif
                 @else
-                    <p class="text-muted text-center">Aucune facture à crédit trouvée.</p>
+                    <p class="text-muted text-center">Aucune facture trouvée pour cette période.</p>
                 @endif
             </div>
         </div>
