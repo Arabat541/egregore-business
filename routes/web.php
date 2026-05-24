@@ -302,6 +302,7 @@ Route::prefix('admin')
         Route::delete('/settings/shop/{shopId}/reset', [SettingController::class, 'resetToGlobal'])->name('settings.reset-to-global');
         Route::post('/settings/upload-logo', [SettingController::class, 'uploadLogo'])->name('settings.upload-logo');
         Route::post('/settings/backup', [SettingController::class, 'backup'])->name('settings.backup');
+        Route::post('/settings/labor-shares', [SettingController::class, 'updateLaborShares'])->name('settings.labor-shares');
         
         // Modes de paiement
         Route::post('/payment-methods', [SettingController::class, 'storePaymentMethod'])->name('payment-methods.store');

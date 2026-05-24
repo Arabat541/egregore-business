@@ -224,40 +224,72 @@
                         </div>
                         <div class="card border-0 shadow-sm" style="border-left: 4px solid #6610f2 !important;">
                             <div class="card-body">
-                                <h5 class="card-title mb-1"><i class="bi bi-percent me-2" style="color: #6610f2;"></i>Partage main d'oeuvre</h5>
-                                <p class="text-muted small mb-3">Répartition du prix de la main d'oeuvre entre l'admin (boutique) et le technicien.</p>
-                                <div class="row g-3 align-items-end">
-                                    <div class="col-md-4">
-                                        <label for="technician_labor_share" class="form-label fw-semibold">Part technicien</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control form-control-lg text-center" id="technician_labor_share" name="technician_labor_share"
-                                                   value="{{ $settings['technician_labor_share'] ?? '50' }}" min="0" max="100">
-                                            <span class="input-group-text">%</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <div class="bg-light rounded p-3">
-                                            @php $techPercent = (int)($settings['technician_labor_share'] ?? 50); @endphp
-                                            <div class="d-flex justify-content-between mb-2">
-                                                <span><i class="bi bi-person-gear me-1"></i>Technicien</span>
-                                                <strong class="text-primary">{{ $techPercent }}%</strong>
-                                            </div>
-                                            <div class="progress mb-2" style="height: 10px;">
-                                                <div class="progress-bar" role="progressbar" style="width: {{ $techPercent }}%; background: #6610f2;"></div>
-                                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ 100 - $techPercent }}%"></div>
-                                            </div>
-                                            <div class="d-flex justify-content-between">
-                                                <span><i class="bi bi-shop me-1"></i>Boutique (admin)</span>
-                                                <strong class="text-success">{{ 100 - $techPercent }}%</strong>
-                                            </div>
-                                            <hr class="my-2">
-                                            <small class="text-muted">
-                                                <i class="bi bi-info-circle me-1"></i>
-                                                Pièces = 100% boutique. Comptabilisé uniquement sur les réparations <strong>livrées</strong>.
-                                                SAV = à la charge du technicien.
-                                            </small>
-                                        </div>
-                                    </div>
+                                <h5 class="card-title mb-1"><i class="bi bi-percent me-2" style="color: #6610f2;"></i>Partage main d'oeuvre — par boutique</h5>
+                                <p class="text-muted small mb-3">Définissez la part du technicien pour chaque boutique. Laissez vide pour utiliser la valeur par défaut.</p>
+
+                                <table class="table table-bordered table-sm align-middle mb-3">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Boutique</th>
+                                            <th class="text-center" style="width:160px">Part technicien (%)</th>
+                                            <th class="text-center" style="width:110px">Part boutique (%)</th>
+                                            <th class="text-center" style="width:90px">Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{-- Ligne valeur par défaut (globale) --}}
+                                        <tr class="table-secondary">
+                                            <td><strong><i class="bi bi-globe me-1"></i>Valeur par défaut</strong> <small class="text-muted">(appliquée si aucune boutique n'est définie)</small></td>
+                                            <td>
+                                                <div class="input-group input-group-sm">
+                                                    <input type="number" class="form-control text-center fw-bold labor-input"
+                                                           name="global_share" form="laborSharesForm"
+                                                           value="{{ $globalLaborShare }}"
+                                                           min="0" max="100" data-target="global-shop-pct">
+                                                    <span class="input-group-text">%</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center fw-bold text-success" id="global-shop-pct">{{ 100 - $globalLaborShare }}%</td>
+                                            <td class="text-center"><span class="badge bg-secondary">Global</span></td>
+                                        </tr>
+                                        {{-- Une ligne par boutique --}}
+                                        @foreach($shopLaborShares as $shopId => $data)
+                                        <tr>
+                                            <td><i class="bi bi-shop me-1 text-muted"></i>{{ $data['shop']->name }}</td>
+                                            <td>
+                                                <div class="input-group input-group-sm">
+                                                    <input type="number" class="form-control text-center labor-input"
+                                                           name="shop_shares[{{ $shopId }}]" form="laborSharesForm"
+                                                           value="{{ $data['is_custom'] ? $data['percent'] : '' }}"
+                                                           placeholder="{{ $globalLaborShare }}"
+                                                           min="0" max="100"
+                                                           data-target="shop-pct-{{ $shopId }}">
+                                                    <span class="input-group-text">%</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center text-success fw-semibold" id="shop-pct-{{ $shopId }}">
+                                                {{ 100 - $data['effective'] }}%
+                                            </td>
+                                            <td class="text-center">
+                                                @if($data['is_custom'])
+                                                    <span class="badge bg-primary">Personnalisé</span>
+                                                @else
+                                                    <span class="badge bg-light text-muted border">Défaut</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Pièces = 100% boutique. Calculé sur les réparations <strong>livrées</strong> uniquement. SAV = charge du technicien.
+                                    </small>
+                                    <button type="submit" form="laborSharesForm" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-check-lg me-1"></i>Enregistrer les parts
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -382,6 +414,11 @@
                         <i class="bi bi-check-lg me-1"></i>Enregistrer
                     </button>
                 </div>
+            </form>
+
+            {{-- Form dédié parts techniciens (hors du settingsForm principal, inputs liés via form="laborSharesForm") --}}
+            <form id="laborSharesForm" action="{{ route('admin.settings.labor-shares') }}" method="POST" style="display:none">
+                @csrf
             </form>
         </div>
 
@@ -530,6 +567,18 @@ document.addEventListener('DOMContentLoaded', function() {
             history.replaceState(null, null, e.target.dataset.bsTarget);
         });
     });
+});
+
+// Mise à jour temps réel colonne "Part boutique" dans le tableau des parts techniciens
+document.querySelectorAll('.labor-input').forEach(input => {
+    const targetId = input.dataset.target;
+    const updateShop = () => {
+        const val = input.value !== '' ? parseInt(input.value, 10) : parseInt(input.placeholder || 50, 10);
+        const shopPct = isNaN(val) ? '—' : (100 - Math.max(0, Math.min(100, val))) + '%';
+        const el = document.getElementById(targetId);
+        if (el) el.textContent = shopPct;
+    };
+    input.addEventListener('input', updateShop);
 });
 </script>
 @endpush

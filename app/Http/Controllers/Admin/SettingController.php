@@ -38,7 +38,19 @@ class SettingController extends Controller
         
         $paymentMethods = PaymentMethod::ordered()->get();
 
-        return view('admin.settings.index', compact('settings', 'paymentMethods', 'shops', 'selectedShopId', 'selectedShop'));
+        // Part technicien par boutique : override shop ou valeur globale
+        $globalLaborShare = (int) (Setting::whereNull('shop_id')->where('key', 'technician_labor_share')->value('value') ?? 50);
+        $shopLaborShares  = $shops->mapWithKeys(function ($shop) use ($globalLaborShare) {
+            $shopValue = Setting::where('key', 'technician_labor_share')->where('shop_id', $shop->id)->value('value');
+            return [$shop->id => [
+                'shop'       => $shop,
+                'percent'    => $shopValue !== null ? (int) $shopValue : null,
+                'effective'  => $shopValue !== null ? (int) $shopValue : $globalLaborShare,
+                'is_custom'  => $shopValue !== null,
+            ]];
+        });
+
+        return view('admin.settings.index', compact('settings', 'paymentMethods', 'shops', 'selectedShopId', 'selectedShop', 'globalLaborShare', 'shopLaborShares'));
     }
 
     public function update(Request $request)
@@ -121,6 +133,45 @@ class SettingController extends Controller
         }
 
         return redirect($redirectUrl)->with('success', 'Paramètres mis à jour avec succès.');
+    }
+
+    /**
+     * Mettre à jour la part technicien (global + par boutique en une seule soumission)
+     */
+    public function updateLaborShares(Request $request)
+    {
+        $request->validate([
+            'global_share'    => 'required|integer|min:0|max:100',
+            'shop_shares'     => 'nullable|array',
+            'shop_shares.*'   => 'nullable|integer|min:0|max:100',
+        ]);
+
+        // Valeur globale
+        Setting::updateOrCreate(
+            ['key' => 'technician_labor_share', 'shop_id' => null],
+            ['value' => (string) $request->integer('global_share'), 'type' => 'integer', 'group' => 'repairs', 'is_global' => true]
+        );
+        Cache::forget('setting.technician_labor_share.global');
+
+        // Valeurs par boutique
+        foreach ((array) $request->input('shop_shares', []) as $shopId => $percent) {
+            $shopId = (int) $shopId;
+            if ($percent === null || $percent === '') {
+                Setting::where('key', 'technician_labor_share')->where('shop_id', $shopId)->delete();
+            } else {
+                Setting::updateOrCreate(
+                    ['key' => 'technician_labor_share', 'shop_id' => $shopId],
+                    ['value' => (string) (int) $percent, 'type' => 'integer', 'group' => 'repairs', 'is_global' => false]
+                );
+            }
+            Cache::forget("setting.technician_labor_share.shop.{$shopId}");
+        }
+
+        ActivityLog::log('update', null, null, null, 'Mise à jour des parts techniciens par boutique');
+
+        return redirect()->route('admin.settings.index')
+            ->with('success', 'Parts techniciens mises à jour.')
+            ->withFragment('pane-reparations');
     }
 
     /**
