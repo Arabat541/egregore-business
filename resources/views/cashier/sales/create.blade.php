@@ -540,13 +540,20 @@ document.getElementById('clientType').addEventListener('change', function() {
             dropdown.innerHTML = list.map(r => `
                 <div class="px-3 py-2 reseller-item"
                      style="cursor:pointer; border-bottom:1px solid #f0f0f0;"
-                     onmousedown="pickReseller(${r.id}, ${JSON.stringify(r.company_name)}, ${r.credit})">
+                     data-id="${r.id}"
+                     data-name="${esc(r.company_name)}"
+                     data-credit="${r.credit}">
                     <div class="fw-semibold small">${esc(r.company_name)}</div>
                     <div class="text-muted" style="font-size:.78rem;">
                         ${esc(r.contact_name)} · ${esc(r.phone)}
                         &nbsp;·&nbsp;<span class="text-${r.credit > 0 ? 'success' : 'danger'}">${fmt(r.credit)} FCFA crédit</span>
                     </div>
                 </div>`).join('');
+            dropdown.querySelectorAll('.reseller-item').forEach(el => {
+                el.addEventListener('mousedown', function() {
+                    pickReseller(parseInt(this.dataset.id), this.dataset.name, parseFloat(this.dataset.credit));
+                });
+            });
         }
         dropdown.style.display = 'block';
     }
