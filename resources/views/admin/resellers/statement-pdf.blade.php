@@ -398,14 +398,15 @@
             @endforelse
 
             <!-- Créance de clôture -->
+            @php $closingCredit = $openingBalance + $summary['total_purchases'] - $runningBalance; @endphp
             <tr class="closing">
                 <td>{{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</td>
                 <td>Clôture</td>
                 <td>Créance de clôture</td>
                 @if(!isset($shopId) || !$shopId)<td></td>@endif
                 <td></td><td></td>
-                <td class="text-end">{{ number_format($summary['total_purchases'], 0, ',', ' ') }} F</td>
-                <td class="text-end">{{ number_format($summary['total_payments'], 0, ',', ' ') }} F</td>
+                <td class="text-end">{{ number_format($openingBalance + $summary['total_purchases'], 0, ',', ' ') }} F</td>
+                <td class="text-end">{{ number_format($closingCredit, 0, ',', ' ') }} F</td>
                 <td class="text-end">{{ number_format($runningBalance, 0, ',', ' ') }} F</td>
             </tr>
         </tbody>
@@ -419,12 +420,10 @@
                 <th colspan="{{ (!isset($shopId) || !$shopId) ? 7 : 6 }}" style="text-align:left; background:#198754;">VERSEMENTS REÇUS SUR LA PÉRIODE</th>
             </tr>
             <tr>
-                <th style="width:12%;">Date</th>
-                <th style="width:15%;">Référence</th>
-                <th style="width:12%;">Mode</th>
-                <th style="width:18%;" class="text-end">Montant</th>
-                <th style="width:18%;" class="text-end">Dette avant</th>
-                <th style="width:18%;" class="text-end">Dette après</th>
+                <th style="width:15%;">Date</th>
+                <th style="width:20%;">Référence</th>
+                <th style="width:15%;">Mode</th>
+                <th style="width:22%;" class="text-end">Montant</th>
                 <th>Note</th>
             </tr>
         </thead>
@@ -435,15 +434,13 @@
                 <td>{{ $p->reference ?? 'PAY-' . $p->id }}</td>
                 <td>{{ $p->payment_method ?? 'Espèces' }}</td>
                 <td class="text-end">{{ number_format($p->amount, 0, ',', ' ') }} F</td>
-                <td class="text-end">{{ number_format($p->debt_before ?? 0, 0, ',', ' ') }} F</td>
-                <td class="text-end">{{ number_format(max(0, $p->debt_after ?? 0), 0, ',', ' ') }} F</td>
                 <td style="font-size:7px;">{{ (float)($p->debt_before ?? 0) <= 0 ? 'Avance (dette = 0)' : ($p->notes ?? '') }}</td>
             </tr>
             @endforeach
             <tr style="background:#e9ecef;font-weight:bold;">
                 <td colspan="3">Total versements</td>
                 <td class="text-end">{{ number_format($payments->sum('amount'), 0, ',', ' ') }} F</td>
-                <td colspan="3"></td>
+                <td></td>
             </tr>
         </tbody>
     </table>

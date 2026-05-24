@@ -267,6 +267,7 @@
                         @endforelse
 
                         <!-- Créance de clôture -->
+                        @php $closingCredit = $openingBalance + $summary['total_purchases'] - $runningBalance; @endphp
                         <tr class="table-dark fw-bold">
                             <td>{{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</td>
                             <td><span class="badge bg-dark">Clôture</span></td>
@@ -274,8 +275,8 @@
                             @if($shops->isNotEmpty())<td></td>@endif
                             <td></td>
                             <td></td>
-                            <td class="text-end">{{ number_format($summary['total_purchases'], 0, ',', ' ') }} F</td>
-                            <td class="text-end">{{ number_format($summary['total_payments'], 0, ',', ' ') }} F</td>
+                            <td class="text-end">{{ number_format($openingBalance + $summary['total_purchases'], 0, ',', ' ') }} F</td>
+                            <td class="text-end">{{ number_format($closingCredit, 0, ',', ' ') }} F</td>
                             <td class="text-end">{{ number_format($runningBalance, 0, ',', ' ') }} F</td>
                         </tr>
                     </tbody>
@@ -297,9 +298,7 @@
                             <th style="width:110px">Date</th>
                             <th>Référence</th>
                             <th>Mode</th>
-                            <th class="text-end" style="width:120px">Montant</th>
-                            <th class="text-end" style="width:120px">Dette avant</th>
-                            <th class="text-end" style="width:120px">Dette après</th>
+                            <th class="text-end" style="width:140px">Montant</th>
                             <th>Notes</th>
                         </tr>
                     </thead>
@@ -311,10 +310,6 @@
                             <td><span class="badge bg-info text-dark">{{ $p->payment_method ?? 'Espèces' }}</span></td>
                             <td class="text-end fw-bold {{ (float)($p->debt_before ?? 0) <= 0 ? 'text-muted' : 'text-success' }}">
                                 {{ number_format($p->amount, 0, ',', ' ') }} F
-                            </td>
-                            <td class="text-end text-muted">{{ number_format($p->debt_before ?? 0, 0, ',', ' ') }} F</td>
-                            <td class="text-end {{ (float)($p->debt_before ?? 0) <= 0 ? 'text-muted' : 'text-success fw-bold' }}">
-                                {{ number_format(max(0, $p->debt_after ?? 0), 0, ',', ' ') }} F
                             </td>
                             <td class="text-muted small">
                                 @if((float)($p->debt_before ?? 0) <= 0)
@@ -330,7 +325,7 @@
                         <tr>
                             <td colspan="3">Total versements</td>
                             <td class="text-end">{{ number_format($payments->sum('amount'), 0, ',', ' ') }} F</td>
-                            <td colspan="3"></td>
+                            <td></td>
                         </tr>
                     </tfoot>
                 </table>
