@@ -142,7 +142,7 @@ class ProductReturn extends Model
                     'quantity_after' => $quantityAfter,
                     'moveable_type' => ProductReturn::class,
                     'moveable_id' => $return->id,
-                    'reference' => 'RET-' . str_pad($return->id, 6, '0', STR_PAD_LEFT),
+                    'reference' => 'RET-' . str_pad((string) $return->id, 6, '0', STR_PAD_LEFT),
                     'reason' => "Retour revendeur: {$return->reseller->company_name}",
                 ]);
             }
