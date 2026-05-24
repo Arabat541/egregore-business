@@ -50,11 +50,11 @@ class WeeklyReportCommand extends Command
                 ->where('payment_status', '!=', 'cancelled')
                 ->count();
 
-            // ── Réparations livrées — amount_paid = encaissé réel, delivered_at = date réelle ──
+            // ── Réparations livrées — labor_cost = main d'œuvre totale (cohérent avec FinancialReportService)
             $repairRevenue = Repair::where('shop_id', $shop->id)
                 ->where('status', Repair::STATUS_DELIVERED)
                 ->whereBetween('delivered_at', [$from, $to])
-                ->sum('amount_paid');
+                ->sum('labor_cost');
 
             $repairCount = Repair::where('shop_id', $shop->id)
                 ->where('status', Repair::STATUS_DELIVERED)

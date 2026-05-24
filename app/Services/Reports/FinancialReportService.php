@@ -115,6 +115,7 @@ final class FinancialReportService
      *   costOfGoodsSold:float,
      *   grossProfit:float,
      *   profitMargin:float,
+     *   technicianCommission:float,
      *   netProfit:float,
      *   finalNetProfit:float,
      * }
@@ -136,12 +137,17 @@ final class FinancialReportService
         })->join('products', 'sale_items.product_id', '=', 'products.id')
           ->sum(DB::raw('sale_items.quantity * products.purchase_price'));
 
+        // La main d'œuvre est partagée : le technicien perçoit technician_labor_share %
+        // (les pièces de rechange sont des ventes séparées, non impactées)
+        $techShare            = (int) \App\Models\Setting::get('technician_labor_share', 50, $shopId) / 100;
+        $technicianCommission = round($repairsRevenue * $techShare, 2);
+
         $grossProfit    = $salesRevenue - $costOfGoodsSold;
         $profitMargin   = $salesRevenue > 0 ? round(($grossProfit / $salesRevenue) * 100, 1) : 0.0;
-        $netProfit      = $grossProfit + $repairsRevenue - $savTotalImpact;
+        $netProfit      = $grossProfit + $repairsRevenue - $technicianCommission - $savTotalImpact;
         $finalNetProfit = $netProfit - $totalExpenses;
 
-        return compact('costOfGoodsSold', 'grossProfit', 'profitMargin', 'netProfit', 'finalNetProfit');
+        return compact('costOfGoodsSold', 'grossProfit', 'profitMargin', 'technicianCommission', 'netProfit', 'finalNetProfit');
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -208,8 +214,8 @@ final class FinancialReportService
     /** @return array{cashIn:float,cashOut:float} */
     public function getCashFlow(string $start, string $end, ?int $shopId): array
     {
-        $inQuery  = CashTransaction::whereBetween('created_at', [$start, $end . ' 23:59:59'])->where('amount', '>', 0);
-        $outQuery = CashTransaction::whereBetween('created_at', [$start, $end . ' 23:59:59'])->where('amount', '<', 0);
+        $inQuery  = CashTransaction::whereBetween('created_at', [$start, $end . ' 23:59:59'])->where('type', CashTransaction::TYPE_INCOME);
+        $outQuery = CashTransaction::whereBetween('created_at', [$start, $end . ' 23:59:59'])->where('type', CashTransaction::TYPE_EXPENSE);
 
         if ($shopId) {
             $inQuery->whereHas('cashRegister', fn($q) => $q->where('shop_id', $shopId));

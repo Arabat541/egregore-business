@@ -53,16 +53,20 @@
                         </div>
                         <div class="col-md-7 d-none" id="resellerSection">
                             <label class="form-label mb-1">Réparateur</label>
-                            <div class="input-group">
-                                <select class="form-select" name="reseller_id" id="resellerSelect">
-                                    <option value="">Choisir un réparateur...</option>
-                                    @foreach($resellers as $reseller)
-                                        <option value="{{ $reseller->id }}" data-credit="{{ $reseller->credit_limit - $reseller->current_debt }}">
-                                            {{ $reseller->company_name }} — Crédit: {{ number_format($reseller->credit_limit - $reseller->current_debt, 0, ',', ' ') }} FCFA
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <span class="input-group-text text-success fw-bold" id="availableCredit" style="min-width: 110px;">—</span>
+                            <div class="position-relative">
+                                <div class="input-group">
+                                    <input type="text" id="resellerSearch" class="form-control"
+                                           placeholder="Rechercher nom, téléphone..." autocomplete="off">
+                                    <span class="input-group-text fw-bold" id="availableCredit"
+                                          style="min-width:120px; font-size:.85rem;">—</span>
+                                </div>
+                                <input type="hidden" name="reseller_id" id="resellerIdInput">
+                                <div id="resellerDropdown"
+                                     style="display:none; position:absolute; top:100%; left:0; right:0; z-index:1050;
+                                            background:#fff; border:1px solid #dee2e6; border-top:none;
+                                            border-radius:0 0 6px 6px; max-height:240px; overflow-y:auto;
+                                            box-shadow:0 4px 12px rgba(0,0,0,.1);">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -229,6 +233,13 @@
 @push('scripts')
 <script>
 const products = @json($products);
+const resellersData = @json($resellers->map(fn($r) => [
+    'id'           => $r->id,
+    'company_name' => $r->company_name,
+    'contact_name' => $r->contact_name ?? '',
+    'phone'        => $r->phone ?? '',
+    'credit'       => max(0, (float)$r->credit_limit - (float)$r->current_debt),
+])->values());
 let cart = [];
 
 /* ── Formatage ──────────────────────────────────────────── */
@@ -506,10 +517,73 @@ document.getElementById('clientType').addEventListener('change', function() {
     renderProducts(document.getElementById('productSearch').value);
 });
 
-document.getElementById('resellerSelect').addEventListener('change', function() {
-    const credit = this.options[this.selectedIndex]?.dataset?.credit || 0;
-    document.getElementById('availableCredit').textContent = fmt(credit) + ' FCFA';
-});
+/* ── Recherche réparateur ───────────────────────────────── */
+(function() {
+    const searchEl   = document.getElementById('resellerSearch');
+    const dropdown   = document.getElementById('resellerDropdown');
+    const hiddenId   = document.getElementById('resellerIdInput');
+    const creditEl   = document.getElementById('availableCredit');
+
+    function esc(str) {
+        return String(str)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function renderDropdown(list) {
+        if (list.length === 0) {
+            dropdown.innerHTML = '<div class="px-3 py-2 text-muted small">Aucun réparateur trouvé</div>';
+        } else {
+            dropdown.innerHTML = list.map(r => `
+                <div class="px-3 py-2 reseller-item"
+                     style="cursor:pointer; border-bottom:1px solid #f0f0f0;"
+                     onmousedown="pickReseller(${r.id}, ${JSON.stringify(r.company_name)}, ${r.credit})">
+                    <div class="fw-semibold small">${esc(r.company_name)}</div>
+                    <div class="text-muted" style="font-size:.78rem;">
+                        ${esc(r.contact_name)} · ${esc(r.phone)}
+                        &nbsp;·&nbsp;<span class="text-${r.credit > 0 ? 'success' : 'danger'}">${fmt(r.credit)} FCFA crédit</span>
+                    </div>
+                </div>`).join('');
+        }
+        dropdown.style.display = 'block';
+    }
+
+    function clearSelection() {
+        hiddenId.value      = '';
+        creditEl.textContent = '—';
+        creditEl.className   = 'input-group-text fw-bold';
+    }
+
+    searchEl.addEventListener('focus', () => renderDropdown(resellersData));
+
+    searchEl.addEventListener('input', function() {
+        const q = this.value.toLowerCase().trim();
+        if (!q) { clearSelection(); renderDropdown(resellersData); return; }
+        renderDropdown(resellersData.filter(r =>
+            r.company_name.toLowerCase().includes(q) ||
+            r.contact_name.toLowerCase().includes(q) ||
+            r.phone.includes(q)
+        ));
+    });
+
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#resellerSection')) dropdown.style.display = 'none';
+    });
+
+    // hover styles via CSS class injection
+    document.head.insertAdjacentHTML('beforeend', `<style>
+        .reseller-item:hover { background:#f8f9fa; }
+    </style>`);
+})();
+
+window.pickReseller = function(id, name, credit) {
+    document.getElementById('resellerIdInput').value = id;
+    document.getElementById('resellerSearch').value  = name;
+    document.getElementById('resellerDropdown').style.display = 'none';
+    const el = document.getElementById('availableCredit');
+    el.textContent  = fmt(credit) + ' FCFA';
+    el.className    = 'input-group-text fw-bold ' + (credit > 0 ? 'text-success' : 'text-danger');
+};
 
 document.getElementById('productSearch').addEventListener('input', function() {
     renderProducts(this.value);

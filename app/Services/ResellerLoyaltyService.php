@@ -48,15 +48,13 @@ final class ResellerLoyaltyService
         $start = "$year-01-01";
         $end   = "$year-12-31 23:59:59";
 
-        $totalPurchases = (float) Sale::withoutGlobalScope('shop')
+        $baseQuery = Sale::withoutGlobalScope('shop')
             ->where('reseller_id', $reseller->id)
-            ->whereBetween('created_at', [$start, $end])
-            ->sum('total_amount');
+            ->where('payment_status', '!=', 'cancelled')
+            ->whereBetween('created_at', [$start, $end]);
 
-        $totalPaid = (float) Sale::withoutGlobalScope('shop')
-            ->where('reseller_id', $reseller->id)
-            ->whereBetween('created_at', [$start, $end])
-            ->sum('amount_paid');
+        $totalPurchases = (float) (clone $baseQuery)->sum('total_amount');
+        $totalPaid      = (float) (clone $baseQuery)->sum('amount_paid');
 
         ['tier' => $tier, 'rate' => $rate] = $this->resolveTier($totalPaid);
 
@@ -112,13 +110,16 @@ final class ResellerLoyaltyService
         $movements = $this->buildMovements($sales, $payments);
 
         $totalPurchases = (float) $sales->sum('total_amount');
-        $totalPayments  = (float) $payments->sum('amount') + (float) $sales->sum('amount_paid');
+        // amount_paid est mis à jour par distributePaymentToSales() lors de chaque paiement :
+        // il représente déjà la somme de l'acompte initial + tous les ResellerPayments appliqués.
+        // Ne pas ajouter payments->sum('amount') en plus, ce serait un double-comptage.
+        $totalPayments  = (float) $sales->sum('amount_paid');
 
         $summary = [
             'total_purchases' => $totalPurchases,
             'total_payments'  => $totalPayments,
             'total_discount'  => (float) $sales->sum(fn($s) => $s->discount_amount ?? 0),
-            'balance'         => $totalPurchases - $totalPayments,
+            'balance'         => max(0.0, $totalPurchases - $totalPayments),
         ];
 
         return compact('openingBalance', 'movements', 'sales', 'payments', 'summary');
@@ -135,11 +136,12 @@ final class ResellerLoyaltyService
             ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
             ->where('created_at', '<', $start);
 
-        $salesBefore    = (float) (clone $base)->sum('total_amount');
-        $paidBefore     = (float) (clone $base)->sum('amount_paid');
-        $paymentsBefore = (float) $reseller->payments()->where('created_at', '<', $start)->sum('amount');
+        $salesBefore = (float) (clone $base)->sum('total_amount');
+        // amount_paid reflète tous les paiements reçus (acompte initial + ResellerPayments appliqués).
+        // Soustraire paymentsBefore en plus serait un double-comptage.
+        $paidBefore  = (float) (clone $base)->sum('amount_paid');
 
-        return $salesBefore - $paymentsBefore - $paidBefore;
+        return max(0.0, $salesBefore - $paidBefore);
     }
 
     private function buildMovements(Collection $sales, Collection $payments): Collection
