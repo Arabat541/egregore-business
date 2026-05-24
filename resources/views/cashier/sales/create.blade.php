@@ -524,6 +524,12 @@ document.getElementById('clientType').addEventListener('change', function() {
     const hiddenId   = document.getElementById('resellerIdInput');
     const creditEl   = document.getElementById('availableCredit');
 
+    function esc(str) {
+        return String(str)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
     function renderDropdown(list) {
         if (list.length === 0) {
             dropdown.innerHTML = '<div class="px-3 py-2 text-muted small">Aucun réparateur trouvé</div>';
@@ -532,9 +538,9 @@ document.getElementById('clientType').addEventListener('change', function() {
                 <div class="px-3 py-2 reseller-item"
                      style="cursor:pointer; border-bottom:1px solid #f0f0f0;"
                      onmousedown="pickReseller(${r.id}, ${JSON.stringify(r.company_name)}, ${r.credit})">
-                    <div class="fw-semibold small">${r.company_name}</div>
+                    <div class="fw-semibold small">${esc(r.company_name)}</div>
                     <div class="text-muted" style="font-size:.78rem;">
-                        ${r.contact_name} · ${r.phone}
+                        ${esc(r.contact_name)} · ${esc(r.phone)}
                         &nbsp;·&nbsp;<span class="text-${r.credit > 0 ? 'success' : 'danger'}">${fmt(r.credit)} FCFA crédit</span>
                     </div>
                 </div>`).join('');
@@ -542,17 +548,22 @@ document.getElementById('clientType').addEventListener('change', function() {
         dropdown.style.display = 'block';
     }
 
+    function clearSelection() {
+        hiddenId.value      = '';
+        creditEl.textContent = '—';
+        creditEl.className   = 'input-group-text fw-bold';
+    }
+
     searchEl.addEventListener('focus', () => renderDropdown(resellersData));
 
     searchEl.addEventListener('input', function() {
         const q = this.value.toLowerCase().trim();
-        if (!q) { renderDropdown(resellersData); return; }
+        if (!q) { clearSelection(); renderDropdown(resellersData); return; }
         renderDropdown(resellersData.filter(r =>
             r.company_name.toLowerCase().includes(q) ||
             r.contact_name.toLowerCase().includes(q) ||
             r.phone.includes(q)
         ));
-        if (!q) { hiddenId.value = ''; creditEl.textContent = '—'; creditEl.className = 'input-group-text fw-bold'; }
     });
 
     document.addEventListener('click', e => {
