@@ -176,7 +176,7 @@
                             </td>
                             <td class="text-end fw-bold">{{ number_format($sale->total_amount, 0, ',', ' ') }} F</td>
                             <td class="text-end text-success">{{ number_format($sale->amount_paid, 0, ',', ' ') }} F</td>
-                            <td class="text-end fw-bold text-danger">{{ number_format($sale->amount_due, 0, ',', ' ') }} F</td>
+                            <td class="text-end fw-bold text-danger">{{ number_format(max(0, $sale->amount_due), 0, ',', ' ') }} F</td>
                             <td>
                                 @if($sale->payment_status === 'credit')
                                     <span class="badge bg-danger">Crédit</span>
@@ -192,7 +192,7 @@
                             <td colspan="5" class="ps-3 text-end">Sous-total ventes</td>
                             <td class="text-end">{{ number_format($totalAmount, 0, ',', ' ') }} F</td>
                             <td class="text-end text-success">{{ number_format($totalPaid, 0, ',', ' ') }} F</td>
-                            <td class="text-end text-danger">{{ number_format($totalOutstanding, 0, ',', ' ') }} F</td>
+                            <td class="text-end text-danger">{{ number_format(max(0, $totalOutstanding), 0, ',', ' ') }} F</td>
                             <td></td>
                         </tr>
                     </tfoot>
@@ -232,7 +232,7 @@
                             <td><span class="badge bg-info text-dark">{{ $payment->payment_method ?? 'Espèces' }}</span></td>
                             <td class="text-end fw-bold text-success">{{ number_format($payment->amount, 0, ',', ' ') }} F</td>
                             <td class="text-end text-muted">{{ number_format($payment->debt_before, 0, ',', ' ') }} F</td>
-                            <td class="text-end text-success fw-bold">{{ number_format($payment->debt_after, 0, ',', ' ') }} F</td>
+                            <td class="text-end text-success fw-bold">{{ number_format(max(0, $payment->debt_after), 0, ',', ' ') }} F</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -274,7 +274,7 @@
                     </div>
                 </div>
                 <div class="col-auto text-end">
-                    <div class="fs-2 fw-bold text-danger">{{ number_format($totalOutstanding, 0, ',', ' ') }} F</div>
+                    <div class="fs-2 fw-bold text-danger">{{ number_format(max(0, $totalOutstanding), 0, ',', ' ') }} F</div>
                     <div class="text-muted small">sur {{ number_format($totalAmount, 0, ',', ' ') }} F accordés (période)</div>
                 </div>
             </div>

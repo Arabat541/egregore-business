@@ -142,11 +142,8 @@ class Reseller extends Model
             return;
         }
 
-        // Clamp to 0: only decrement by what's actually owed
-        $actual = min($amount, (float) $this->current_debt);
-        if ($actual > 0) {
-            $this->decrement('current_debt', $actual);
-        }
+        $this->current_debt = max(0, (float) $this->current_debt - $amount);
+        $this->save();
     }
 
     /**
