@@ -196,12 +196,13 @@ class ResellerPaymentController extends Controller
         foreach ($returnsBySale as $saleId => $returnValue) {
             if ($saleId !== 'global') {
                 $sale = Sale::find($saleId);
-                if ($sale && $returnValue > (float) $sale->amount_due) {
+                if ($sale && $returnValue > (float) $sale->total_amount) {
+                    // Bloquer seulement si on essaie de retourner plus que le montant total de la facture.
+                    // Retourner jusqu'au total_amount est autorisé même si une partie a déjà été payée :
+                    // l'excédent (total_amount - amount_due) sera redistribué sur les autres factures ouvertes.
                     return back()->with('error',
                         'La valeur des retours (' . number_format($returnValue, 0, ',', ' ') . ' FCFA) ' .
-                        'dépasse le montant restant dû (' . number_format((float) $sale->amount_due, 0, ',', ' ') . ' FCFA) ' .
-                        'pour la facture ' . $sale->invoice_number . '. ' .
-                        'Le revendeur a déjà payé une partie, vous ne pouvez retourner que pour la valeur restante.'
+                        'dépasse le montant total de la facture (' . number_format((float) $sale->total_amount, 0, ',', ' ') . ' FCFA).'
                     );
                 }
             }
