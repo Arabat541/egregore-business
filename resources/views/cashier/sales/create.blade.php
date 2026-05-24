@@ -242,6 +242,11 @@ let cart = [];
 
 /* ── Formatage ──────────────────────────────────────────── */
 function fmt(n) { return new Intl.NumberFormat('fr-FR').format(Math.round(n)); }
+function esc(str) {
+    return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 function showCartAlert(msg, type = 'danger') {
     const el = document.getElementById('cartAlert');
     el.className = `alert alert-${type} alert-dismissible mx-2 mt-2 py-2 small mb-0`;
@@ -526,12 +531,6 @@ document.getElementById('clientType').addEventListener('change', function() {
     const dropdown   = document.getElementById('resellerDropdown');
     const hiddenId   = document.getElementById('resellerIdInput');
     const creditEl   = document.getElementById('availableCredit');
-
-    function esc(str) {
-        return String(str)
-            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
 
     function renderDropdown(list) {
         if (list.length === 0) {
