@@ -73,32 +73,20 @@
                 </div>
             </div>
 
-            {{-- Catalogue produits --}}
+            {{-- Ajouter un produit --}}
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span><i class="bi bi-box-seam"></i> Produits disponibles</span>
-                    <input type="text" id="productSearch" class="form-control form-control-sm"
-                           style="width: 260px;" placeholder="Rechercher nom, SKU, catégorie..." autofocus autocomplete="off">
+                <div class="card-header">
+                    <i class="bi bi-box-seam"></i> Ajouter un produit
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
-                        <table class="table table-sm table-hover mb-0">
-                            <thead class="sticky-top bg-white border-bottom">
-                                <tr>
-                                    <th>Produit</th>
-                                    <th>Catégorie</th>
-                                    <th class="text-center">Stock</th>
-                                    <th class="text-end">Prix</th>
-                                    <th class="text-center" style="width: 70px;">Qté</th>
-                                    <th style="width: 50px;"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="productsList">
-                                <tr><td colspan="6" class="text-center text-muted py-4">
-                                    <div class="spinner-border spinner-border-sm me-2"></div>Chargement…
-                                </td></tr>
-                            </tbody>
-                        </table>
+                <div class="card-body py-2">
+                    <div class="position-relative" id="productSearchWrapper">
+                        <input type="text" id="productSearch" class="form-control"
+                               placeholder="Rechercher nom, SKU, catégorie..." autofocus autocomplete="off">
+                        <div id="productDropdown"
+                             style="display:none; position:absolute; top:100%; left:0; right:0; z-index:1050;
+                                    background:#fff; border:1px solid #dee2e6; border-radius:0 0 6px 6px;
+                                    max-height:360px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,.1);">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -275,68 +263,91 @@ function getPriceLabel(quantity, product) {
     return '<span class="badge bg-secondary ms-1">répar.</span>';
 }
 
-/* ── Rendu du catalogue produits ────────────────────────── */
-function renderProducts(filter) {
-    const tbody = document.getElementById('productsList');
-    const clientType = document.getElementById('clientType').value;
-    const search = (filter || '').toLowerCase().trim();
+/* ── Recherche produit (dropdown) ───────────────────────── */
+(function() {
+    const searchEl  = document.getElementById('productSearch');
+    const dropdown  = document.getElementById('productDropdown');
 
-    const filtered = search.length === 0 ? products : products.filter(p =>
-        p.name.toLowerCase().includes(search) ||
-        (p.sku && p.sku.toLowerCase().includes(search)) ||
-        (p.category && p.category.name && p.category.name.toLowerCase().includes(search))
-    );
+    function clientType() { return document.getElementById('clientType').value; }
 
-    if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4"><i class="bi bi-search"></i> Aucun produit trouvé</td></tr>';
-        return;
+    function renderProductDropdown(list) {
+        if (list.length === 0) {
+            dropdown.innerHTML = '<div class="px-3 py-2 text-muted small">Aucun produit trouvé</div>';
+        } else {
+            const type = clientType();
+            dropdown.innerHTML = list.slice(0, 30).map(p => {
+                const price    = getPriceForQuantity(p, 1, type);
+                const inCart   = cart.find(i => i.product_id === p.id);
+                const stockCls = p.quantity_in_stock > 5 ? 'text-success' : p.quantity_in_stock > 0 ? 'text-warning' : 'text-danger';
+                const catName  = (p.category && p.category.name) ? esc(p.category.name) : '';
+                const disabled = p.quantity_in_stock < 1;
+                return `<div class="px-3 py-2 product-dd-item d-flex justify-content-between align-items-center"
+                             style="cursor:${disabled ? 'not-allowed' : 'pointer'}; border-bottom:1px solid #f0f0f0;
+                                    opacity:${disabled ? '.5' : '1'}; ${inCart ? 'background:#f0fff4;' : ''}"
+                             data-id="${p.id}" data-disabled="${disabled ? '1' : '0'}">
+                    <div>
+                        <div class="fw-semibold small">${esc(p.name)}${inCart ? ' <span class="badge bg-success ms-1">✓ panier</span>' : ''}</div>
+                        <div class="text-muted" style="font-size:.78rem;">
+                            ${p.sku ? `<span class="me-2 font-monospace">${esc(p.sku)}</span>` : ''}
+                            ${catName ? `<span class="badge bg-secondary me-1">${catName}</span>` : ''}
+                            <span class="${stockCls}"><i class="bi bi-layers"></i> ${p.quantity_in_stock}</span>
+                        </div>
+                    </div>
+                    <div class="text-end text-nowrap ms-3">
+                        <div class="fw-semibold small">${fmt(price)} FCFA</div>
+                        <span class="badge ${disabled ? 'bg-secondary' : 'bg-primary'}">${disabled ? 'Rupture' : '+ Ajouter'}</span>
+                    </div>
+                </div>`;
+            }).join('');
+            dropdown.querySelectorAll('.product-dd-item').forEach(el => {
+                el.addEventListener('mousedown', function() {
+                    if (this.dataset.disabled === '1') return;
+                    const product = products.find(p => p.id === parseInt(this.dataset.id));
+                    if (product) {
+                        addToCart(product, 1);
+                        searchEl.value = '';
+                        dropdown.style.display = 'none';
+                        searchEl.focus();
+                    }
+                });
+            });
+        }
+        dropdown.style.display = 'block';
     }
 
-    tbody.innerHTML = filtered.map(p => {
-        const price     = getPriceForQuantity(p, 1, clientType);
-        const inCart    = cart.find(i => i.product_id === p.id);
-        const stockCls  = p.quantity_in_stock > 5 ? 'bg-success' : p.quantity_in_stock > 0 ? 'bg-warning text-dark' : 'bg-danger';
-        const catName   = (p.category && p.category.name) ? p.category.name : '';
-        const disabled  = p.quantity_in_stock < 1;
-        return `<tr class="${inCart ? 'table-success' : ''}">
-            <td>
-                <div class="fw-semibold">${esc(p.name)}</div>
-                ${p.sku ? `<small class="text-muted">[${esc(p.sku)}]</small>` : ''}
-            </td>
-            <td>${catName ? `<span class="badge bg-secondary">${esc(catName)}</span>` : '<span class="text-muted">—</span>'}</td>
-            <td class="text-center"><span class="badge ${stockCls}">${p.quantity_in_stock}</span></td>
-            <td class="text-end small text-nowrap" id="priceCell-${p.id}">${fmt(price)} FCFA</td>
-            <td class="text-center">
-                <input type="number" id="qty-${p.id}" value="1" min="1" max="${p.quantity_in_stock}"
-                       class="form-control form-control-sm text-center" style="width:60px;"
-                       ${disabled ? 'disabled' : ''}
-                       oninput="updateCellPrice(${p.id})">
-            </td>
-            <td>
-                <button type="button" class="btn btn-sm ${inCart ? 'btn-success' : 'btn-outline-primary'}"
-                        onclick="addToCartFromTable(${p.id})" ${disabled ? 'disabled' : ''}>
-                    <i class="bi ${inCart ? 'bi-check' : 'bi-plus-lg'}"></i>
-                </button>
-            </td>
-        </tr>`;
-    }).join('');
-}
+    window.refreshProductDropdown = function() {
+        const q = searchEl.value.trim();
+        if (q.length > 0) renderProductDropdown(filterProducts(q));
+    };
 
-function updateCellPrice(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-    const qty = parseInt(document.getElementById(`qty-${productId}`)?.value) || 1;
-    const cell = document.getElementById(`priceCell-${productId}`);
-    if (cell) cell.textContent = fmt(getPriceForQuantity(product, qty)) + ' FCFA';
+    searchEl.addEventListener('input', function() {
+        const q = this.value.toLowerCase().trim();
+        if (!q) { dropdown.style.display = 'none'; return; }
+        renderProductDropdown(filterProducts(q));
+    });
+
+    searchEl.addEventListener('focus', function() {
+        if (this.value.trim()) renderProductDropdown(filterProducts(this.value.trim().toLowerCase()));
+    });
+
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#productSearchWrapper')) dropdown.style.display = 'none';
+    });
+
+    document.head.insertAdjacentHTML('beforeend', `<style>
+        .product-dd-item:hover { background:#f8f9fa !important; }
+    </style>`);
+})();
+
+function filterProducts(q) {
+    return products.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        (p.sku && p.sku.toLowerCase().includes(q)) ||
+        (p.category && p.category.name && p.category.name.toLowerCase().includes(q))
+    );
 }
 
 /* ── Panier ─────────────────────────────────────────────── */
-function addToCartFromTable(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-    const qty = parseInt(document.getElementById(`qty-${productId}`)?.value) || 1;
-    addToCart(product, qty);
-}
 
 function addToCart(product, qty = 1) {
     const clientType = document.getElementById('clientType').value;
@@ -370,13 +381,13 @@ function addToCart(product, qty = 1) {
         });
     }
     renderCart();
-    renderProducts(document.getElementById('productSearch').value);
+    if (window.refreshProductDropdown) refreshProductDropdown();
 }
 
 function removeFromCart(index) {
     cart.splice(index, 1);
     renderCart();
-    renderProducts(document.getElementById('productSearch').value);
+    if (window.refreshProductDropdown) refreshProductDropdown();
 }
 
 function updateQuantity(index, qty) {
@@ -393,7 +404,6 @@ function updateQuantity(index, qty) {
 function clearCart() {
     cart = [];
     renderCart();
-    renderProducts(document.getElementById('productSearch').value);
 }
 
 function renderCart() {
@@ -522,7 +532,6 @@ document.getElementById('clientType').addEventListener('change', function() {
     });
 
     renderCart();
-    renderProducts(document.getElementById('productSearch').value);
 });
 
 /* ── Recherche réparateur ───────────────────────────────── */
@@ -594,15 +603,10 @@ window.pickReseller = function(id, name, credit) {
     el.className    = 'input-group-text fw-bold ' + (credit > 0 ? 'text-success' : 'text-danger');
 };
 
-document.getElementById('productSearch').addEventListener('input', function() {
-    renderProducts(this.value);
-});
-
 document.getElementById('paidAmount').addEventListener('input', calculateTotals);
 
 /* ── Init ───────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function() {
-    renderProducts('');
     renderCart();
 });
 </script>
