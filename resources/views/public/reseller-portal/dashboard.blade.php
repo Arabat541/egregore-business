@@ -38,8 +38,8 @@
             background: white;
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            overflow: hidden;
         }
+        .bg-purple { background-color: #6f42c1 !important; }
         .section-card .card-header {
             background: white;
             border-bottom: 2px solid #f0f2f5;
@@ -138,7 +138,7 @@
                 </div>
                 <div>
                     <div class="kpi-label">Paiements (période)</div>
-                    <div class="kpi-value text-danger">
+                    <div class="kpi-value text-success">
                         {{ number_format($summary['total_payments'], 0, ',', ' ') }}<small class="fs-6"> F</small>
                     </div>
                 </div>
@@ -189,9 +189,9 @@
             </div>
         </div>
         <div class="mt-2 d-flex gap-1 flex-wrap">
-            <a href="?start_date={{ now()->startOfMonth()->format('Y-m-d') }}&end_date={{ now()->format('Y-m-d') }}" class="btn btn-xs btn-outline-secondary" style="font-size:.75rem;padding:.2rem .5rem;">Ce mois</a>
-            <a href="?start_date={{ now()->subMonths(3)->format('Y-m-d') }}&end_date={{ now()->format('Y-m-d') }}" class="btn btn-xs btn-outline-secondary" style="font-size:.75rem;padding:.2rem .5rem;">3 mois</a>
-            <a href="?start_date={{ now()->startOfYear()->format('Y-m-d') }}&end_date={{ now()->format('Y-m-d') }}" class="btn btn-xs btn-outline-secondary" style="font-size:.75rem;padding:.2rem .5rem;">Cette année</a>
+            <a href="?start_date={{ now()->startOfMonth()->format('Y-m-d') }}&end_date={{ now()->format('Y-m-d') }}" class="btn btn-sm btn-outline-secondary py-0" style="font-size:.75rem;">Ce mois</a>
+            <a href="?start_date={{ now()->subMonths(3)->format('Y-m-d') }}&end_date={{ now()->format('Y-m-d') }}" class="btn btn-sm btn-outline-secondary py-0" style="font-size:.75rem;">3 mois</a>
+            <a href="?start_date={{ now()->startOfYear()->format('Y-m-d') }}&end_date={{ now()->format('Y-m-d') }}" class="btn btn-sm btn-outline-secondary py-0" style="font-size:.75rem;">Cette année</a>
         </div>
     </form>
 
