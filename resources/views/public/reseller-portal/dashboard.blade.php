@@ -172,7 +172,7 @@
     @endif
 
     <!-- Filtre de période -->
-    <form method="GET" class="filter-form">
+    <form method="GET" action="{{ route('reseller-portal.dashboard') }}" class="filter-form">
         <div class="row g-2 align-items-end">
             <div class="col-sm-4">
                 <label class="form-label small fw-semibold mb-1">Date début</label>
