@@ -184,7 +184,10 @@ final class SaleService
 
             if ($amountPaid > 0) {
                 $cashRegister = CashRegister::getOpenRegisterForUser($user->id);
-                $cashRegister?->addTransaction(
+                if (!$cashRegister) {
+                    throw new \LogicException('Aucune caisse ouverte. Impossible d\'annuler une vente encaissée sans caisse active.');
+                }
+                $cashRegister->addTransaction(
                     CashTransaction::TYPE_EXPENSE,
                     CashTransaction::CATEGORY_ADJUSTMENT,
                     $amountPaid,

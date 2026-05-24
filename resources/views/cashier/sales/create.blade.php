@@ -111,6 +111,10 @@
                     <span><i class="bi bi-cart"></i> Panier</span>
                     <span class="badge bg-white text-dark" id="cartCount">0 article</span>
                 </div>
+                <div id="cartAlert" class="alert alert-danger alert-dismissible mx-2 mt-2 py-2 small mb-0" style="display:none">
+                    <button type="button" class="btn-close btn-sm" onclick="hideCartAlert()"></button>
+                    <span id="cartAlertMsg"></span>
+                </div>
 
                 {{-- Articles du panier --}}
                 <div class="card-body p-2" id="cartBody">
@@ -244,6 +248,13 @@ let cart = [];
 
 /* ── Formatage ──────────────────────────────────────────── */
 function fmt(n) { return new Intl.NumberFormat('fr-FR').format(Math.round(n)); }
+function showCartAlert(msg, type = 'danger') {
+    const el = document.getElementById('cartAlert');
+    el.className = `alert alert-${type} alert-dismissible mx-2 mt-2 py-2 small mb-0`;
+    document.getElementById('cartAlertMsg').textContent = msg;
+    el.style.display = 'block';
+}
+function hideCartAlert() { document.getElementById('cartAlert').style.display = 'none'; }
 
 /* ── Prix selon type/quantité ───────────────────────────── */
 function getPriceForQuantity(product, quantity, clientType = null) {
@@ -290,10 +301,10 @@ function renderProducts(filter) {
         const disabled  = p.quantity_in_stock < 1;
         return `<tr class="${inCart ? 'table-success' : ''}">
             <td>
-                <div class="fw-semibold">${p.name}</div>
-                ${p.sku ? `<small class="text-muted">[${p.sku}]</small>` : ''}
+                <div class="fw-semibold">${esc(p.name)}</div>
+                ${p.sku ? `<small class="text-muted">[${esc(p.sku)}]</small>` : ''}
             </td>
-            <td>${catName ? `<span class="badge bg-secondary">${catName}</span>` : '<span class="text-muted">—</span>'}</td>
+            <td>${catName ? `<span class="badge bg-secondary">${esc(catName)}</span>` : '<span class="text-muted">—</span>'}</td>
             <td class="text-center"><span class="badge ${stockCls}">${p.quantity_in_stock}</span></td>
             <td class="text-end small text-nowrap" id="priceCell-${p.id}">${fmt(price)} FCFA</td>
             <td class="text-center">
@@ -331,20 +342,20 @@ function addToCartFromTable(productId) {
 function addToCart(product, qty = 1) {
     const clientType = document.getElementById('clientType').value;
     if (clientType === 'reseller' && !product.reseller_price) {
-        alert(`⚠️ "${product.name}" n'a pas de prix réparateur défini.`);
+        showCartAlert(`"${product.name}" n'a pas de prix réparateur défini.`);
         return;
     }
     const idx = cart.findIndex(i => i.product_id === product.id);
     if (idx !== -1) {
         const item = cart[idx];
         const newQty = item.quantity + qty;
-        if (newQty > product.quantity_in_stock) { alert('Stock insuffisant!'); return; }
+        if (newQty > product.quantity_in_stock) { showCartAlert('Stock insuffisant !'); return; }
         item.quantity   = newQty;
         item.unit_price = getPriceForQuantity(product, newQty);
         cart.splice(idx, 1);
         cart.unshift(item);
     } else {
-        if (product.quantity_in_stock < 1) { alert('Rupture de stock!'); return; }
+        if (product.quantity_in_stock < 1) { showCartAlert('Rupture de stock !'); return; }
         cart.unshift({
             product_id:          product.id,
             name:                product.name,
@@ -381,11 +392,9 @@ function updateQuantity(index, qty) {
 }
 
 function clearCart() {
-    if (confirm('Vider le panier ?')) {
-        cart = [];
-        renderCart();
-        renderProducts(document.getElementById('productSearch').value);
-    }
+    cart = [];
+    renderCart();
+    renderProducts(document.getElementById('productSearch').value);
 }
 
 function renderCart() {
@@ -416,7 +425,7 @@ function renderCart() {
         const label   = product ? getPriceLabel(item.quantity, product) : '';
         return `<tr>
             <td class="small">
-                <div class="fw-semibold">${item.name}${label}</div>
+                <div class="fw-semibold">${esc(item.name)}${label}</div>
                 <span class="text-muted">${fmt(item.unit_price)} FCFA/u</span>
             </td>
             <td class="text-center">
@@ -500,7 +509,7 @@ document.getElementById('clientType').addEventListener('change', function() {
             return p && !p.reseller_price;
         });
         if (missing.length > 0) {
-            alert('⚠️ Produits sans prix réparateur retirés:\n' + missing.map(i => i.name).join(', '));
+            showCartAlert('Produits sans prix réparateur retirés : ' + missing.map(i => i.name).join(', '));
             cart = cart.filter(i => {
                 const p = products.find(p => p.id === i.product_id);
                 return p && p.reseller_price;

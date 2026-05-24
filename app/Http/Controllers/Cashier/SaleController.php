@@ -137,7 +137,12 @@ class SaleController extends Controller
 
         $subtotal       = collect($validated['items'])->sum(fn($i) => ($i['unit_price'] * $i['quantity']) - ($i['discount'] ?? 0));
         $discountAmount = (float) ($validated['discount_amount'] ?? 0);
-        $total          = $subtotal - $discountAmount;
+
+        if ($discountAmount >= $subtotal) {
+            return back()->with('error', 'La remise globale ne peut pas être supérieure ou égale au montant total des articles.');
+        }
+
+        $total = $subtotal - $discountAmount;
         $amountDue      = $total - $validated['paid_amount'];
 
         $reseller = null;
@@ -241,6 +246,10 @@ class SaleController extends Controller
      */
     public function cancel(Request $request, Sale $sale)
     {
+        if (!$sale->created_at->isToday()) {
+            return back()->with('error', 'Seules les ventes du jour peuvent être annulées.');
+        }
+
         $request->validate([
             'cancel_reason' => 'required|string|max:500',
         ]);
