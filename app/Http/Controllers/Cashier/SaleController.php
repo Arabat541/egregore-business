@@ -101,7 +101,15 @@ class SaleController extends Controller
         $paymentMethods = \App\Models\PaymentMethod::where('is_active', true)->orderBy('sort_order')->get();
         $products = Product::with('category')->where('is_active', true)->where('quantity_in_stock', '>', 0)->orderBy('name')->get();
 
-        return view('cashier.sales.create', compact('customers', 'resellers', 'cashRegister', 'paymentMethods', 'products'));
+        $resellersData = $resellers->map(fn($r) => [
+            'id'           => $r->id,
+            'company_name' => $r->company_name,
+            'contact_name' => $r->contact_name ?? '',
+            'phone'        => $r->phone ?? '',
+            'credit'       => max(0, (float) $r->credit_limit - (float) $r->current_debt),
+        ])->values();
+
+        return view('cashier.sales.create', compact('customers', 'resellers', 'cashRegister', 'paymentMethods', 'products', 'resellersData'));
     }
 
     /**

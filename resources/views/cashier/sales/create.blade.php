@@ -237,13 +237,7 @@
 @push('scripts')
 <script>
 const products = @json($products);
-const resellersData = @json($resellers->map(fn($r) => [
-    'id'           => $r->id,
-    'company_name' => $r->company_name,
-    'contact_name' => $r->contact_name ?? '',
-    'phone'        => $r->phone ?? '',
-    'credit'       => max(0, (float)$r->credit_limit - (float)$r->current_debt),
-])->values());
+const resellersData = @json($resellersData);
 let cart = [];
 
 /* ── Formatage ──────────────────────────────────────────── */
