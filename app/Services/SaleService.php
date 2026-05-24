@@ -138,6 +138,8 @@ final class SaleService
 
         DB::transaction(function () use ($sale, $reason, $user): void {
             $originalStatus = $sale->payment_status;
+            $amountPaid     = (float) $sale->amount_paid;
+            $amountDue      = (float) $sale->amount_due;
 
             foreach ($sale->items as $item) {
                 if ($item->product) {
@@ -159,6 +161,8 @@ final class SaleService
 
             $sale->update([
                 'payment_status' => 'cancelled',
+                'amount_paid'    => 0,
+                'amount_due'     => 0,
                 'notes'          => ($sale->notes ? $sale->notes . "\n" : '')
                     . "Annulée le " . now()->format('d/m/Y H:i')
                     . " par {$user->name} — Motif : {$reason}",
@@ -168,17 +172,22 @@ final class SaleService
                 $sale->client_type === 'reseller'
                 && $sale->reseller_id
                 && in_array($originalStatus, ['credit', 'paid'], true)
-                && $sale->amount_due > 0
             ) {
-                Reseller::find($sale->reseller_id)?->removeDebt((float) $sale->amount_due);
+                $reseller = Reseller::find($sale->reseller_id);
+                if ($reseller) {
+                    if ($amountDue > 0) {
+                        $reseller->removeDebt($amountDue);
+                    }
+                    $reseller->removePurchase((float) $sale->total_amount);
+                }
             }
 
-            if ($sale->amount_paid > 0) {
+            if ($amountPaid > 0) {
                 $cashRegister = CashRegister::getOpenRegisterForUser($user->id);
                 $cashRegister?->addTransaction(
                     CashTransaction::TYPE_EXPENSE,
                     CashTransaction::CATEGORY_ADJUSTMENT,
-                    (float) $sale->amount_paid,
+                    $amountPaid,
                     $sale->payment_method ?? 'cash',
                     $sale,
                     "Annulation vente #{$sale->invoice_number}"

@@ -159,6 +159,34 @@ class Reseller extends Model
     }
 
     /**
+     * Inverser un achat (annulation de vente) : déduit du total annuel et des points.
+     */
+    public function removePurchase(float $amount): void
+    {
+        if ($amount <= 0) {
+            return;
+        }
+
+        DB::transaction(function () use ($amount): void {
+            $currentYear = now()->year;
+            if ($this->loyalty_year_start && $this->loyalty_year_start->year === $currentYear) {
+                $decrement = min($amount, (float) $this->total_purchases_year);
+                if ($decrement > 0) {
+                    $this->decrement('total_purchases_year', $decrement);
+                }
+            }
+
+            $pointsToRemove = min($amount / 10000, (float) $this->loyalty_points);
+            if ($pointsToRemove > 0) {
+                $this->decrement('loyalty_points', $pointsToRemove);
+            }
+
+            $this->refresh();
+            $this->updateLoyaltyBonusRate();
+        });
+    }
+
+    /**
      * Ajouter un achat au total annuel et calculer les points de fidélité
      */
     public function addPurchase(float $amount): void

@@ -235,11 +235,12 @@ class ReportController extends Controller
         ] = $this->financialService->getExpenses($startDate, $endDate, $shopId);
 
         [
-            'costOfGoodsSold' => $costOfGoodsSold,
-            'grossProfit'     => $grossProfit,
-            'profitMargin'    => $profitMargin,
-            'netProfit'       => $netProfit,
-            'finalNetProfit'  => $finalNetProfit,
+            'costOfGoodsSold'      => $costOfGoodsSold,
+            'grossProfit'          => $grossProfit,
+            'profitMargin'         => $profitMargin,
+            'technicianCommission' => $technicianCommission,
+            'netProfit'            => $netProfit,
+            'finalNetProfit'       => $finalNetProfit,
         ] = $this->financialService->getMargin(
             $startDate, $endDate, $shopId,
             $salesRevenue, $repairsRevenue, $savTotalImpact, $totalExpenses
@@ -263,7 +264,7 @@ class ReportController extends Controller
             'cashIn', 'cashOut',
             'totalCashCollected',
             'dates', 'revenueByPayment', 'cashRegisters',
-            'costOfGoodsSold', 'grossProfit', 'profitMargin', 'netProfit',
+            'costOfGoodsSold', 'grossProfit', 'profitMargin', 'technicianCommission', 'netProfit',
             'totalExpenses', 'expensesByCategory', 'expensesByPaymentMethod', 'finalNetProfit'
         ));
     }
@@ -539,10 +540,11 @@ class ReportController extends Controller
             $this->financialService->getExpenses($startDate, $endDate, $shopId);
 
         [
-            'costOfGoodsSold' => $costOfGoodsSold,
-            'grossProfit'     => $grossProfit,
-            'profitMargin'    => $profitMargin,
-            'finalNetProfit'  => $finalNetProfit,
+            'costOfGoodsSold'      => $costOfGoodsSold,
+            'grossProfit'          => $grossProfit,
+            'profitMargin'         => $profitMargin,
+            'technicianCommission' => $technicianCommission,
+            'finalNetProfit'       => $finalNetProfit,
         ] = $this->financialService->getMargin(
             $startDate, $endDate, $shopId,
             $salesRevenue, $repairsRevenue, $savTotalImpact, $totalExpenses
@@ -555,7 +557,7 @@ class ReportController extends Controller
             'salesRevenue', 'repairsRevenue', 'netRevenue',
             'savRefunds', 'savExchangeLosses', 'savExchangeGains', 'savTotalImpact',
             'totalExpenses', 'expensesByCategory', 'revenueByPayment',
-            'costOfGoodsSold', 'grossProfit', 'profitMargin', 'finalNetProfit'
+            'costOfGoodsSold', 'grossProfit', 'profitMargin', 'technicianCommission', 'finalNetProfit'
         ))->setPaper('a4', 'portrait');
 
         return $pdf->download('rapport_financier_' . $startDate . '_' . $endDate . '.pdf');

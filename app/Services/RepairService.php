@@ -63,6 +63,7 @@ final class RepairService
                 'labor_cost'                => $laborCost,
                 'parts_cost'                => $partsCost,
                 'amount_paid'               => $validated['amount_paid'],
+                'deposit_amount'            => (float) $validated['amount_paid'],
                 'payment_method'            => $paymentMethod->type ?? 'cash',
                 'estimated_completion_date' => $validated['estimated_completion_date'],
                 'paid_at'                   => $validated['amount_paid'] > 0 ? now() : null,
