@@ -399,7 +399,7 @@
                 <td></td><td></td>
                 <td class="text-end">{{ number_format($summary['total_purchases'], 0, ',', ' ') }} F</td>
                 <td class="text-end">{{ number_format($summary['total_payments'], 0, ',', ' ') }} F</td>
-                <td class="text-end">{{ number_format($movements->first()['running_balance'] ?? $summary['balance'], 0, ',', ' ') }} F</td>
+                <td class="text-end">{{ number_format($summary['balance'], 0, ',', ' ') }} F</td>
             </tr>
         </tbody>
     </table>

@@ -160,26 +160,28 @@ final class ResellerLoyaltyService
             $shopLabel = $sale->shop?->name ?? '—';
 
             $movements->push([
-                'date'        => $sale->created_at,
-                'type'        => 'sale',
-                'reference'   => $sale->invoice_number ?? ('VTE-' . $sale->id),
-                'sale_id'     => $sale->id,
-                'description' => count($sale->items) . ' article(s)',
-                'products'    => $products,
-                'shop'        => $shopLabel,
-                'debit'       => (float) $sale->total_amount,
-                'credit'      => 0.0,
+                'date'          => $sale->created_at,
+                'sort_priority' => 0, // sale toujours avant son ACP à même timestamp
+                'type'          => 'sale',
+                'reference'     => $sale->invoice_number ?? ('VTE-' . $sale->id),
+                'sale_id'       => $sale->id,
+                'description'   => count($sale->items) . ' article(s)',
+                'products'      => $products,
+                'shop'          => $shopLabel,
+                'debit'         => (float) $sale->total_amount,
+                'credit'        => 0.0,
             ]);
 
             if ($sale->amount_paid > 0) {
                 $movements->push([
-                    'date'        => $sale->created_at,
-                    'type'        => 'payment',
-                    'reference'   => 'ACP-' . $sale->id,
-                    'description' => 'Acompte sur vente VTE-' . $sale->id,
-                    'shop'        => $shopLabel,
-                    'debit'       => 0.0,
-                    'credit'      => (float) $sale->amount_paid,
+                    'date'          => $sale->created_at,
+                    'sort_priority' => 1, // ACP après la vente à même timestamp
+                    'type'          => 'payment',
+                    'reference'     => 'ACP-' . $sale->id,
+                    'description'   => 'Acompte sur vente VTE-' . $sale->id,
+                    'shop'          => $shopLabel,
+                    'debit'         => 0.0,
+                    'credit'        => (float) $sale->amount_paid,
                 ]);
             }
         }
@@ -190,9 +192,10 @@ final class ResellerLoyaltyService
         // Adding PAY entries would double-count every distributed payment.
         // PAYs remain visible in the separate versements table.
 
-        // Trier croissant, pré-calculer le solde courant, puis inverser pour affichage
+        // Tri ascendant stable : date d'abord, puis sort_priority (sale=0 avant payment=1)
+        // pour garantir que la vente précède toujours son acompte quand ils partagent le même created_at.
         $balance = $openingBalance;
-        $withBalance = $movements->sortBy('date')->values()->map(function ($m) use (&$balance) {
+        $withBalance = $movements->sortBy([['date', 'asc'], ['sort_priority', 'asc']])->values()->map(function ($m) use (&$balance) {
             if ($m['type'] === 'sale') {
                 $balance += $m['debit'];
             } else {

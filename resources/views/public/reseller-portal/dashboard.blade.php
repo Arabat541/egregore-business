@@ -222,8 +222,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php $runningBalance = $openingBalance; @endphp
-
                     <!-- Solde d'ouverture -->
                     <tr class="row-opening">
                         <td>{{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }}</td>
@@ -237,12 +235,7 @@
 
                     @forelse($movements as $movement)
                         @php
-                            $isSale = $movement['type'] === 'sale';
-                            if ($isSale) {
-                                $runningBalance += $movement['debit'];
-                            } else {
-                                $runningBalance -= $movement['credit'];
-                            }
+                            $isSale      = $movement['type'] === 'sale';
                             $hasProducts = $isSale && !empty($movement['products']);
                         @endphp
 
@@ -274,8 +267,8 @@
                                 @else —
                                 @endif
                             </td>
-                            <td class="text-end {{ $runningBalance > 0 ? 'text-danger' : 'text-success' }}">
-                                {{ number_format($runningBalance, 0, ',', ' ') }} F
+                            <td class="text-end {{ $movement['running_balance'] > 0 ? 'text-danger' : 'text-success' }}">
+                                {{ number_format($movement['running_balance'], 0, ',', ' ') }} F
                             </td>
                         </tr>
 
@@ -316,8 +309,8 @@
                         <td></td><td></td>
                         <td class="text-end">{{ number_format($summary['total_purchases'], 0, ',', ' ') }} F</td>
                         <td class="text-end">{{ number_format($summary['total_payments'], 0, ',', ' ') }} F</td>
-                        <td class="text-end {{ $runningBalance > 0 ? 'text-danger' : 'text-success' }}">
-                            {{ number_format($runningBalance, 0, ',', ' ') }} F
+                        <td class="text-end {{ $summary['balance'] > 0 ? 'text-danger' : 'text-success' }}">
+                            {{ number_format($summary['balance'], 0, ',', ' ') }} F
                         </td>
                     </tr>
                 </tbody>
