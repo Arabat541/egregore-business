@@ -58,8 +58,7 @@ class PublicTrackingController extends Controller
         // device_password est exclu (hidden dans le modèle Repair).
         // On ne charge pas 'technician' pour ne pas exposer les noms d'employés.
         $repair = Repair::with(['customer:id,first_name,last_name,phone', 'parts.product:id,name'])
-            ->where('ticket_number', $ticket)
-            ->orWhere('repair_number', $ticket)
+            ->where('repair_number', $ticket)
             ->firstOrFail();
 
         // Données publiques limitées (pas l'IMEI complet, pas le téléphone complet)
