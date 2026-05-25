@@ -107,6 +107,53 @@
         </div>
     </section>
 
+    {{-- Services : suivi réparation + espace réparateur --}}
+    <section id="services" class="py-5" style="background:linear-gradient(135deg,#f0f4ff 0%,#fafafa 100%);">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2 class="sf-section-title">Nos <span class="title-accent">services</span></h2>
+                <p class="sf-section-subtitle mt-1">Suivi en temps réel et espace dédié à nos réparateurs partenaires</p>
+            </div>
+            <div class="row g-4 justify-content-center">
+                {{-- Suivi de réparation --}}
+                <div class="col-md-5">
+                    <div class="sf-service-card h-100">
+                        <div class="service-icon-wrap" style="background:rgba(245,158,11,.12);color:#d97706;">
+                            <i class="bi bi-tools"></i>
+                        </div>
+                        <h5 class="fw-bold mt-3 mb-1">Suivi de réparation</h5>
+                        <p class="text-muted small mb-4">Entrez votre numéro de réparation pour suivre l'avancement de votre appareil en temps réel.</p>
+                        <form onsubmit="trackRepair(event)">
+                            <div class="input-group">
+                                <input type="text" id="repairTicketInput" class="form-control"
+                                       placeholder="Ex : REP-20260525-0001"
+                                       style="border-radius:10px 0 0 10px;font-size:.9rem;">
+                                <button class="btn fw-semibold" type="submit"
+                                        style="background:#d97706;color:#fff;border-radius:0 10px 10px 0;">
+                                    <i class="bi bi-search me-1"></i>Suivre
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                {{-- Espace réparateur --}}
+                <div class="col-md-5">
+                    <div class="sf-service-card h-100 d-flex flex-column">
+                        <div class="service-icon-wrap" style="background:rgba(99,102,241,.12);color:var(--sf-primary);">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+                        <h5 class="fw-bold mt-3 mb-1">Espace Réparateur</h5>
+                        <p class="text-muted small mb-4 flex-grow-1">Vous êtes réparateur partenaire ? Accédez à votre relevé de compte, vos achats et vos avantages fidélité.</p>
+                        <a href="{{ route('reseller-portal.index') }}" class="btn btn-sf-primary">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Accéder à mon espace
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     {{-- Nouveautés --}}
     <section class="py-5 bg-white">
         <div class="container">
@@ -180,4 +227,18 @@
         </div>
     </section>
     @endif
+@endsection
+
+@section('scripts')
+<script>
+function trackRepair(e) {
+    e.preventDefault();
+    var ticket = document.getElementById('repairTicketInput').value.trim();
+    if (ticket) {
+        window.location.href = '/repair/track/' + encodeURIComponent(ticket);
+    } else {
+        document.getElementById('repairTicketInput').focus();
+    }
+}
+</script>
 @endsection

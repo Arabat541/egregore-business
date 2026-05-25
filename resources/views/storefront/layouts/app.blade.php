@@ -660,6 +660,29 @@
             background-clip: text;
         }
 
+        /* ===== Service cards ===== */
+        .sf-service-card {
+            background: #fff;
+            border: 1px solid var(--sf-border);
+            border-radius: var(--sf-radius);
+            padding: 2rem;
+            box-shadow: var(--sf-shadow);
+            transition: var(--sf-transition);
+        }
+        .sf-service-card:hover {
+            box-shadow: var(--sf-shadow-lg);
+            transform: translateY(-4px);
+        }
+        .sf-service-card .service-icon-wrap {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
         /* ===== Responsive ===== */
         @media (max-width: 768px) {
             .sf-hero h1 { font-size: 2rem; }
@@ -705,6 +728,12 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('storefront.track*') ? 'active' : '' }}" href="{{ route('storefront.track') }}">Suivi commande</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('repair.track') ? 'active' : '' }}" href="{{ route('storefront.home') }}#services">Suivi réparation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('reseller-portal.*') ? 'active' : '' }}" href="{{ route('reseller-portal.index') }}">Mon Espace</a>
                     </li>
                     <li class="nav-item d-lg-none">
                         @auth
@@ -779,7 +808,9 @@
                     <ul class="list-unstyled footer-links">
                         <li><a href="{{ route('storefront.home') }}"><i class="bi bi-chevron-right" style="font-size:.7rem;"></i> Accueil</a></li>
                         <li><a href="{{ route('storefront.catalog') }}"><i class="bi bi-chevron-right" style="font-size:.7rem;"></i> Catalogue</a></li>
-                        <li><a href="{{ route('storefront.track') }}"><i class="bi bi-chevron-right" style="font-size:.7rem;"></i> Suivi</a></li>
+                        <li><a href="{{ route('storefront.track') }}"><i class="bi bi-chevron-right" style="font-size:.7rem;"></i> Suivi commande</a></li>
+                        <li><a href="{{ route('storefront.home') }}#services"><i class="bi bi-chevron-right" style="font-size:.7rem;"></i> Suivi réparation</a></li>
+                        <li><a href="{{ route('reseller-portal.index') }}"><i class="bi bi-chevron-right" style="font-size:.7rem;"></i> Mon Espace</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-6 mb-3">
