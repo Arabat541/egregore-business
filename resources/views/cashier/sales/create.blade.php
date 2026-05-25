@@ -24,41 +24,41 @@
 
     {{-- 1. Barre client ──────────────────────────────────────── --}}
     <div class="card mb-2 border-0 shadow-sm">
-        <div class="card-body py-2">
-            <div class="row align-items-center g-2">
+        <div class="card-body py-3">
+            <div class="row align-items-center g-3">
                 <div class="col-auto">
-                    <select class="form-select form-select-sm" name="client_type" id="clientType" style="width:auto;">
+                    <select class="form-select form-select-lg" name="client_type" id="clientType" style="width:auto;">
                         <option value="walk-in">Client comptoir</option>
                         <option value="customer">Client enregistré</option>
                         <option value="reseller">Réparateur</option>
                     </select>
                 </div>
-                <div class="col-md-4 d-none" id="customerSection">
-                    <div class="input-group input-group-sm">
-                        <select class="form-select" name="customer_id" id="customerSelect">
+                <div class="col-md-5 d-none" id="customerSection">
+                    <div class="input-group">
+                        <select class="form-select form-select-lg" name="customer_id" id="customerSelect">
                             <option value="">— Choisir un client —</option>
                             @foreach($customers as $customer)
                                 <option value="{{ $customer->id }}">{{ $customer->full_name }} — {{ $customer->phone }}</option>
                             @endforeach
                         </select>
-                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newCustomerModal">
+                        <button type="button" class="btn btn-outline-secondary btn-lg" data-bs-toggle="modal" data-bs-target="#newCustomerModal">
                             <i class="bi bi-person-plus"></i>
                         </button>
                     </div>
                 </div>
-                <div class="col-md-4 d-none" id="resellerSection">
+                <div class="col-md-5 d-none" id="resellerSection">
                     <div class="position-relative">
-                        <div class="input-group input-group-sm">
-                            <input type="text" id="resellerSearch" class="form-control"
+                        <div class="input-group">
+                            <input type="text" id="resellerSearch" class="form-control form-control-lg"
                                    placeholder="Rechercher réparateur..." autocomplete="off">
-                            <span class="input-group-text fw-bold" id="availableCredit"
-                                  style="min-width:110px; font-size:.82rem;">—</span>
+                            <span class="input-group-text fw-bold fs-6" id="availableCredit"
+                                  style="min-width:130px;">—</span>
                         </div>
                         <input type="hidden" name="reseller_id" id="resellerIdInput">
                         <div id="resellerDropdown"
                              style="display:none; position:absolute; top:100%; left:0; right:0; z-index:1050;
                                     background:#fff; border:1px solid #dee2e6; border-radius:0 0 6px 6px;
-                                    max-height:240px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,.1);">
+                                    max-height:280px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,.1);">
                         </div>
                     </div>
                 </div>
@@ -68,23 +68,24 @@
 
     {{-- 2. Barre saisie produit (style Sage) ─────────────────── --}}
     <div class="card mb-2 border-0 shadow-sm">
-        <div class="card-body py-2">
-            <div class="row g-2 align-items-center">
+        <div class="card-body py-3">
+            <div class="row g-3 align-items-center">
                 <div class="col">
                     <div class="position-relative" id="productSearchWrapper">
-                        <input type="text" id="productSearch" class="form-control"
-                               placeholder="Référence, nom ou catégorie..." autofocus autocomplete="off">
+                        <input type="text" id="productSearch" class="form-control form-control-lg"
+                               placeholder="Référence, nom ou catégorie..." autofocus autocomplete="off"
+                               style="font-size:1.1rem;">
                         <div id="productDropdown"
                              style="display:none; position:absolute; top:100%; left:0; right:0; z-index:1050;
                                     background:#fff; border:1px solid #dee2e6; border-radius:0 0 6px 6px;
-                                    max-height:320px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,.1);">
+                                    max-height:360px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,.1);">
                         </div>
                     </div>
                 </div>
                 <div class="col-auto d-flex align-items-center gap-2">
-                    <label class="mb-0 text-muted small fw-semibold">Qté</label>
-                    <input type="number" id="qtyInput" class="form-control text-center"
-                           value="1" min="1" style="width:75px;">
+                    <label class="mb-0 text-muted fw-semibold">Qté</label>
+                    <input type="number" id="qtyInput" class="form-control form-control-lg text-center"
+                           value="1" min="1" style="width:90px;">
                 </div>
             </div>
         </div>
@@ -99,15 +100,15 @@
     {{-- 3. Tableau articles (style Sage) ─────────────────────── --}}
     <div class="card mb-2 border-0 shadow-sm">
         <div class="table-responsive">
-            <table class="table table-sm table-hover mb-0">
+            <table class="table table-hover mb-0" style="font-size:1rem;">
                 <thead style="background:#2c3e50; color:#fff;">
                     <tr>
-                        <th style="width:12%;">Référence</th>
-                        <th>Désignation</th>
-                        <th class="text-center" style="width:95px;">Quantité</th>
-                        <th class="text-end" style="width:130px;">P.U. TTC</th>
-                        <th class="text-end" style="width:140px;">Montant TTC</th>
-                        <th style="width:42px;"></th>
+                        <th style="width:12%; padding:.75rem 1rem;">Référence</th>
+                        <th style="padding:.75rem 1rem;">Désignation</th>
+                        <th class="text-center" style="width:110px; padding:.75rem 1rem;">Quantité</th>
+                        <th class="text-end" style="width:150px; padding:.75rem 1rem;">P.U. TTC</th>
+                        <th class="text-end" style="width:160px; padding:.75rem 1rem;">Montant TTC</th>
+                        <th style="width:52px;"></th>
                     </tr>
                 </thead>
                 <tbody id="cartItems">
@@ -129,38 +130,38 @@
 
                 {{-- Remise + mode + notes --}}
                 <div class="col-md-4">
-                    <div class="mb-2">
-                        <label class="form-label form-label-sm mb-1">Remise globale (FCFA)</label>
-                        <input type="number" class="form-control form-control-sm" name="discount_amount"
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Remise globale (FCFA)</label>
+                        <input type="number" class="form-control form-control-lg" name="discount_amount"
                                id="discountAmount" value="0" min="0" step="100" oninput="calculateTotals()">
                         <div id="discountError" class="text-danger small mt-1" style="display:none"></div>
                     </div>
-                    <div class="mb-2">
-                        <label class="form-label form-label-sm mb-1">Mode de paiement</label>
-                        <select class="form-select form-select-sm" name="payment_method_id" id="paymentMethod" required>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Mode de paiement</label>
+                        <select class="form-select form-select-lg" name="payment_method_id" id="paymentMethod" required>
                             @foreach($paymentMethods as $method)
                                 <option value="{{ $method->id }}">{{ $method->name }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="form-check mb-2 d-none" id="creditSection">
+                    <div class="form-check mb-3 d-none" id="creditSection">
                         <input class="form-check-input" type="checkbox" name="is_credit" id="isCredit" value="1">
-                        <label class="form-check-label small">Vente à crédit</label>
+                        <label class="form-check-label">Vente à crédit</label>
                     </div>
                     <div>
-                        <label class="form-label form-label-sm mb-1">Notes</label>
-                        <textarea class="form-control form-control-sm" name="notes" rows="2" placeholder="Notes optionnelles…"></textarea>
+                        <label class="form-label fw-semibold">Notes</label>
+                        <textarea class="form-control" name="notes" rows="2" placeholder="Notes optionnelles…"></textarea>
                     </div>
                 </div>
 
                 {{-- Montant reçu + monnaie --}}
                 <div class="col-md-3">
-                    <label class="form-label form-label-sm mb-1 fw-semibold">Montant reçu (FCFA)</label>
+                    <label class="form-label fw-semibold fs-5">Montant reçu (FCFA)</label>
                     <input type="number" class="form-control form-control-lg" name="paid_amount"
-                           id="paidAmount" value="0" min="0">
+                           id="paidAmount" value="0" min="0" style="font-size:1.3rem;">
                     <div id="changeSection" class="mt-3 p-3 rounded text-center" style="display:none;">
-                        <div class="text-muted small mb-1">A rendre</div>
-                        <div class="fw-bold text-success" style="font-size:1.8rem;" id="changeAmount">0 FCFA</div>
+                        <div class="text-muted mb-1">A rendre</div>
+                        <div class="fw-bold text-success" style="font-size:2rem;" id="changeAmount">0 FCFA</div>
                     </div>
                 </div>
 
@@ -293,21 +294,21 @@ function getPriceLabel(quantity, product) {
                 const stockCls = p.quantity_in_stock > 5 ? 'text-success' : p.quantity_in_stock > 0 ? 'text-warning' : 'text-danger';
                 const catName  = (p.category && p.category.name) ? esc(p.category.name) : '';
                 const disabled = p.quantity_in_stock < 1;
-                return `<div class="px-3 py-2 product-dd-item d-flex justify-content-between align-items-center"
+                return `<div class="px-3 py-3 product-dd-item d-flex justify-content-between align-items-center"
                              style="cursor:${disabled ? 'not-allowed' : 'pointer'}; border-bottom:1px solid #f0f0f0;
                                     opacity:${disabled ? '.5' : '1'}; ${inCart ? 'background:#f0fff4;' : ''}"
                              data-id="${p.id}" data-disabled="${disabled ? '1' : '0'}">
                     <div>
-                        <div class="fw-semibold small">${esc(p.name)}${inCart ? ' <span class="badge bg-success ms-1">✓ panier</span>' : ''}</div>
-                        <div class="text-muted" style="font-size:.78rem;">
+                        <div class="fw-semibold" style="font-size:1rem;">${esc(p.name)}${inCart ? ' <span class="badge bg-success ms-1">✓ panier</span>' : ''}</div>
+                        <div class="text-muted" style="font-size:.85rem;">
                             ${p.sku ? `<span class="me-2 font-monospace">${esc(p.sku)}</span>` : ''}
                             ${catName ? `<span class="badge bg-secondary me-1">${catName}</span>` : ''}
                             <span class="${stockCls}"><i class="bi bi-layers"></i> ${p.quantity_in_stock}</span>
                         </div>
                     </div>
                     <div class="text-end text-nowrap ms-3">
-                        <div class="fw-semibold small">${fmt(price)} FCFA</div>
-                        <span class="badge ${disabled ? 'bg-secondary' : 'bg-primary'}">${disabled ? 'Rupture' : '+ Ajouter'}</span>
+                        <div class="fw-semibold" style="font-size:1rem;">${fmt(price)} FCFA</div>
+                        <span class="badge ${disabled ? 'bg-secondary' : 'bg-primary'} fs-6">${disabled ? 'Rupture' : '+ Ajouter'}</span>
                     </div>
                 </div>`;
             }).join('');
@@ -561,13 +562,13 @@ document.getElementById('clientType').addEventListener('change', function() {
             dropdown.innerHTML = '<div class="px-3 py-2 text-muted small">Aucun réparateur trouvé</div>';
         } else {
             dropdown.innerHTML = list.map(r => `
-                <div class="px-3 py-2 reseller-item"
+                <div class="px-3 py-3 reseller-item"
                      style="cursor:pointer; border-bottom:1px solid #f0f0f0;"
                      data-id="${r.id}"
                      data-name="${esc(r.company_name)}"
                      data-credit="${r.credit}">
-                    <div class="fw-semibold small">${esc(r.company_name)}</div>
-                    <div class="text-muted" style="font-size:.78rem;">
+                    <div class="fw-semibold" style="font-size:1rem;">${esc(r.company_name)}</div>
+                    <div class="text-muted" style="font-size:.88rem;">
                         ${esc(r.contact_name)} · ${esc(r.phone)}
                         &nbsp;·&nbsp;<span class="text-${r.credit > 0 ? 'success' : 'danger'}">${fmt(r.credit)} FCFA crédit</span>
                     </div>
