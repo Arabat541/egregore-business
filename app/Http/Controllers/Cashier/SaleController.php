@@ -129,7 +129,7 @@ class SaleController extends Controller
 
         foreach ($validated['items'] as $item) {
             $product = $products->get($item['product_id']);
-            if (!$product->hasStock($item['quantity'])) {
+            if (!$product->hasStock((int) $item['quantity'])) {
                 return back()->with('error', "Stock insuffisant pour {$product->name}. Disponible: {$product->quantity_in_stock}");
             }
 

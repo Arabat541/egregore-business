@@ -55,7 +55,7 @@ class ThermalPrinterService
                 ->margin(1)
                 ->generate($data);
             
-            return 'data:image/svg+xml;base64,' . base64_encode($qrCode);
+            return 'data:image/svg+xml;base64,' . base64_encode((string) $qrCode);
         } catch (\Exception $e) {
             return '';
         }
