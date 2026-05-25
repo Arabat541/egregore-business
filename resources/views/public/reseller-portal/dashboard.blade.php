@@ -62,7 +62,10 @@
         .row-payment { background: #e8f5e9; }
         .row-product { background: #fffde7; font-size: 0.8rem; color: #555; }
         .row-product td { padding: 0.3rem 0.75rem; border-bottom: none; }
-        .row-opening, .row-closing { background: #e9ecef; font-weight: 600; }
+        .row-opening { background: #e9ecef; font-weight: 600; }
+        .row-closing { background: #1a2535; color: #fff; font-weight: 700; }
+        .row-closing td { border-color: #2c3e50 !important; }
+        .row-closing .badge { background: #4a90d9 !important; }
         .badge-achat { background: #ff8f00; color: white; }
         .badge-paiement { background: #2e7d32; color: white; }
         .credit-bar .progress { height: 12px; border-radius: 6px; }
@@ -304,12 +307,12 @@
                     <!-- Clôture -->
                     <tr class="row-closing">
                         <td>{{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</td>
-                        <td><span class="badge bg-dark">Clôture</span></td>
+                        <td><span class="badge" style="background:#4a90d9;">Clôture</span></td>
                         <td>Solde de clôture</td>
                         <td></td><td></td>
                         <td class="text-end">{{ number_format($summary['total_purchases'], 0, ',', ' ') }} F</td>
                         <td class="text-end">{{ number_format($summary['total_payments'], 0, ',', ' ') }} F</td>
-                        <td class="text-end {{ $summary['balance'] > 0 ? 'text-danger' : 'text-success' }}">
+                        <td class="text-end fw-bold" style="font-size:1.05rem; color:{{ $summary['balance'] > 0 ? '#ff6b6b' : '#69db7c' }};">
                             {{ number_format($summary['balance'], 0, ',', ' ') }} F
                         </td>
                     </tr>
