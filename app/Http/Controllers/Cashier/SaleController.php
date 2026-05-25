@@ -240,7 +240,7 @@ class SaleController extends Controller
         
         // Générer le QR code en base64
         $qrCode = base64_encode(
-            QrCode::format('svg')
+            (string) QrCode::format('svg')
                 ->size(150)
                 ->margin(1)
                 ->generate($trackingUrl)

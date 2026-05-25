@@ -74,7 +74,7 @@ class ProfileController extends Controller
         $request->session()->put('2fa_setup_secret', $secret);
 
         $qrUrl  = $totp->getQrCodeUrl(config('app.name', 'EGREGORE BUSINESS'), $user->email, $secret);
-        $qrCode = base64_encode(QrCode::format('svg')->size(200)->margin(1)->generate($qrUrl));
+        $qrCode = base64_encode((string) QrCode::format('svg')->size(200)->margin(1)->generate($qrUrl));
 
         return view('profile.2fa-setup', compact('secret', 'qrCode'));
     }
