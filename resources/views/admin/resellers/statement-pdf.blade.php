@@ -311,8 +311,6 @@
             </tr>
         </thead>
         <tbody>
-            @php $runningBalance = $openingBalance; @endphp
-
             <!-- Créance d'ouverture -->
             <tr class="opening">
                 <td>{{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }}</td>
@@ -327,11 +325,6 @@
 
             @forelse($movements as $movement)
                 @php
-                    if ($movement['type'] === 'sale') {
-                        $runningBalance += $movement['debit'];
-                    } else {
-                        $runningBalance = max(0.0, $runningBalance - $movement['credit']);
-                    }
                     $isSale      = $movement['type'] === 'sale';
                     $hasProducts = $isSale && !empty($movement['products']);
                 @endphp
@@ -365,7 +358,7 @@
                         @else —
                         @endif
                     </td>
-                    <td class="text-end">{{ number_format($runningBalance, 0, ',', ' ') }} F</td>
+                    <td class="text-end">{{ number_format($movement['running_balance'], 0, ',', ' ') }} F</td>
                 </tr>
 
                 {{-- Sous-lignes produits --}}
@@ -406,7 +399,7 @@
                 <td></td><td></td>
                 <td class="text-end">{{ number_format($summary['total_purchases'], 0, ',', ' ') }} F</td>
                 <td class="text-end">{{ number_format($summary['total_payments'], 0, ',', ' ') }} F</td>
-                <td class="text-end">{{ number_format($runningBalance, 0, ',', ' ') }} F</td>
+                <td class="text-end">{{ number_format($movements->first()['running_balance'] ?? $summary['balance'], 0, ',', ' ') }} F</td>
             </tr>
         </tbody>
     </table>

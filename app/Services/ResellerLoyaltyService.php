@@ -107,7 +107,7 @@ final class ResellerLoyaltyService
             ->orderBy('created_at')
             ->get();
 
-        $movements = $this->buildMovements($sales);
+        $movements = $this->buildMovements($sales, $openingBalance);
 
         $totalPurchases = (float) $sales->sum('total_amount');
         // amount_paid est mis à jour par distributePaymentToSales() lors de chaque paiement :
@@ -144,7 +144,7 @@ final class ResellerLoyaltyService
         return max(0.0, $salesBefore - $paidBefore);
     }
 
-    private function buildMovements(Collection $sales): Collection
+    private function buildMovements(Collection $sales, float $openingBalance = 0.0): Collection
     {
         $movements = collect();
 
@@ -190,6 +190,18 @@ final class ResellerLoyaltyService
         // Adding PAY entries would double-count every distributed payment.
         // PAYs remain visible in the separate versements table.
 
-        return $movements->sortBy('date')->values();
+        // Trier croissant, pré-calculer le solde courant, puis inverser pour affichage
+        $balance = $openingBalance;
+        $withBalance = $movements->sortBy('date')->values()->map(function ($m) use (&$balance) {
+            if ($m['type'] === 'sale') {
+                $balance += $m['debit'];
+            } else {
+                $balance = max(0.0, $balance - $m['credit']);
+            }
+            $m['running_balance'] = $balance;
+            return $m;
+        });
+
+        return $withBalance->sortByDesc('date')->values();
     }
 }
