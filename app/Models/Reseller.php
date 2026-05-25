@@ -297,7 +297,7 @@ class Reseller extends Model
             });
 
         // Fusionner et trier par date
-        return $sales->concat($payments)->concat($bonuses)->sortBy('date')->values();
+        return $sales->concat($payments)->concat($bonuses)->sortByDesc('date')->values();
     }
 
     // Stats
