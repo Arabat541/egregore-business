@@ -111,7 +111,7 @@
                         <th style="padding:.75rem 1rem;">Désignation</th>
                         <th class="text-center" style="width:100px; padding:.75rem 1rem;">Stock</th>
                         <th class="text-center" style="width:120px; padding:.75rem 1rem;">Quantité</th>
-                        <th class="text-end"    style="width:170px; padding:.75rem 1rem;">Prix unitaire</th>
+                        <th class="text-end"    style="width:200px; padding:.75rem 1rem;">Prix unitaire (FCFA)</th>
                         <th class="text-end"    style="width:160px; padding:.75rem 1rem;">Montant</th>
                         <th style="width:52px;"></th>
                     </tr>
@@ -316,12 +316,10 @@ function addProductRow(productId, qty = 1) {
                    value="${qty}" min="1" required onchange="updateTotals()" style="width:80px; margin:auto;">
         </td>
         <td class="text-end" style="padding:.75rem 1rem;">
-            <div class="input-group">
-                <input type="number" name="items[${productId}][unit_price]"
-                       class="form-control form-control-lg text-end price-input"
-                       value="${product.purchase_price}" min="0" step="1" required onchange="updateTotals()">
-                <span class="input-group-text">FCFA</span>
-            </div>
+            <input type="number" name="items[${productId}][unit_price]"
+                   class="form-control form-control-lg text-end price-input"
+                   value="${product.purchase_price}" min="0" step="1" required onchange="updateTotals()"
+                   style="min-width:140px;">
         </td>
         <td class="text-end fw-bold text-nowrap" id="line-total-${productId}" style="padding:.75rem 1rem;">
             ${fmt(qty * product.purchase_price)} FCFA
