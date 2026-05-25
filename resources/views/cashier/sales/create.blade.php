@@ -7,8 +7,9 @@
 @endsection
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2><i class="bi bi-cart-plus"></i> Nouvelle vente</h2>
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h2 class="mb-0"><i class="bi bi-cart-plus"></i> Nouvelle vente</h2>
+    <span class="badge bg-secondary fs-6" id="cartCount">0 article</span>
 </div>
 
 @if(session('error'))
@@ -21,126 +22,119 @@
 <form action="{{ route('cashier.sales.store') }}" method="POST" id="saleForm">
     @csrf
 
-    <div class="row g-3">
-        {{-- ── Colonne gauche : catalogue ─────────────────────── --}}
-        <div class="col-md-8">
-
-            {{-- Type de client --}}
-            <div class="card mb-3">
-                <div class="card-body py-2">
-                    <div class="row align-items-end g-3">
-                        <div class="col-md-5">
-                            <label class="form-label mb-1">Type de client</label>
-                            <select class="form-select" name="client_type" id="clientType">
-                                <option value="walk-in">Client comptoir</option>
-                                <option value="customer">Client enregistré</option>
-                                <option value="reseller">Réparateur</option>
-                            </select>
-                        </div>
-                        <div class="col-md-7 d-none" id="customerSection">
-                            <label class="form-label mb-1">Client</label>
-                            <div class="input-group">
-                                <select class="form-select" name="customer_id" id="customerSelect">
-                                    <option value="">Rechercher un client...</option>
-                                    @foreach($customers as $customer)
-                                        <option value="{{ $customer->id }}">{{ $customer->full_name }} — {{ $customer->phone }}</option>
-                                    @endforeach
-                                </select>
-                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newCustomerModal">
-                                    <i class="bi bi-person-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="col-md-7 d-none" id="resellerSection">
-                            <label class="form-label mb-1">Réparateur</label>
-                            <div class="position-relative">
-                                <div class="input-group">
-                                    <input type="text" id="resellerSearch" class="form-control"
-                                           placeholder="Rechercher nom, téléphone..." autocomplete="off">
-                                    <span class="input-group-text fw-bold" id="availableCredit"
-                                          style="min-width:120px; font-size:.85rem;">—</span>
-                                </div>
-                                <input type="hidden" name="reseller_id" id="resellerIdInput">
-                                <div id="resellerDropdown"
-                                     style="display:none; position:absolute; top:100%; left:0; right:0; z-index:1050;
-                                            background:#fff; border:1px solid #dee2e6; border-top:none;
-                                            border-radius:0 0 6px 6px; max-height:240px; overflow-y:auto;
-                                            box-shadow:0 4px 12px rgba(0,0,0,.1);">
-                                </div>
-                            </div>
-                        </div>
+    {{-- 1. Barre client ──────────────────────────────────────── --}}
+    <div class="card mb-2 border-0 shadow-sm">
+        <div class="card-body py-2">
+            <div class="row align-items-center g-2">
+                <div class="col-auto">
+                    <select class="form-select form-select-sm" name="client_type" id="clientType" style="width:auto;">
+                        <option value="walk-in">Client comptoir</option>
+                        <option value="customer">Client enregistré</option>
+                        <option value="reseller">Réparateur</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-none" id="customerSection">
+                    <div class="input-group input-group-sm">
+                        <select class="form-select" name="customer_id" id="customerSelect">
+                            <option value="">— Choisir un client —</option>
+                            @foreach($customers as $customer)
+                                <option value="{{ $customer->id }}">{{ $customer->full_name }} — {{ $customer->phone }}</option>
+                            @endforeach
+                        </select>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newCustomerModal">
+                            <i class="bi bi-person-plus"></i>
+                        </button>
                     </div>
                 </div>
-            </div>
-
-            {{-- Ajouter un produit --}}
-            <div class="card">
-                <div class="card-header">
-                    <i class="bi bi-box-seam"></i> Ajouter un produit
-                </div>
-                <div class="card-body py-2">
-                    <div class="position-relative" id="productSearchWrapper">
-                        <input type="text" id="productSearch" class="form-control"
-                               placeholder="Rechercher nom, SKU, catégorie..." autofocus autocomplete="off">
-                        <div id="productDropdown"
+                <div class="col-md-4 d-none" id="resellerSection">
+                    <div class="position-relative">
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="resellerSearch" class="form-control"
+                                   placeholder="Rechercher réparateur..." autocomplete="off">
+                            <span class="input-group-text fw-bold" id="availableCredit"
+                                  style="min-width:110px; font-size:.82rem;">—</span>
+                        </div>
+                        <input type="hidden" name="reseller_id" id="resellerIdInput">
+                        <div id="resellerDropdown"
                              style="display:none; position:absolute; top:100%; left:0; right:0; z-index:1050;
                                     background:#fff; border:1px solid #dee2e6; border-radius:0 0 6px 6px;
-                                    max-height:360px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,.1);">
+                                    max-height:240px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,.1);">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        {{-- ── Colonne droite : panier + paiement ─────────────── --}}
-        <div class="col-md-4">
-            <div class="card sticky-top" style="top: 16px;">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <span><i class="bi bi-cart"></i> Panier</span>
-                    <span class="badge bg-white text-dark" id="cartCount">0 article</span>
-                </div>
-                <div id="cartAlert" class="alert alert-danger alert-dismissible mx-2 mt-2 py-2 small mb-0" style="display:none">
-                    <button type="button" class="btn-close btn-sm" onclick="hideCartAlert()"></button>
-                    <span id="cartAlertMsg"></span>
-                </div>
-
-                {{-- Articles du panier --}}
-                <div class="card-body p-2" id="cartBody">
-                    <div class="text-center text-muted py-3" id="emptyCart">
-                        <i class="bi bi-cart3 fs-3"></i>
-                        <p class="mb-0 small mt-1">Aucun article</p>
-                    </div>
-                    <div id="cartItemsContainer" style="display:none; max-height: 220px; overflow-y: auto;">
-                        <table class="table table-sm mb-0">
-                            <tbody id="cartItems"></tbody>
-                        </table>
+    {{-- 2. Barre saisie produit (style Sage) ─────────────────── --}}
+    <div class="card mb-2 border-0 shadow-sm">
+        <div class="card-body py-2">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="position-relative" id="productSearchWrapper">
+                        <input type="text" id="productSearch" class="form-control"
+                               placeholder="Référence, nom ou catégorie..." autofocus autocomplete="off">
+                        <div id="productDropdown"
+                             style="display:none; position:absolute; top:100%; left:0; right:0; z-index:1050;
+                                    background:#fff; border:1px solid #dee2e6; border-radius:0 0 6px 6px;
+                                    max-height:320px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,.1);">
+                        </div>
                     </div>
                 </div>
+                <div class="col-auto d-flex align-items-center gap-2">
+                    <label class="mb-0 text-muted small fw-semibold">Qté</label>
+                    <input type="number" id="qtyInput" class="form-control text-center"
+                           value="1" min="1" style="width:75px;">
+                </div>
+            </div>
+        </div>
+    </div>
 
-                {{-- Récapitulatif + paiement --}}
-                <div class="card-body border-top pt-2">
+    {{-- Alerte panier ────────────────────────────────────────── --}}
+    <div id="cartAlert" class="alert alert-danger alert-dismissible py-2 small mb-2" style="display:none">
+        <button type="button" class="btn-close btn-sm" onclick="hideCartAlert()"></button>
+        <span id="cartAlertMsg"></span>
+    </div>
+
+    {{-- 3. Tableau articles (style Sage) ─────────────────────── --}}
+    <div class="card mb-2 border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0">
+                <thead style="background:#2c3e50; color:#fff;">
+                    <tr>
+                        <th style="width:12%;">Référence</th>
+                        <th>Désignation</th>
+                        <th class="text-center" style="width:95px;">Quantité</th>
+                        <th class="text-end" style="width:130px;">P.U. TTC</th>
+                        <th class="text-end" style="width:140px;">Montant TTC</th>
+                        <th style="width:42px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="cartItems">
+                    <tr id="emptyCartRow">
+                        <td colspan="6" class="text-center text-muted py-5">
+                            <i class="bi bi-cart3 fs-2 d-block mb-2"></i>
+                            Aucun article — recherchez un produit ci-dessus
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- 4. Barre paiement + Total TTC (style Sage) ───────────── --}}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body py-3">
+            <div class="row g-3 align-items-start">
+
+                {{-- Remise + mode + notes --}}
+                <div class="col-md-4">
                     <div class="mb-2">
                         <label class="form-label form-label-sm mb-1">Remise globale (FCFA)</label>
                         <input type="number" class="form-control form-control-sm" name="discount_amount"
                                id="discountAmount" value="0" min="0" step="100" oninput="calculateTotals()">
                         <div id="discountError" class="text-danger small mt-1" style="display:none"></div>
                     </div>
-                    <div class="d-flex justify-content-between mb-1" id="subtotalRow" style="display:none!important">
-                        <span class="text-muted small">Sous-total:</span>
-                        <span class="text-muted small" id="subtotalAmount">0 FCFA</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-1 text-success" id="discountRow" style="display:none">
-                        <span class="small">Remise:</span>
-                        <span class="small" id="discountDisplay">- 0 FCFA</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <strong>TOTAL:</strong>
-                        <strong class="text-primary fs-5" id="totalAmount">0 FCFA</strong>
-                    </div>
-                    <input type="hidden" name="total_amount" id="totalAmountInput" value="0">
-
-                    <hr class="my-2">
-
                     <div class="mb-2">
                         <label class="form-label form-label-sm mb-1">Mode de paiement</label>
                         <select class="form-select form-select-sm" name="payment_method_id" id="paymentMethod" required>
@@ -149,36 +143,54 @@
                             @endforeach
                         </select>
                     </div>
-
-                    <div class="mb-2">
-                        <label class="form-label form-label-sm mb-1">Montant reçu</label>
-                        <input type="number" class="form-control" name="paid_amount" id="paidAmount" value="0" min="0">
-                    </div>
-
-                    <div class="d-flex justify-content-between mb-2" id="changeSection" style="display:none!important">
-                        <span class="small">Monnaie à rendre:</span>
-                        <span class="text-success fw-bold" id="changeAmount">0 FCFA</span>
-                    </div>
-
                     <div class="form-check mb-2 d-none" id="creditSection">
                         <input class="form-check-input" type="checkbox" name="is_credit" id="isCredit" value="1">
                         <label class="form-check-label small">Vente à crédit</label>
                     </div>
-
-                    <div class="mb-2">
+                    <div>
                         <label class="form-label form-label-sm mb-1">Notes</label>
                         <textarea class="form-control form-control-sm" name="notes" rows="2" placeholder="Notes optionnelles…"></textarea>
                     </div>
+                </div>
 
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-success" id="submitSale" disabled>
-                            <i class="bi bi-check-lg"></i> Valider la vente
-                        </button>
-                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearCart()">
-                            <i class="bi bi-trash"></i> Vider le panier
-                        </button>
+                {{-- Montant reçu + monnaie --}}
+                <div class="col-md-3">
+                    <label class="form-label form-label-sm mb-1 fw-semibold">Montant reçu (FCFA)</label>
+                    <input type="number" class="form-control form-control-lg" name="paid_amount"
+                           id="paidAmount" value="0" min="0">
+                    <div id="changeSection" class="mt-3 p-3 rounded text-center" style="display:none;">
+                        <div class="text-muted small mb-1">A rendre</div>
+                        <div class="fw-bold text-success" style="font-size:1.8rem;" id="changeAmount">0 FCFA</div>
                     </div>
                 </div>
+
+                {{-- Total TTC (grand affichage Sage) --}}
+                <div class="col-md-3">
+                    <div id="subtotalRow" style="display:none;">
+                        <div class="d-flex justify-content-between text-muted small mb-1">
+                            <span>Sous-total</span><span id="subtotalAmount">0 FCFA</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-success small mb-2" id="discountRow" style="display:none;">
+                            <span>Remise</span><span id="discountDisplay">- 0 FCFA</span>
+                        </div>
+                    </div>
+                    <div class="rounded p-4 text-center" style="background:#e8f4fd; border:2px solid #0d6efd;">
+                        <div class="text-primary small fw-semibold mb-1 text-uppercase tracking-wide">Total TTC</div>
+                        <div class="fw-bold text-primary" style="font-size:2.2rem; line-height:1;" id="totalAmount">0 FCFA</div>
+                    </div>
+                    <input type="hidden" name="total_amount" id="totalAmountInput" value="0">
+                </div>
+
+                {{-- Boutons --}}
+                <div class="col-md-2 d-flex flex-column gap-2 pt-md-4">
+                    <button type="submit" class="btn btn-success btn-lg fw-bold" id="submitSale" disabled>
+                        <i class="bi bi-check-lg"></i> Valider
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearCart()">
+                        <i class="bi bi-trash"></i> Vider
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
@@ -304,7 +316,10 @@ function getPriceLabel(quantity, product) {
                     if (this.dataset.disabled === '1') return;
                     const product = products.find(p => p.id === parseInt(this.dataset.id));
                     if (product) {
-                        addToCart(product, 1);
+                        const qtyEl = document.getElementById('qtyInput');
+                        const qty   = Math.max(1, parseInt(qtyEl?.value) || 1);
+                        addToCart(product, qty);
+                        if (qtyEl) qtyEl.value = 1;
                         searchEl.value = '';
                         dropdown.style.display = 'none';
                         searchEl.focus();
@@ -407,43 +422,43 @@ function clearCart() {
 }
 
 function renderCart() {
-    const tbody     = document.getElementById('cartItems');
-    const emptyMsg  = document.getElementById('emptyCart');
-    const container = document.getElementById('cartItemsContainer');
-    const cartInputs= document.getElementById('cartInputs');
-    const countEl   = document.getElementById('cartCount');
+    const tbody      = document.getElementById('cartItems');
+    const cartInputs = document.getElementById('cartInputs');
+    const countEl    = document.getElementById('cartCount');
 
     const total = cart.reduce((s, i) => s + i.quantity, 0);
     countEl.textContent = total + (total <= 1 ? ' article' : ' articles');
 
     if (cart.length === 0) {
-        emptyMsg.style.display = 'block';
-        container.style.display = 'none';
+        tbody.innerHTML = `<tr id="emptyCartRow">
+            <td colspan="6" class="text-center text-muted py-5">
+                <i class="bi bi-cart3 fs-2 d-block mb-2"></i>
+                Aucun article — recherchez un produit ci-dessus
+            </td>
+        </tr>`;
         cartInputs.innerHTML = '';
         document.getElementById('submitSale').disabled = true;
         calculateTotals();
         return;
     }
 
-    emptyMsg.style.display = 'none';
-    container.style.display = 'block';
     document.getElementById('submitSale').disabled = false;
 
     tbody.innerHTML = cart.map((item, i) => {
         const product = products.find(p => p.id === item.product_id);
+        const sku     = product?.sku || '—';
         const label   = product ? getPriceLabel(item.quantity, product) : '';
         return `<tr>
-            <td class="small">
-                <div class="fw-semibold">${esc(item.name)}${label}</div>
-                <span class="text-muted">${fmt(item.unit_price)} FCFA/u</span>
-            </td>
+            <td class="font-monospace small text-muted">${esc(sku)}</td>
+            <td class="small">${esc(item.name)}${label}</td>
             <td class="text-center">
                 <input type="number" class="form-control form-control-sm text-center"
                        value="${item.quantity}" min="1" max="${item.max_stock}"
-                       onchange="updateQuantity(${i}, this.value)" style="width:55px;">
+                       onchange="updateQuantity(${i}, this.value)" style="width:65px;">
             </td>
-            <td class="text-end small fw-bold text-nowrap">${fmt(item.quantity * item.unit_price)}</td>
-            <td>
+            <td class="text-end small text-muted text-nowrap">${fmt(item.unit_price)} FCFA</td>
+            <td class="text-end small fw-bold text-nowrap">${fmt(item.quantity * item.unit_price)} FCFA</td>
+            <td class="text-center">
                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFromCart(${i})">
                     <i class="bi bi-x"></i>
                 </button>
