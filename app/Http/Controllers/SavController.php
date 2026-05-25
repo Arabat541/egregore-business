@@ -153,6 +153,25 @@ class SavController extends Controller
             }
         }
 
+        // Bloquer un double SAV sur la même réparation ou la même vente
+        if (!empty($validated['repair_id'])) {
+            $existing = SavTicket::where('repair_id', $validated['repair_id'])
+                ->whereNotIn('status', ['closed', 'rejected'])
+                ->first();
+            if ($existing) {
+                return back()->with('error', "Un ticket SAV actif ({$existing->ticket_number}) existe déjà pour cette réparation. Fermez-le avant d'en créer un nouveau.")->withInput();
+            }
+        }
+
+        if (!empty($validated['sale_id'])) {
+            $existing = SavTicket::where('sale_id', $validated['sale_id'])
+                ->whereNotIn('status', ['closed', 'rejected'])
+                ->first();
+            if ($existing) {
+                return back()->with('error', "Un ticket SAV actif ({$existing->ticket_number}) existe déjà pour cette vente. Fermez-le avant d'en créer un nouveau.")->withInput();
+            }
+        }
+
         // Vérification de la garantie pour les types nécessitant une vente/réparation
         $warrantyTypes = ['return', 'exchange', 'warranty', 'repair_warranty', 'refund'];
 
