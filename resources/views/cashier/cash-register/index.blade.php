@@ -13,8 +13,8 @@
 
 @if($cashRegister)
     @php
-        $totalIn = $cashRegister->transactions->where('type', '!=', 'cash_out')->sum('amount');
-        $totalOut = abs($cashRegister->transactions->where('type', 'cash_out')->sum('amount'));
+        $totalIn  = (float) $cashRegister->transactions->where('type', 'income')->sum('amount');
+        $totalOut = (float) $cashRegister->transactions->where('type', 'expense')->sum('amount');
         $calculatedAmount = $cashRegister->opening_balance + $totalIn - $totalOut;
         $transactionCount = $cashRegister->transactions->count();
     @endphp
@@ -134,7 +134,7 @@
                     <div class="modal-body">
                         <div class="alert alert-info">Theorique: {{ number_format($calculatedAmount, 0, ',', ' ') }} FCFA</div>
                         <div class="mb-3"><label>Montant compte</label><input type="number" class="form-control" name="closing_balance" required></div>
-                        <div class="mb-3"><label>Notes</label><textarea class="form-control" name="closing_notes"></textarea></div>
+                        <div class="mb-3"><label>Notes</label><textarea class="form-control" name="notes"></textarea></div>
                     </div>
                     <div class="modal-footer"><button type="submit" class="btn btn-warning">Fermer</button></div>
                 </form>

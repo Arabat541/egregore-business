@@ -138,15 +138,19 @@ class CashRegisterController extends Controller
             return back()->with('error', 'Aucune caisse ouverte.');
         }
 
-        $cashRegister->close(
-            $validated['closing_balance'],
-            $validated['notes'] ?? null
-        );
+        try {
+            $cashRegister->close(
+                (float) $validated['closing_balance'],
+                $validated['notes'] ?? null
+            );
 
-        ActivityLog::log('update', $cashRegister, null, $cashRegister->toArray(), 'Clôture de caisse');
+            ActivityLog::log('update', $cashRegister, null, $cashRegister->toArray(), 'Clôture de caisse');
 
-        return redirect()->route('cashier.cash-register.index')
-            ->with('success', 'Caisse clôturée avec succès.');
+            return redirect()->route('cashier.cash-register.index')
+                ->with('success', 'Caisse clôturée avec succès.');
+        } catch (\Throwable $e) {
+            return back()->with('error', $this->handleException($e, basename(__FILE__)));
+        }
     }
 
     /**
