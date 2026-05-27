@@ -245,9 +245,10 @@ class Reseller extends Model
         $startDate = $startDate ?? now()->startOfYear();
         $endDate = $endDate ?? now();
 
-        // Récupérer les ventes
+        // Récupérer les ventes (exclure les annulées)
         $sales = $this->sales()
             ->whereBetween('created_at', [$startDate, $endDate])
+            ->where('payment_status', '!=', 'cancelled')
             ->select('id', 'invoice_number', 'total_amount', 'amount_paid', 'payment_status', 'created_at')
             ->get()
             ->map(function ($sale) {

@@ -38,6 +38,7 @@ class ShopController extends Controller
 
             $todaySalesAmount = $shop->sales()
                 ->whereDate('created_at', today())
+                ->where('payment_status', '!=', 'cancelled')
                 ->sum('total_amount');
 
             $todayRepairsAmount = $shop->repairs()
@@ -213,11 +214,13 @@ class ShopController extends Controller
                 // CA du jour
                 $shop->today_revenue = $shop->sales()
                     ->whereDate('created_at', today())
+                    ->where('payment_status', '!=', 'cancelled')
                     ->sum('total_amount');
-                
+
                 // Calcul du bénéfice: CA - (Prix d'achat + Dépenses + SAV produit)
                 $todaySales = $shop->sales()
                     ->whereDate('created_at', today())
+                    ->where('payment_status', '!=', 'cancelled')
                     ->with('items.product')
                     ->get();
                 

@@ -96,6 +96,7 @@ final class ResellerLoyaltyService
 
         $sales = Sale::withoutGlobalScope('shop')
             ->where('reseller_id', $reseller->id)
+            ->where('payment_status', '!=', 'cancelled')
             ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
             ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
             ->with(['items.product', 'shop'])
@@ -133,6 +134,7 @@ final class ResellerLoyaltyService
     {
         $base = Sale::withoutGlobalScope('shop')
             ->where('reseller_id', $reseller->id)
+            ->where('payment_status', '!=', 'cancelled')
             ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
             ->where('created_at', '<', $start);
 
