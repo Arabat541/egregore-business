@@ -442,6 +442,7 @@ class ReportController extends Controller
         // PDF orders top products by revenue, not quantity
         $topProducts = SaleItem::whereHas('sale', fn($sq) =>
                 $sq->withoutGlobalScope('shop')
+                   ->where('payment_status', '!=', 'cancelled')
                    ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
                    ->when($shopId, fn($r) => $r->where('shop_id', $shopId))
             )
@@ -449,10 +450,18 @@ class ReportController extends Controller
             ->select('product_id', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(total_price) as total_revenue'))
             ->groupBy('product_id')->orderByDesc('total_revenue')->limit(15)->get();
 
+        $cancelledSales = Sale::withoutGlobalScope('shop')
+            ->where('payment_status', 'cancelled')
+            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
+            ->with(['customer', 'reseller', 'user', 'items.product'])
+            ->orderByDesc('created_at')
+            ->get();
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.reports.sales-pdf', compact(
             'startDate', 'endDate', 'shop',
             'totalSales', 'totalRevenue', 'totalPaid', 'totalCredit', 'totalDiscount',
-            'salesByPayment', 'salesByClientType', 'topProducts', 'salesByDay'
+            'salesByPayment', 'salesByClientType', 'topProducts', 'salesByDay', 'cancelledSales'
         ))->setPaper('a4', 'portrait');
 
         return $pdf->download('rapport_ventes_' . $startDate . '_' . $endDate . '.pdf');
@@ -659,6 +668,7 @@ class ReportController extends Controller
             ->join('products', 'sale_items.product_id', '=', 'products.id')
             ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
             ->whereNull('sales.deleted_at')
+            ->where('sales.payment_status', '!=', 'cancelled')
             ->whereBetween('sales.created_at', [$startDate, $endDate . ' 23:59:59']);
 
         if ($shopId)     $itemsQuery->where('sales.shop_id', $shopId);
@@ -696,8 +706,16 @@ class ReportController extends Controller
                 : 0,
         ];
 
+        $cancelledSales = Sale::withoutGlobalScope('shop')
+            ->where('payment_status', 'cancelled')
+            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
+            ->with(['items.product', 'user'])
+            ->orderByDesc('created_at')
+            ->get();
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.reports.sales-products-pdf', compact(
-            'rows', 'totals', 'startDate', 'endDate', 'shop'
+            'rows', 'totals', 'startDate', 'endDate', 'shop', 'cancelledSales'
         ))->setPaper('a4', 'landscape');
 
         return $pdf->download('ventes_produits_' . $startDate . '_' . $endDate . '.pdf');

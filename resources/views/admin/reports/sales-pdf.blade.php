@@ -46,6 +46,11 @@ tfoot td.num { text-align: right; }
 .cols { display: table; width: 100%; border-spacing: 6px; }
 .col { display: table-cell; width: 50%; vertical-align: top; }
 
+/* Cancelled */
+.cancelled-section { margin-top: 12px; }
+tbody tr.cancelled-row { background: #fff5f5 !important; color: #888; }
+tbody td.st-cancelled { color: #dc3545; font-weight: bold; }
+
 /* Footer */
 .footer { margin-top: 10px; border-top: 1px solid #ccc; padding-top: 5px; font-size: 7.5px; color: #888; display: table; width: 100%; }
 .footer-left { display: table-cell; }
@@ -184,6 +189,63 @@ tfoot td.num { text-align: right; }
         </tr>
     </tfoot>
 </table>
+@endif
+
+{{-- Ventes annulées --}}
+@if($cancelledSales->count() > 0)
+<div class="cancelled-section">
+    <div class="section-title" style="color:#dc3545;border-color:#dc3545;">
+        Ventes annulées ({{ $cancelledSales->count() }}) — exclues des totaux ci-dessus
+    </div>
+    <table>
+        <thead>
+            <tr style="background:#dc3545;">
+                <th style="width:12%">N° Facture</th>
+                <th style="width:9%">Date</th>
+                <th style="width:18%">Client</th>
+                <th style="width:7%">Type</th>
+                <th style="width:22%">Articles</th>
+                <th class="num" style="width:10%">Montant (F)</th>
+                <th style="width:10%">Mode</th>
+                <th style="width:12%">Caissier</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach($cancelledSales as $sale)
+        <tr class="cancelled-row">
+            <td><strong>{{ $sale->invoice_number }}</strong></td>
+            <td>{{ $sale->created_at->format('d/m/Y') }}</td>
+            <td>
+                @if($sale->client_type === 'customer' && $sale->customer)
+                    {{ $sale->customer->full_name }}
+                @elseif($sale->client_type === 'reseller' && $sale->reseller)
+                    {{ $sale->reseller->company_name }}
+                @else
+                    Comptoir
+                @endif
+            </td>
+            <td>{{ $sale->client_type === 'reseller' ? 'Réparateur' : ($sale->client_type === 'customer' ? 'Client' : 'Comptoir') }}</td>
+            <td style="font-size:7.5px">
+                @foreach($sale->items->take(3) as $item)
+                    {{ $item->product->name ?? '?' }} x{{ $item->quantity }}@if(!$loop->last), @endif
+                @endforeach
+                @if($sale->items->count() > 3) <em>+{{ $sale->items->count() - 3 }} autre(s)</em>@endif
+            </td>
+            <td class="num">{{ number_format($sale->total_amount, 0, ',', ' ') }}</td>
+            <td>{{ ucfirst($sale->payment_method ?? '—') }}</td>
+            <td>{{ $sale->user->name ?? '—' }}</td>
+        </tr>
+        @endforeach
+        </tbody>
+        <tfoot>
+            <tr style="background:#c82333;">
+                <td colspan="5">TOTAL ANNULÉ</td>
+                <td class="num">{{ number_format($cancelledSales->sum('total_amount'), 0, ',', ' ') }}</td>
+                <td colspan="2"></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
 @endif
 
 <div class="footer">

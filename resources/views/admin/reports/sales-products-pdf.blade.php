@@ -153,6 +153,10 @@
         }
         .footer-left  { display: table-cell; }
         .footer-right { display: table-cell; text-align: right; }
+
+        /* Annulées */
+        .section-title-cancelled { font-size: 10px; font-weight: bold; color: #dc3545; border-bottom: 1px solid #dc3545; padding-bottom: 3px; margin: 14px 0 6px 0; }
+        tbody tr.cancelled-row { background: #fff5f5 !important; color: #888; }
     </style>
 </head>
 <body>
@@ -257,6 +261,49 @@
         </tr>
     </tfoot>
 </table>
+
+{{-- ── Ventes annulées ── --}}
+@if($cancelledSales->count() > 0)
+<div class="section-title-cancelled">
+    Ventes annulées ({{ $cancelledSales->count() }}) — exclues des totaux ci-dessus
+</div>
+<table>
+    <thead>
+        <tr style="background:#dc3545;">
+            <th style="width:12%">N° Facture</th>
+            <th style="width:9%">Date</th>
+            <th style="width:35%">Articles annulés</th>
+            <th class="num" style="width:10%">Qté</th>
+            <th class="num" style="width:14%">Montant (F)</th>
+            <th style="width:10%">Caissier</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach($cancelledSales as $sale)
+    <tr class="cancelled-row">
+        <td><strong>{{ $sale->invoice_number }}</strong></td>
+        <td>{{ $sale->created_at->format('d/m/Y') }}</td>
+        <td style="font-size:7.5px">
+            @foreach($sale->items as $item)
+                {{ $item->product->name ?? '?' }} ({{ number_format($item->unit_price, 0, ',', ' ') }} F)@if(!$loop->last), @endif
+            @endforeach
+        </td>
+        <td class="num">{{ $sale->items->sum('quantity') }}</td>
+        <td class="num">{{ number_format($sale->total_amount, 0, ',', ' ') }}</td>
+        <td>{{ $sale->user->name ?? '—' }}</td>
+    </tr>
+    @endforeach
+    </tbody>
+    <tfoot>
+        <tr style="background:#c82333;">
+            <td colspan="3">TOTAL ANNULÉ</td>
+            <td class="num">{{ number_format($cancelledSales->sum(fn($s) => $s->items->sum('quantity')), 0, ',', ' ') }}</td>
+            <td class="num">{{ number_format($cancelledSales->sum('total_amount'), 0, ',', ' ') }}</td>
+            <td></td>
+        </tr>
+    </tfoot>
+</table>
+@endif
 
 {{-- ── Pied de page ── --}}
 <div class="footer">
