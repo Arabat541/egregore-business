@@ -62,7 +62,7 @@
         }
         .kpi {
             display: table-cell;
-            width: 25%;
+            width: 20%;
             background: #f8f9fa;
             border: 1px solid #dee2e6;
             border-radius: 4px;
@@ -74,6 +74,7 @@
         .kpi-green  .kpi-value { color: #198754; }
         .kpi-blue   .kpi-value { color: #0d6efd; }
         .kpi-orange .kpi-value { color: #fd7e14; }
+        .kpi-red    .kpi-value { color: #dc3545; }
 
         /* ── Table ── */
         table {
@@ -166,7 +167,7 @@
 <div class="header">
     <div class="header-left">
         <div class="doc-title">Rapport des Ventes par Produit</div>
-        <div class="doc-subtitle">Cumul des quantités vendues · Marge brute · % Marge / CA</div>
+        <div class="doc-subtitle">Cumul des quantités vendues · CA brut · Remises · CA net · Marge brute</div>
     </div>
     <div class="header-right">
         <div class="meta-badge">
@@ -193,11 +194,15 @@
     </div>
     <div class="kpi kpi-blue">
         <div class="kpi-value">{{ number_format($totals['revenue'], 0, ',', ' ') }} F</div>
-        <div class="kpi-label">Chiffre d'affaires</div>
+        <div class="kpi-label">CA brut</div>
+    </div>
+    <div class="kpi kpi-red">
+        <div class="kpi-value">{{ number_format($totals['discount'], 0, ',', ' ') }} F</div>
+        <div class="kpi-label">Remises accordées</div>
     </div>
     <div class="kpi kpi-green">
         <div class="kpi-value">{{ number_format($totals['margin'], 0, ',', ' ') }} F</div>
-        <div class="kpi-label">Marge brute totale ({{ $totals['margin_pct'] }} %)</div>
+        <div class="kpi-label">Marge brute ({{ $totals['margin_pct'] }} %)</div>
     </div>
 </div>
 
@@ -205,14 +210,16 @@
 <table>
     <thead>
         <tr>
-            <th style="width:4%">#</th>
-            <th style="width:30%">Produit</th>
-            <th style="width:10%">SKU</th>
-            <th class="num" style="width:8%">Qté vendue</th>
-            <th class="num" style="width:14%">CA (FCFA)</th>
-            <th class="num" style="width:14%">Coût d'achat</th>
-            <th class="num" style="width:12%">Marge (FCFA)</th>
-            <th style="width:8%" class="num">% Marge/CA</th>
+            <th style="width:3%">#</th>
+            <th style="width:22%">Produit</th>
+            <th style="width:8%">SKU</th>
+            <th class="num" style="width:6%">Qté</th>
+            <th class="num" style="width:12%">CA brut (F)</th>
+            <th class="num" style="width:10%">Remise (F)</th>
+            <th class="num" style="width:12%">CA net (F)</th>
+            <th class="num" style="width:11%">Coût d'achat</th>
+            <th class="num" style="width:10%">Marge (F)</th>
+            <th style="width:6%" class="num">% Marge</th>
         </tr>
     </thead>
     <tbody>
@@ -226,7 +233,15 @@
             <td><strong>{{ $row->product_name }}</strong></td>
             <td style="color:#666">{{ $row->sku ?? '—' }}</td>
             <td class="num">{{ number_format($row->total_qty, 0, ',', ' ') }}</td>
-            <td class="num">{{ number_format($row->total_revenue, 0, ',', ' ') }}</td>
+            <td class="num" style="color:#666">{{ number_format($row->total_revenue, 0, ',', ' ') }}</td>
+            <td class="num" style="color:#dc3545">
+                @if($row->total_discount > 0)
+                    −{{ number_format($row->total_discount, 0, ',', ' ') }}
+                @else
+                    —
+                @endif
+            </td>
+            <td class="num"><strong>{{ number_format($row->net_revenue, 0, ',', ' ') }}</strong></td>
             <td class="num" style="color:#666">{{ number_format($row->total_cost, 0, ',', ' ') }}</td>
             <td class="num" style="color: {{ $row->margin >= 0 ? '#198754' : '#dc3545' }}; font-weight:bold">
                 {{ $row->margin >= 0 ? '+' : '' }}{{ number_format($row->margin, 0, ',', ' ') }}
@@ -244,7 +259,7 @@
         </tr>
         @empty
         <tr>
-            <td colspan="8" style="text-align:center; color:#888; padding:20px">
+            <td colspan="10" style="text-align:center; color:#888; padding:20px">
                 Aucune vente sur cette période.
             </td>
         </tr>
@@ -255,6 +270,8 @@
             <td colspan="3"><strong>TOTAL ({{ $rows->count() }} produits)</strong></td>
             <td class="num">{{ number_format($totals['qty'], 0, ',', ' ') }}</td>
             <td class="num">{{ number_format($totals['revenue'], 0, ',', ' ') }}</td>
+            <td class="num">−{{ number_format($totals['discount'], 0, ',', ' ') }}</td>
+            <td class="num">{{ number_format($totals['net_revenue'], 0, ',', ' ') }}</td>
             <td class="num">{{ number_format($totals['cost'], 0, ',', ' ') }}</td>
             <td class="num">{{ number_format($totals['margin'], 0, ',', ' ') }}</td>
             <td class="num">{{ $totals['margin_pct'] }} %</td>
@@ -308,7 +325,7 @@
 {{-- ── Pied de page ── --}}
 <div class="footer">
     <div class="footer-left">
-        Marge = Prix de vente HT &minus; Prix d'achat · % Marge = Marge / CA × 100
+        CA net = CA brut − Remises · Marge = CA net − Coût d'achat · % Marge = Marge / CA net × 100
     </div>
     <div class="footer-right">
         Page 1

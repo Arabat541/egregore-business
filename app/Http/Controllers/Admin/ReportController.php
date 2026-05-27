@@ -682,27 +682,31 @@ class ReportController extends Controller
                 'products.name as product_name',
                 'products.sku',
                 DB::raw('SUM(sale_items.quantity) as total_qty'),
-                DB::raw('SUM(sale_items.total_price * sales.total_amount / NULLIF(sales.subtotal, 0)) as total_revenue'),
+                DB::raw('SUM(sale_items.total_price) as total_revenue'),
+                DB::raw('SUM(sale_items.total_price * COALESCE(sales.discount_amount, 0) / NULLIF(sales.subtotal, 0)) as total_discount'),
                 DB::raw('SUM(sale_items.quantity * products.purchase_price) as total_cost')
             )
             ->groupBy('products.id', 'products.name', 'products.sku')
             ->orderByDesc('total_revenue')
             ->get()
             ->map(function ($row) {
-                $row->margin     = $row->total_revenue - $row->total_cost;
-                $row->margin_pct = $row->total_revenue > 0
-                    ? round($row->margin / $row->total_revenue * 100, 1)
+                $row->net_revenue = (float) $row->total_revenue - (float) ($row->total_discount ?? 0);
+                $row->margin      = $row->net_revenue - (float) $row->total_cost;
+                $row->margin_pct  = $row->net_revenue > 0
+                    ? round($row->margin / $row->net_revenue * 100, 1)
                     : 0;
                 return $row;
             });
 
         $totals = [
-            'qty'        => $rows->sum('total_qty'),
-            'revenue'    => $rows->sum('total_revenue'),
-            'cost'       => $rows->sum('total_cost'),
-            'margin'     => $rows->sum('margin'),
-            'margin_pct' => $rows->sum('total_revenue') > 0
-                ? round($rows->sum('margin') / $rows->sum('total_revenue') * 100, 1)
+            'qty'         => $rows->sum('total_qty'),
+            'revenue'     => $rows->sum('total_revenue'),
+            'discount'    => $rows->sum('total_discount'),
+            'net_revenue' => $rows->sum('net_revenue'),
+            'cost'        => $rows->sum('total_cost'),
+            'margin'      => $rows->sum('margin'),
+            'margin_pct'  => $rows->sum('net_revenue') > 0
+                ? round($rows->sum('margin') / $rows->sum('net_revenue') * 100, 1)
                 : 0,
         ];
 
