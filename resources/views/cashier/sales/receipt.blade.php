@@ -132,7 +132,7 @@
             <tr>
                 <th>Article</th>
                 <th class="text-right">Qté</th>
-                <th class="text-right">Prix</th>
+                <th class="text-right">P.U.</th>
                 <th class="text-right">Total</th>
             </tr>
         </thead>

@@ -200,12 +200,26 @@
     @if($repair->parts && $repair->parts->count() > 0)
     <div class="section">
         <div class="section-title">🔧 Pièces utilisées</div>
-        @foreach($repair->parts as $part)
-        <div class="row" style="font-size: 10px;">
-            <span>{{ $part->product->name ?? 'Pièce' }}</span>
-            <span>x{{ $part->quantity }}</span>
-        </div>
-        @endforeach
+        <table style="width:100%; border-collapse:collapse; font-size:10px; margin-top:3px;">
+            <thead>
+                <tr>
+                    <th style="text-align:left; border-bottom:1px solid #000; padding:2px; width:46%">Article</th>
+                    <th style="text-align:right; border-bottom:1px solid #000; padding:2px; width:10%">Qté</th>
+                    <th style="text-align:right; border-bottom:1px solid #000; padding:2px; width:22%">P.U.</th>
+                    <th style="text-align:right; border-bottom:1px solid #000; padding:2px; width:22%">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($repair->parts as $part)
+                <tr>
+                    <td style="padding:2px;">{{ Str::limit($part->product->name ?? ($part->description ?? 'Pièce'), 14) }}</td>
+                    <td style="text-align:right; padding:2px;">{{ $part->quantity }}</td>
+                    <td style="text-align:right; padding:2px;">{{ number_format($part->unit_cost, 0, ',', ' ') }}</td>
+                    <td style="text-align:right; padding:2px;">{{ number_format($part->total_cost ?? ($part->unit_cost * $part->quantity), 0, ',', ' ') }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
     @endif
 

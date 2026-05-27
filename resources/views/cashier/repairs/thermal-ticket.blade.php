@@ -49,6 +49,7 @@
         .ticket-parts { width: 100%; border-collapse: collapse; font-size: 10px; margin: 2mm 0; }
         .ticket-parts th { text-align: left; border-bottom: 1px solid #000; padding: 2px; }
         .ticket-parts td { padding: 2px; }
+        .text-right { text-align: right; }
         
         .ticket-totals { margin: 3mm 0; }
         .total-row { display: flex; justify-content: space-between; padding: 1px 0; }
@@ -186,18 +187,22 @@
         @if($repair->parts && $repair->parts->count() > 0)
         <div style="margin-bottom: 3mm;">
             <strong>Pièces utilisées:</strong>
-            <table class="ticket-items">
+            <table class="ticket-parts">
                 <thead>
                     <tr>
-                        <th>Article</th>
-                        <th class="item-qty">Qté</th>
+                        <th style="width:45%">Article</th>
+                        <th class="text-right" style="width:10%">Qté</th>
+                        <th class="text-right" style="width:20%">P.U.</th>
+                        <th class="text-right" style="width:25%">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($repair->parts as $part)
                     <tr>
-                        <td class="item-name">{{ $part->product->name ?? 'Pièce' }}</td>
-                        <td class="item-qty">{{ $part->quantity }}</td>
+                        <td>{{ Str::limit($part->product->name ?? ($part->description ?? 'Pièce'), 14) }}</td>
+                        <td class="text-right">{{ $part->quantity }}</td>
+                        <td class="text-right">{{ number_format($part->unit_cost, 0, ',', ' ') }}</td>
+                        <td class="text-right">{{ number_format($part->total_cost ?? ($part->unit_cost * $part->quantity), 0, ',', ' ') }}</td>
                     </tr>
                     @endforeach
                 </tbody>
