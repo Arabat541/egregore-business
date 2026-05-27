@@ -75,7 +75,7 @@ final class SalesReportService
             'totalRevenue'     => $totalRevenue,
             'salesOnlyRevenue' => $salesOnlyRevenue,
             'totalPaid'        => $totalPaid,
-            'totalCredit'      => (float) (clone $q)->where('payment_status', 'credit')->sum('amount_due'),
+            'totalCredit'      => (float) (clone $q)->where('payment_status', 'credit')->where('client_type', 'reseller')->sum(DB::raw('total_amount - amount_paid')),
             'totalDiscount'    => $globalDiscount + $itemDiscount,
         ];
     }

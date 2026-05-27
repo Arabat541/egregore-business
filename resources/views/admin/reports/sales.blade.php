@@ -282,7 +282,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="text-muted mb-2">À Crédit</h6>
+                            <h6 class="text-muted mb-2">Crédit revendeurs</h6>
                             <h3 class="mb-0 text-danger">{{ number_format($totalCredit, 0, ',', ' ') }} F</h3>
                             <small class="text-muted">
                                 {{ $totalRevenue > 0 ? round(($totalCredit / $totalRevenue) * 100, 1) : 0 }}% du CA

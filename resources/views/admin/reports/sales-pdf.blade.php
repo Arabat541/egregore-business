@@ -93,7 +93,7 @@ tbody td.st-cancelled { color: #dc3545; font-weight: bold; }
     </div>
     <div class="kpi kpi-red">
         <div class="kpi-value">{{ number_format($totalCredit, 0, ',', ' ') }} F</div>
-        <div class="kpi-label">Créances</div>
+        <div class="kpi-label">Crédit revendeurs</div>
     </div>
     <div class="kpi" style="background:#fff8e1;border-color:#ffe082;">
         <div class="kpi-value" style="color:#e65100;">{{ number_format($totalDiscount, 0, ',', ' ') }} F</div>
