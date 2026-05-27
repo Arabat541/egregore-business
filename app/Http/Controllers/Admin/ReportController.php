@@ -57,7 +57,7 @@ class ReportController extends Controller
         $productId  = $request->get('product_id') ? (int) $request->get('product_id') : null;
 
         // Filtre client unifié : "c_{id}" = particulier, "r_{id}" = revendeur
-        $clientFilter = $request->get('client_filter', '');
+        $clientFilter = $request->get('client_filter') ?? '';
         $customerId   = null;
         $resellerId   = null;
         if (str_starts_with($clientFilter, 'c_')) {
