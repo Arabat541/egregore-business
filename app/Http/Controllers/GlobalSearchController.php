@@ -121,7 +121,7 @@ class GlobalSearchController extends Controller
             return route('admin.products.edit', $product);
         }
         // caissière : redirige vers la création de vente (le produit sera pré-recherché)
-        return route('cashier.sales.create') . '?sku=' . urlencode($product->sku);
+        return route('cashier.sales.create') . '?sku=' . urlencode((string) ($product->sku ?? ''));
     }
 
     private function customerUrl(Customer $customer): string
