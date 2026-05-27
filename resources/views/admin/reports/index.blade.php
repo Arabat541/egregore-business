@@ -166,7 +166,7 @@
         
         @php
             $thisMonth = \Carbon\Carbon::now()->startOfMonth();
-            $salesThisMonth = \App\Models\Sale::where('created_at', '>=', $thisMonth)->sum('total_amount');
+            $salesThisMonth = \App\Models\Sale::where('created_at', '>=', $thisMonth)->where('payment_status', '!=', 'cancelled')->sum('total_amount');
             $repairsThisMonth = \App\Models\Repair::where('created_at', '>=', $thisMonth)->count();
             $newCustomers = \App\Models\Customer::where('created_at', '>=', $thisMonth)->count();
             $totalDebt = \App\Models\Reseller::sum('current_debt');

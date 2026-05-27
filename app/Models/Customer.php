@@ -73,7 +73,7 @@ class Customer extends Model
     // Stats
     public function getTotalPurchasesAttribute(): float
     {
-        return $this->sales()->sum('total_amount');
+        return $this->sales()->where('payment_status', '!=', 'cancelled')->sum('total_amount');
     }
 
     public function getTotalRepairsAttribute(): int
