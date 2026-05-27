@@ -270,7 +270,7 @@ class SaleController extends Controller
 
         } catch (\LogicException $e) {
             return back()->with('error', $e->getMessage());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return back()->with('error', $this->handleException($e, 'sale.cancel'));
         }
     }

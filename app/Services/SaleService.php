@@ -143,17 +143,20 @@ final class SaleService
 
             foreach ($sale->items as $item) {
                 if ($item->product) {
+                    $stockBefore = (int) $item->product->quantity_in_stock;
                     StockMovement::create([
-                        'shop_id'        => $sale->shop_id,
-                        'product_id'     => $item->product_id,
-                        'user_id'        => $user->id,
-                        'type'           => StockMovement::TYPE_SALE_CANCEL,
-                        'quantity'       => $item->quantity,
-                        'unit_cost'      => $item->product->purchase_price,
-                        'reason'         => 'sale_cancelled',
-                        'reference_type' => Sale::class,
-                        'reference_id'   => $sale->id,
-                        'notes'          => "Annulation vente #{$sale->invoice_number}",
+                        'shop_id'         => $sale->shop_id,
+                        'product_id'      => $item->product_id,
+                        'user_id'         => $user->id,
+                        'type'            => StockMovement::TYPE_SALE_CANCEL,
+                        'quantity'        => $item->quantity,
+                        'quantity_before' => $stockBefore,
+                        'quantity_after'  => $stockBefore + $item->quantity,
+                        'unit_cost'       => $item->product->purchase_price,
+                        'reason'          => 'sale_cancelled',
+                        'reference_type'  => Sale::class,
+                        'reference_id'    => $sale->id,
+                        'notes'           => "Annulation vente #{$sale->invoice_number}",
                     ]);
                     $item->product->increment('quantity_in_stock', $item->quantity);
                 }
