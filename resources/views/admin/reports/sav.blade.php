@@ -266,15 +266,15 @@
                                         <span class="badge bg-danger">{{ $ticket->ticket_number }}</span>
                                     </td>
                                     <td>{{ $ticket->created_at->format('d/m/Y H:i') }}</td>
-                                    <td>{{ $ticket->customer->full_name ?? 'N/A' }}</td>
+                                    <td>{{ $ticket->customer?->full_name ?? 'N/A' }}</td>
                                     <td class="text-end fw-bold text-danger">
                                         {{ number_format($ticket->refund_amount, 0, ',', ' ') }} F
                                     </td>
-                                    <td>{{ $ticket->creator->name ?? 'N/A' }}</td>
+                                    <td>{{ $ticket->creator?->name ?? 'N/A' }}</td>
                                     <td>
                                         @if($ticket->sale)
                                             {{ $ticket->sale->invoice_number }}
-                                            <br><small class="text-muted">par {{ $ticket->sale->user->name ?? '?' }}</small>
+                                            <br><small class="text-muted">par {{ $ticket->sale->user?->name ?? '?' }}</small>
                                         @else
                                             <span class="text-danger">Aucune</span>
                                         @endif
@@ -400,7 +400,7 @@
                                 @forelse($ticketsByCreator as $creator)
                                 <tr class="{{ $creator->total_refunds > 100000 ? 'table-warning' : '' }}">
                                     <td>
-                                        <strong>{{ $creator->creator->name ?? 'N/A' }}</strong>
+                                        <strong>{{ $creator->creator?->name ?? 'N/A' }}</strong>
                                         @if($creator->total_refunds > 100000)
                                             <i class="bi bi-exclamation-triangle text-warning" title="Remboursements élevés"></i>
                                         @endif
@@ -623,8 +623,8 @@
                                     <td>
                                         <span class="badge bg-warning text-dark">{{ $ticket->ticket_number }}</span>
                                     </td>
-                                    <td>{{ $ticket->customer->full_name ?? 'N/A' }}</td>
-                                    <td>{{ $ticket->assignedUser->name ?? '-' }}</td>
+                                    <td>{{ $ticket->customer?->full_name ?? 'N/A' }}</td>
+                                    <td>{{ $ticket->assignedUser?->name ?? '-' }}</td>
                                     <td>
                                         <span class="text-danger fw-bold">
                                             {{ $ticket->created_at->diffForHumans() }}
@@ -676,7 +676,7 @@
                                             {{ $refund->ticket_number }}
                                         </a>
                                     </td>
-                                    <td>{{ Str::limit($refund->customer->full_name ?? 'N/A', 15) }}</td>
+                                    <td>{{ Str::limit($refund->customer?->full_name ?? 'N/A', 15) }}</td>
                                     <td>
                                         <span class="badge bg-{{ $refund->type == 'refund' ? 'danger' : 'warning' }}">
                                             {{ $refund->type_name }}
@@ -690,7 +690,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <small>{{ $refund->creator->name ?? '?' }}</small>
+                                        <small>{{ $refund->creator?->name ?? '?' }}</small>
                                     </td>
                                 </tr>
                                 @empty
