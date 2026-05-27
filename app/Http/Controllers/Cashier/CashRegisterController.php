@@ -24,7 +24,8 @@ class CashRegisterController extends Controller
         $cashRegister = CashRegister::getOpenRegisterForUser($user->id);
 
         // Historique des caisses
-        $history = CashRegister::where('user_id', $user->id)
+        $history = CashRegister::withoutGlobalScope('shop')
+            ->where('user_id', $user->id)
             ->with('transactions')
             ->latest()
             ->paginate(10);
@@ -53,7 +54,8 @@ class CashRegisterController extends Controller
         }
 
         // Récupérer le solde de la dernière clôture
-        $lastRegister = CashRegister::where('user_id', $user->id)
+        $lastRegister = CashRegister::withoutGlobalScope('shop')
+            ->where('user_id', $user->id)
             ->closed()
             ->latest()
             ->first();
@@ -98,7 +100,7 @@ class CashRegisterController extends Controller
 
             return redirect()->route('cashier.cash-register.index')
                 ->with('success', 'Caisse ouverte avec succès.');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return back()->with('error', $this->handleException($e, basename(__FILE__)));
         }
     }

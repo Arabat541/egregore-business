@@ -149,31 +149,32 @@ class CashRegister extends Model
     }
 
     // Méthodes métier
+
+    /**
+     * Ces méthodes utilisent withoutGlobalScope('shop') car elles filtrent
+     * déjà par user_id — ajouter shop_id est redondant et échoue si la colonne
+     * n'existe pas encore (migration en attente sur le serveur de production).
+     */
     public static function getOpenRegisterForUser(int $userId): ?self
     {
-        return self::where('user_id', $userId)
+        return self::withoutGlobalScope('shop')
+            ->where('user_id', $userId)
             ->where('status', 'open')
             ->first();
     }
 
-    /**
-     * Vérifier si une caisse existe pour un utilisateur à une date donnée
-     */
     public static function existsForUserAndDate(int $userId, $date = null): bool
     {
-        return self::where('user_id', $userId)
+        return self::withoutGlobalScope('shop')
+            ->where('user_id', $userId)
             ->whereDate('date', $date ?? today())
             ->exists();
     }
 
-    /**
-     * Récupérer la caisse du jour pour un utilisateur (ouverte ou fermée).
-     * Le shop_id est optionnel mais recommandé en multi-boutiques pour éviter
-     * de trouver une caisse d'une autre boutique avec le même user_id.
-     */
     public static function getTodayRegisterForUser(int $userId, ?int $shopId = null): ?self
     {
-        return self::where('user_id', $userId)
+        return self::withoutGlobalScope('shop')
+            ->where('user_id', $userId)
             ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
             ->whereDate('date', today())
             ->first();
