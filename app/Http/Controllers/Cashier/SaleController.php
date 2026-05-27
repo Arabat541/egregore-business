@@ -71,14 +71,16 @@ class SaleController extends Controller
 
         $sales = $query->latest()->limit(500)->get();
 
-        $totalRevenue = $sales->sum('total_amount');
-        $totalPaid    = $sales->sum('amount_paid');
-        $totalCredit  = $sales->where('payment_status', 'credit')->sum('total_amount');
-        $dateFrom     = $request->date_from;
-        $dateTo       = $request->date_to;
+        $activeSales   = $sales->where('payment_status', '!=', 'cancelled');
+        $totalRevenue  = $activeSales->sum('total_amount');
+        $totalPaid     = $activeSales->sum('amount_paid');
+        $totalCredit   = $activeSales->where('payment_status', 'credit')->sum('total_amount');
+        $totalDiscount = $activeSales->sum('discount_amount');
+        $dateFrom      = $request->date_from;
+        $dateTo        = $request->date_to;
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('cashier.sales.pdf', compact(
-            'sales', 'totalRevenue', 'totalPaid', 'totalCredit', 'dateFrom', 'dateTo'
+            'sales', 'totalRevenue', 'totalPaid', 'totalCredit', 'totalDiscount', 'dateFrom', 'dateTo'
         ))->setPaper('a4', 'landscape');
 
         return $pdf->download('ventes_' . date('Y-m-d') . '.pdf');
