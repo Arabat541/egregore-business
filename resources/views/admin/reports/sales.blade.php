@@ -403,7 +403,7 @@
                                     <tr>
                                         <td>
                                             <i class="bi bi-person-circle me-2 text-muted"></i>
-                                            {{ $user->user->name ?? 'N/A' }}
+                                            {{ $user->user?->name ?? 'N/A' }}
                                         </td>
                                         <td class="text-center">
                                             <span class="badge bg-primary">{{ $user->count }}</span>
@@ -457,7 +457,7 @@
                                                 {{ $index + 1 }}
                                             @endif
                                         </td>
-                                        <td>{{ $item->product->name ?? 'Produit supprimé' }}</td>
+                                        <td>{{ $item->product?->name ?? 'Produit supprimé' }}</td>
                                         <td class="text-center">
                                             <span class="badge bg-info">{{ $item->total_qty }}</span>
                                         </td>
@@ -507,7 +507,7 @@
                                                 {{ $index + 1 }}
                                             @endif
                                         </td>
-                                        <td>{{ $sale->customer->full_name ?? 'Client supprimé' }}</td>
+                                        <td>{{ $sale->customer?->full_name ?? 'Client supprimé' }}</td>
                                         <td class="text-center">
                                             <span class="badge bg-info">{{ $sale->count }}</span>
                                         </td>
@@ -561,8 +561,8 @@
                                                 {{ $index + 1 }}
                                             @endif
                                         </td>
-                                        <td><strong>{{ $sale->reseller->company_name ?? 'Revendeur supprimé' }}</strong></td>
-                                        <td>{{ $sale->reseller->contact_name ?? 'N/A' }}</td>
+                                        <td><strong>{{ $sale->reseller?->company_name ?? 'Revendeur supprimé' }}</strong></td>
+                                        <td>{{ $sale->reseller?->contact_name ?? 'N/A' }}</td>
                                         <td class="text-center">
                                             <span class="badge bg-info">{{ $sale->count }}</span>
                                         </td>
