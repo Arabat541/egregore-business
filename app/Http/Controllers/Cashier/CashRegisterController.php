@@ -92,7 +92,7 @@ class CashRegisterController extends Controller
         try {
             $cashRegister = CashRegister::openRegister(
                 $user,
-                $validated['opening_balance'],
+                (float) $validated['opening_balance'],
                 $validated['notes'] ?? null
             );
 
