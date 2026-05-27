@@ -255,19 +255,23 @@ final class SalesReportService
         int $limit = 10,
         ?int $resellerId = null,
     ): Collection {
-        return SaleItem::whereHas('sale', function ($q) use ($start, $end, $shopId, $customerId, $resellerId) {
-            $q->withoutGlobalScope('shop')
-                ->where('payment_status', '!=', 'cancelled')
-                ->whereBetween('created_at', [$start, $end . ' 23:59:59']);
-            if ($shopId)     $q->where('shop_id', $shopId);
-            if ($customerId) $q->where('customer_id', $customerId);
-            if ($resellerId) $q->where('reseller_id', $resellerId);
-        })
+        // JOIN avec sales pour pondérer le CA par article selon la remise globale :
+        // total_revenue = SUM(item.total_price × sale.total_amount / NULLIF(sale.subtotal, 0))
+        return SaleItem::join('sales', 'sale_items.sale_id', '=', 'sales.id')
+            ->where('sales.payment_status', '!=', 'cancelled')
+            ->whereBetween('sales.created_at', [$start, $end . ' 23:59:59'])
+            ->when($shopId,     fn($q) => $q->where('sales.shop_id', $shopId))
+            ->when($customerId, fn($q) => $q->where('sales.customer_id', $customerId))
+            ->when($resellerId, fn($q) => $q->where('sales.reseller_id', $resellerId))
             ->when($categoryId, fn($q) => $q->whereHas('product', fn($sq) => $sq->where('category_id', $categoryId)))
-            ->when($productId,  fn($q) => $q->where('product_id', $productId))
+            ->when($productId,  fn($q) => $q->where('sale_items.product_id', $productId))
             ->with('product')
-            ->select('product_id', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(total_price) as total_revenue'))
-            ->groupBy('product_id')
+            ->select(
+                'sale_items.product_id',
+                DB::raw('SUM(sale_items.quantity) as total_qty'),
+                DB::raw('SUM(sale_items.total_price * sales.total_amount / NULLIF(sales.subtotal, 0)) as total_revenue'),
+            )
+            ->groupBy('sale_items.product_id')
             ->orderByDesc('total_qty')
             ->limit($limit)
             ->get();
