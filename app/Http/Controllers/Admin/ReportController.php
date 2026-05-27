@@ -84,11 +84,12 @@ class ReportController extends Controller
             ->orderBy('name')->get();
 
         [
-            'totalSales'    => $totalSales,
-            'totalRevenue'  => $totalRevenue,
-            'totalPaid'     => $totalPaid,
-            'totalCredit'   => $totalCredit,
-            'totalDiscount' => $totalDiscount,
+            'totalSales'       => $totalSales,
+            'totalRevenue'     => $totalRevenue,
+            'salesOnlyRevenue' => $salesOnlyRevenue,
+            'totalPaid'        => $totalPaid,
+            'totalCredit'      => $totalCredit,
+            'totalDiscount'    => $totalDiscount,
         ] = $this->salesService->getKpis($startDate, $endDate, $shopId, $customerId, $categoryId, $productId, $resellerId);
 
         $salesByDay        = $this->salesService->getByDay($startDate, $endDate, $shopId, $customerId, $categoryId, $productId, $resellerId);
@@ -115,7 +116,7 @@ class ReportController extends Controller
             'startDate', 'endDate', 'shops', 'shopId',
             'customerId', 'resellerId', 'clientFilter', 'categoryId', 'productId',
             'customers', 'resellers', 'categories', 'products',
-            'totalSales', 'totalRevenue', 'totalPaid', 'totalCredit', 'totalDiscount',
+            'totalSales', 'totalRevenue', 'salesOnlyRevenue', 'totalPaid', 'totalCredit', 'totalDiscount',
             'salesByDay', 'salesByClientType', 'salesByPayment', 'salesByUser',
             'topProducts', 'topCustomers', 'topResellers',
             'previousRevenue', 'previousSales', 'revenueGrowth',

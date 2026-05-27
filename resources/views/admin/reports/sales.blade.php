@@ -247,7 +247,7 @@
                             <h6 class="text-muted mb-2">Nombre de Ventes</h6>
                             <h3 class="mb-0 text-success">{{ $totalSales }}</h3>
                             <small class="text-muted">
-                                Panier moyen: {{ $totalSales > 0 ? number_format($totalRevenue / $totalSales, 0, ',', ' ') : 0 }} F
+                                Panier moyen: {{ $totalSales > 0 ? number_format($salesOnlyRevenue / $totalSales, 0, ',', ' ') : 0 }} F
                             </small>
                         </div>
                         <div class="bg-success bg-opacity-10 p-3 rounded-circle align-self-start">
@@ -351,7 +351,7 @@
                             <div class="d-flex justify-content-between mb-2">
                                 <span>
                                     <i class="bi bi-circle-fill text-{{ $type->client_type == 'customer' ? 'primary' : 'warning' }} me-2" style="font-size: 8px;"></i>
-                                    {{ $type->client_type == 'customer' ? 'Particuliers' : 'Revendeurs' }}
+                                    {{ $type->client_type === 'customer' ? 'Particuliers' : ($type->client_type === 'reseller' ? 'Revendeurs' : 'Comptoir') }}
                                 </span>
                                 <strong>{{ number_format($type->total, 0, ',', ' ') }} F</strong>
                             </div>
@@ -680,7 +680,7 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(document.getElementById('clientTypeChart'), {
         type: 'doughnut',
         data: {
-            labels: clientData.map(d => d.client_type === 'customer' ? 'Particuliers' : 'Revendeurs'),
+            labels: clientData.map(d => d.client_type === 'customer' ? 'Particuliers' : (d.client_type === 'reseller' ? 'Revendeurs' : 'Comptoir')),
             datasets: [{
                 data: clientData.map(d => d.total),
                 backgroundColor: ['rgb(13, 110, 253)', 'rgb(255, 193, 7)'],

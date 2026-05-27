@@ -44,7 +44,7 @@ final class SalesReportService
     //  KPIs
     // ──────────────────────────────────────────────────────────────
 
-    /** @return array{totalSales:int,totalRevenue:float,totalPaid:float,totalCredit:float,totalDiscount:float} */
+    /** @return array{totalSales:int,totalRevenue:float,salesOnlyRevenue:float,totalPaid:float,totalCredit:float,totalDiscount:float} */
     public function getKpis(
         string $start,
         string $end,
@@ -56,26 +56,27 @@ final class SalesReportService
     ): array {
         $q = $this->baseQuery($start, $end, $shopId, $customerId, $categoryId, $productId, $resellerId);
 
-        $totalRevenue = (clone $q)->sum('total_amount');
-        $totalPaid    = (clone $q)->sum('amount_paid');
+        $salesOnlyRevenue = (float) (clone $q)->sum('total_amount');
+        $totalPaid        = (clone $q)->sum('amount_paid');
 
         // Ajouter les pièces réparations au CA (workflow caissier)
         $repairParts = Repair::withoutGlobalScope('shop')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
             ->when($shopId, fn($r) => $r->where('shop_id', $shopId))
             ->sum('parts_cost');
-        $totalRevenue += $repairParts;
-        $totalPaid    += $repairParts;
+        $totalRevenue = $salesOnlyRevenue + (float) $repairParts;
+        $totalPaid    = (float) $totalPaid + (float) $repairParts;
 
         $globalDiscount = (float) (clone $q)->sum('discount_amount');
         $itemDiscount   = (float) SaleItem::whereIn('sale_id', (clone $q)->select('id'))->sum('discount');
 
         return [
-            'totalSales'    => (clone $q)->count(),
-            'totalRevenue'  => (float) $totalRevenue,
-            'totalPaid'     => (float) $totalPaid,
-            'totalCredit'   => (float) (clone $q)->where('payment_status', 'credit')->sum('total_amount'),
-            'totalDiscount' => $globalDiscount + $itemDiscount,
+            'totalSales'       => (clone $q)->count(),
+            'totalRevenue'     => $totalRevenue,
+            'salesOnlyRevenue' => $salesOnlyRevenue,
+            'totalPaid'        => $totalPaid,
+            'totalCredit'      => (float) (clone $q)->where('payment_status', 'credit')->sum('amount_due'),
+            'totalDiscount'    => $globalDiscount + $itemDiscount,
         ];
     }
 
