@@ -459,6 +459,31 @@
                 html += '<div class="mb-2"><div class="px-2 py-1 text-uppercase text-muted" style="font-size:.7rem;letter-spacing:.08em;">' +
                     escHtml(group) + '</div>';
                 items.forEach(item => {
+                    const isProduct = group === 'Produits' && item.price !== undefined;
+                    let body = '';
+                    if (isProduct) {
+                        const stockColor = item.stockStatus === 'danger'  ? '#dc3545'
+                                         : item.stockStatus === 'warning' ? '#fd7e14'
+                                         :                                   '#198754';
+                        const stockIcon  = item.stockStatus === 'danger'  ? 'bi-exclamation-triangle-fill'
+                                         : item.stockStatus === 'warning' ? 'bi-exclamation-circle'
+                                         :                                   'bi-check-circle';
+                        body = `
+                            <div class="fw-semibold">${highlight(escHtml(item.label), q)}</div>
+                            <div class="d-flex flex-wrap gap-2 align-items-center mt-1" style="font-size:.78rem;">
+                                ${item.sublabel ? '<span class="text-muted">' + escHtml(item.sublabel) + '</span>' : ''}
+                                ${item.sku ? '<span class="text-muted">· <code style="font-size:.75rem;">' + escHtml(item.sku) + '</code></span>' : ''}
+                                <span class="badge text-bg-primary">${escHtml(item.price)}</span>
+                                ${item.purchase ? '<span class="badge text-bg-secondary">Achat: ' + escHtml(item.purchase) + '</span>' : ''}
+                                <span style="color:${stockColor};font-weight:600;">
+                                    <i class="bi ${stockIcon}"></i> ${item.stock} en stock
+                                </span>
+                            </div>`;
+                    } else {
+                        body = `
+                            <div class="fw-semibold">${highlight(escHtml(item.label), q)}</div>
+                            ${item.sublabel ? '<div class="text-muted small">' + escHtml(item.sublabel) + '</div>' : ''}`;
+                    }
                     html += `<a href="${escHtml(item.url)}"
                                class="gs-item d-flex align-items-center gap-3 px-3 py-2 text-decoration-none rounded-2 text-dark"
                                style="transition:background .1s"
@@ -466,10 +491,7 @@
                                onmouseleave="this.style.background=''"
                                data-bs-dismiss="modal">
                         <i class="bi ${escHtml(item.icon)} text-secondary" style="font-size:1.2rem;min-width:1.4rem;"></i>
-                        <div>
-                            <div class="fw-semibold">${highlight(escHtml(item.label), q)}</div>
-                            ${item.sublabel ? '<div class="text-muted small">' + escHtml(item.sublabel) + '</div>' : ''}
-                        </div>
+                        <div class="flex-grow-1">${body}</div>
                     </a>`;
                 });
                 html += '</div>';

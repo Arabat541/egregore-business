@@ -35,15 +35,27 @@ class GlobalSearchController extends Controller
         if ($user->hasAnyRole(['admin', 'caissiere'])) {
             Product::search($q)
                 ->active()
+                ->with('category')
                 ->limit(self::MAX_PER_GROUP)
                 ->get()
-                ->each(function (Product $p) use (&$results) {
+                ->each(function (Product $p) use (&$results, $user) {
+                    $threshold = (int) ($p->stock_alert_threshold ?? 5);
+                    $stock     = (int) $p->quantity_in_stock;
+                    $stockStatus = $stock <= 0 ? 'danger' : ($stock <= $threshold ? 'warning' : 'success');
+
                     $results[] = [
-                        'group'    => 'Produits',
-                        'icon'     => 'bi-box-seam',
-                        'label'    => $p->name,
-                        'sublabel' => $p->sku . ' — Stock: ' . $p->quantity_in_stock,
-                        'url'      => $this->productUrl($p),
+                        'group'       => 'Produits',
+                        'icon'        => 'bi-box-seam',
+                        'label'       => $p->name,
+                        'sublabel'    => $p->category?->name . ($p->brand ? ' · ' . $p->brand : ''),
+                        'sku'         => $p->sku,
+                        'price'       => number_format((float) $p->normal_price, 0, ',', ' ') . ' FCFA',
+                        'stock'       => $stock,
+                        'stockStatus' => $stockStatus,
+                        'purchase'    => $user->hasRole('admin')
+                            ? number_format((float) $p->purchase_price, 0, ',', ' ') . ' FCFA'
+                            : null,
+                        'url'         => $this->productUrl($p),
                     ];
                 });
         }
