@@ -136,8 +136,8 @@ class Shop extends Model
         return [
             'users_count' => $this->users()->count(),
             'products_count' => $this->products()->count(),
-            'sales_today' => $this->sales()->whereDate('created_at', today())->count(),
-            'revenue_today' => $this->sales()->whereDate('created_at', today())->sum('total_amount'),
+            'sales_today' => $this->sales()->whereDate('created_at', today())->where('payment_status', '!=', 'cancelled')->count(),
+            'revenue_today' => $this->sales()->whereDate('created_at', today())->where('payment_status', '!=', 'cancelled')->sum('total_amount'),
             'repairs_pending' => $this->repairs()->whereNotIn('status', ['delivered', 'cancelled'])->count(),
         ];
     }
