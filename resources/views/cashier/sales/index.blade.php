@@ -121,7 +121,6 @@
                                         <div class="modal-content">
                                             <form action="{{ route('cashier.sales.cancel', $sale) }}" method="POST">
                                                 @csrf
-                                                @method('DELETE')
                                                 <div class="modal-header">
                                                     <h5 class="modal-title text-danger">
                                                         <i class="bi bi-exclamation-triangle me-1"></i> Annuler la vente
