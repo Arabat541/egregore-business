@@ -682,7 +682,7 @@ class ReportController extends Controller
                 'products.name as product_name',
                 'products.sku',
                 DB::raw('SUM(sale_items.quantity) as total_qty'),
-                DB::raw('SUM(sale_items.total_price) as total_revenue'),
+                DB::raw('SUM(sale_items.total_price * sales.total_amount / NULLIF(sales.subtotal, 0)) as total_revenue'),
                 DB::raw('SUM(sale_items.quantity * products.purchase_price) as total_cost')
             )
             ->groupBy('products.id', 'products.name', 'products.sku')
