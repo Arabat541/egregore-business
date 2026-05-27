@@ -209,6 +209,7 @@ final class SalesReportService
     public function getByUser(string $start, string $end, ?int $shopId): Collection
     {
         $q = Sale::withoutGlobalScope('shop')
+            ->where('payment_status', '!=', 'cancelled')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59']);
         if ($shopId) $q->where('shop_id', $shopId);
 
@@ -255,7 +256,9 @@ final class SalesReportService
         ?int $resellerId = null,
     ): Collection {
         return SaleItem::whereHas('sale', function ($q) use ($start, $end, $shopId, $customerId, $resellerId) {
-            $q->withoutGlobalScope('shop')->whereBetween('created_at', [$start, $end . ' 23:59:59']);
+            $q->withoutGlobalScope('shop')
+                ->where('payment_status', '!=', 'cancelled')
+                ->whereBetween('created_at', [$start, $end . ' 23:59:59']);
             if ($shopId)     $q->where('shop_id', $shopId);
             if ($customerId) $q->where('customer_id', $customerId);
             if ($resellerId) $q->where('reseller_id', $resellerId);
@@ -273,6 +276,7 @@ final class SalesReportService
     public function getTopCustomers(string $start, string $end, ?int $shopId, int $limit = 10): Collection
     {
         $q = Sale::withoutGlobalScope('shop')
+            ->where('payment_status', '!=', 'cancelled')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59']);
         if ($shopId) $q->where('shop_id', $shopId);
 
@@ -288,6 +292,7 @@ final class SalesReportService
     public function getTopResellers(string $start, string $end, ?int $shopId, int $limit = 10): Collection
     {
         $q = Sale::withoutGlobalScope('shop')
+            ->where('payment_status', '!=', 'cancelled')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59']);
         if ($shopId) $q->where('shop_id', $shopId);
 
@@ -312,6 +317,7 @@ final class SalesReportService
         $previousEnd   = Carbon::parse($start)->subDay()->format('Y-m-d');
 
         $q = Sale::withoutGlobalScope('shop')
+            ->where('payment_status', '!=', 'cancelled')
             ->whereBetween('created_at', [$previousStart, $previousEnd . ' 23:59:59']);
         if ($shopId) $q->where('shop_id', $shopId);
 
@@ -331,6 +337,7 @@ final class SalesReportService
         $n1End   = Carbon::parse($end)->subYear()->format('Y-m-d');
 
         $q = Sale::withoutGlobalScope('shop')
+            ->where('payment_status', '!=', 'cancelled')
             ->whereBetween('created_at', [$n1Start, $n1End . ' 23:59:59']);
         if ($shopId) $q->where('shop_id', $shopId);
 
