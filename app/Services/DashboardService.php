@@ -16,11 +16,16 @@ use App\Models\SavTicket;
 use App\Models\Setting;
 use App\Models\Shop;
 use App\Models\User;
+use App\Services\Reports\FinancialReportService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 final class DashboardService
 {
+    public function __construct(
+        private readonly FinancialReportService $financialService,
+    ) {}
+
     // ──────────────────────────────────────────────────────────────
     //  Point d'entrée principal
     // ──────────────────────────────────────────────────────────────
@@ -41,14 +46,35 @@ final class DashboardService
             $this->getResellerStats($shopId),
         );
 
-        // Bénéfice net = CA + Part boutique réparations - (Coût achat + Dépenses + SAV)
+        // Bénéfice net du jour (calcul rapide sur les stats déjà chargées)
         $stats['today_profit'] = $stats['today_sales_amount']
             + $stats['_today_repair_admin_share']
             - ($stats['_today_purchase_cost'] + $stats['today_expenses'] + $stats['_today_sav_cost']);
 
-        $stats['month_profit'] = $stats['month_sales_amount']
-            + $stats['_month_repair_admin_share_calc']
-            - ($stats['_month_purchase_cost'] + $stats['month_expenses'] + $stats['_month_sav_cost']);
+        // Bénéfice net du mois = même calcul que /reports/financial pour cohérence
+        $startOfMonth = now()->startOfMonth()->format('Y-m-d');
+        $today        = now()->format('Y-m-d');
+
+        [
+            'savRefunds'        => $savRefunds,
+            'savExchangeLosses' => $savExchangeLosses,
+            'savExchangeGains'  => $savExchangeGains,
+            'savTotalImpact'    => $savTotalImpact,
+        ] = $this->financialService->getSavImpact($startOfMonth, $today, $shopId);
+
+        [
+            'salesRevenue'   => $salesRevenue,
+            'repairsRevenue' => $repairsRevenue,
+        ] = $this->financialService->getRevenue($startOfMonth, $today, $shopId, $savExchangeGains, $savRefunds, $savExchangeLosses);
+
+        ['totalExpenses' => $totalExpenses] =
+            $this->financialService->getExpenses($startOfMonth, $today, $shopId);
+
+        ['finalNetProfit' => $stats['month_profit']] =
+            $this->financialService->getMargin(
+                $startOfMonth, $today, $shopId,
+                $salesRevenue, $repairsRevenue, $savTotalImpact, $totalExpenses
+            );
 
         // Pièces réparation → ajoutées au CA ventes (après calcul du bénéfice)
         $stats['today_sales_amount'] += $stats['_today_repair_parts'];
