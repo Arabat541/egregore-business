@@ -18,7 +18,8 @@ final class CashierDashboardService
      */
     public function getStats(User $user): array
     {
-        $todaySales = Sale::where('user_id', $user->id)->today()->get();
+        $todaySales = Sale::where('user_id', $user->id)->today()
+            ->where('payment_status', '!=', 'cancelled')->get();
 
         $stats = [
             'today_sales_count'          => $todaySales->count(),

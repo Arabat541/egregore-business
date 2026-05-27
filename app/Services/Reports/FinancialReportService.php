@@ -41,7 +41,8 @@ final class FinancialReportService
     ): array {
         $salesQuery = Sale::withoutGlobalScope('shop')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
-            ->where('is_repair_parts', false);
+            ->where('is_repair_parts', false)
+            ->where('payment_status', '!=', 'cancelled');
         if ($shopId) $salesQuery->where('shop_id', $shopId);
 
         $salesRevenue       = (float) (clone $salesQuery)->sum('total_amount');
@@ -312,6 +313,7 @@ final class FinancialReportService
         return Sale::withoutGlobalScope('shop')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
             ->where('is_repair_parts', false)
+            ->where('payment_status', '!=', 'cancelled')
             ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
             ->select('payment_method', DB::raw('SUM(total_amount) as total'))
             ->groupBy('payment_method')

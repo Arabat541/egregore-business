@@ -114,10 +114,12 @@ final class DashboardService
     public function getSalesStats(?int $shopId): array
     {
         $todayStats = Sale::today()->when($shopId, fn($q) => $q->where('shop_id', $shopId))
+            ->where('payment_status', '!=', 'cancelled')
             ->selectRaw('COUNT(*) as count, SUM(total_amount) as total')
             ->first();
 
         $monthStats = Sale::thisMonth()->when($shopId, fn($q) => $q->where('shop_id', $shopId))
+            ->where('payment_status', '!=', 'cancelled')
             ->selectRaw('COUNT(*) as count, SUM(total_amount) as total')
             ->first();
 
@@ -125,6 +127,7 @@ final class DashboardService
             ->join('products', 'sale_items.product_id', '=', 'products.id')
             ->whereDate('sales.created_at', today())
             ->whereNull('sales.deleted_at')
+            ->where('sales.payment_status', '!=', 'cancelled')
             ->when($shopId, fn($q) => $q->where('sales.shop_id', $shopId))
             ->sum(DB::raw('sale_items.quantity * products.purchase_price'));
 
@@ -133,6 +136,7 @@ final class DashboardService
             ->whereMonth('sales.created_at', now()->month)
             ->whereYear('sales.created_at', now()->year)
             ->whereNull('sales.deleted_at')
+            ->where('sales.payment_status', '!=', 'cancelled')
             ->when($shopId, fn($q) => $q->where('sales.shop_id', $shopId))
             ->sum(DB::raw('sale_items.quantity * products.purchase_price'));
 
