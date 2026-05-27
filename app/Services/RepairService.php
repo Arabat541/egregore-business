@@ -241,7 +241,7 @@ final class RepairService
                     'shop_id'         => $repair->shop_id,
                     'product_id'      => $product->id,
                     'user_id'         => $user->id,
-                    'type'            => 'repair_cancel',
+                    'type'            => StockMovement::TYPE_REPAIR_CANCEL,
                     'quantity'        => $part->quantity,
                     'quantity_before' => $before,
                     'quantity_after'  => $before + $part->quantity,

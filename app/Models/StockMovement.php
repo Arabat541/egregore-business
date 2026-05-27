@@ -25,6 +25,7 @@ class StockMovement extends Model
     const TYPE_PURCHASE = 'purchase';
     const TYPE_SALE = 'sale';
     const TYPE_SALE_CANCEL = 'sale_cancel';
+    const TYPE_REPAIR_CANCEL = 'repair_cancel';
     const TYPE_RETURN = 'return';
     const TYPE_LOSS = 'loss';
 
@@ -80,6 +81,7 @@ class StockMovement extends Model
             self::TYPE_PURCHASE => 'Achat fournisseur',
             self::TYPE_SALE => 'Vente',
             self::TYPE_SALE_CANCEL => 'Annulation vente',
+            self::TYPE_REPAIR_CANCEL => 'Annulation réparation',
             self::TYPE_RETURN => 'Retour client',
             self::TYPE_LOSS => 'Perte/Casse',
             default => 'Inconnu',
@@ -99,6 +101,7 @@ class StockMovement extends Model
             self::TYPE_PURCHASE => 'primary',
             self::TYPE_SALE => 'danger',
             self::TYPE_SALE_CANCEL => 'secondary',
+            self::TYPE_REPAIR_CANCEL => 'warning',
             self::TYPE_RETURN => 'info',
             self::TYPE_LOSS => 'dark',
             default => 'secondary',

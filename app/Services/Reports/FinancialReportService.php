@@ -49,7 +49,8 @@ final class FinancialReportService
         $totalCashCollected = (float) (clone $salesQuery)->sum('amount_paid');
 
         $repairsQuery = Repair::withoutGlobalScope('shop')
-            ->whereBetween('created_at', [$start, $end . ' 23:59:59']);
+            ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
+            ->where('status', '!=', Repair::STATUS_CANCELLED);
         if ($shopId) $repairsQuery->where('shop_id', $shopId);
 
         $repairsRevenue      = (float) (clone $repairsQuery)->sum('labor_cost');
@@ -133,7 +134,8 @@ final class FinancialReportService
         $costOfGoodsSold = (float) SaleItem::whereHas('sale', function ($q) use ($start, $end, $shopId) {
             $q->withoutGlobalScope('shop')
               ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
-              ->where('is_repair_parts', false);
+              ->where('is_repair_parts', false)
+              ->where('payment_status', '!=', 'cancelled');
             if ($shopId) $q->where('shop_id', $shopId);
         })->join('products', 'sale_items.product_id', '=', 'products.id')
           ->sum(DB::raw('sale_items.quantity * products.purchase_price'));
@@ -245,6 +247,7 @@ final class FinancialReportService
         $repairsPartsByDay = DB::table('repairs')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
             ->whereNull('deleted_at')
+            ->where('status', '!=', 'cancelled')
             ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
             ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(parts_cost) as parts'))
             ->groupBy('date')->get()->keyBy('date');
@@ -252,6 +255,7 @@ final class FinancialReportService
         $repairsByDay = DB::table('repairs')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
             ->whereNull('deleted_at')
+            ->where('status', '!=', 'cancelled')
             ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
             ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(labor_cost) as repairs'))
             ->groupBy('date')->get()->keyBy('date');

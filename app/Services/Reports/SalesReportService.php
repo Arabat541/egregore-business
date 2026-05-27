@@ -62,6 +62,7 @@ final class SalesReportService
         // Ajouter les pièces réparations au CA (workflow caissier)
         $repairParts = Repair::withoutGlobalScope('shop')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
+            ->where('status', '!=', Repair::STATUS_CANCELLED)
             ->when($shopId, fn($r) => $r->where('shop_id', $shopId))
             ->sum('parts_cost');
         $totalRevenue = $salesOnlyRevenue + (float) $repairParts;
@@ -108,7 +109,8 @@ final class SalesReportService
         // Ajouter pièces réparation (par jour)
         $repairPartsBase = Repair::withoutGlobalScope('shop')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
-            ->where('parts_cost', '>', 0);
+            ->where('parts_cost', '>', 0)
+            ->where('status', '!=', Repair::STATUS_CANCELLED);
         if ($shopId) $repairPartsBase->where('shop_id', $shopId);
 
         $repairsByDay = (clone $repairPartsBase)
@@ -151,7 +153,8 @@ final class SalesReportService
         // Ajouter pièces réparation aux modes de paiement
         $repairsBase = Repair::withoutGlobalScope('shop')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
-            ->where('parts_cost', '>', 0);
+            ->where('parts_cost', '>', 0)
+            ->where('status', '!=', Repair::STATUS_CANCELLED);
         if ($shopId) $repairsBase->where('shop_id', $shopId);
 
         $repairsByPayment = (clone $repairsBase)
@@ -190,7 +193,8 @@ final class SalesReportService
         // Les pièces réparation appartiennent toujours au type 'customer'
         $repairsBase = Repair::withoutGlobalScope('shop')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
-            ->where('parts_cost', '>', 0);
+            ->where('parts_cost', '>', 0)
+            ->where('status', '!=', Repair::STATUS_CANCELLED);
         if ($shopId) $repairsBase->where('shop_id', $shopId);
 
         $partsTotal = (clone $repairsBase)->sum('parts_cost');
@@ -222,7 +226,8 @@ final class SalesReportService
         // Ajouter pièces réparation par créateur
         $repairsBase = Repair::withoutGlobalScope('shop')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
-            ->where('parts_cost', '>', 0);
+            ->where('parts_cost', '>', 0)
+            ->where('status', '!=', Repair::STATUS_CANCELLED);
         if ($shopId) $repairsBase->where('shop_id', $shopId);
 
         $repairsByCreator = (clone $repairsBase)->with('creator')

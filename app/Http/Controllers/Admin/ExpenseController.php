@@ -179,22 +179,24 @@ class ExpenseController extends Controller
             return back()->withErrors(['error' => 'Cette dépense ne peut pas être approuvée.']);
         }
 
-        $expense->approve($user->id);
+        DB::transaction(function () use ($expense, $user) {
+            $expense->approve($user->id);
 
-        // Enregistrer la transaction de caisse pour les dépenses espèces approuvées a posteriori
-        if ($expense->payment_method === 'cash' && $expense->cash_register_id) {
-            $cashRegister = CashRegister::find($expense->cash_register_id);
-            if ($cashRegister) {
-                $cashRegister->addTransaction(
-                    CashTransaction::TYPE_EXPENSE,
-                    CashTransaction::CATEGORY_EXPENSE,
-                    (float) $expense->amount,
-                    'cash',
-                    $expense,
-                    "Dépense: {$expense->description}"
-                );
+            // Enregistrer la transaction de caisse pour les dépenses espèces approuvées a posteriori
+            if ($expense->payment_method === 'cash' && $expense->cash_register_id) {
+                $cashRegister = CashRegister::find($expense->cash_register_id);
+                if ($cashRegister) {
+                    $cashRegister->addTransaction(
+                        CashTransaction::TYPE_EXPENSE,
+                        CashTransaction::CATEGORY_EXPENSE,
+                        (float) $expense->amount,
+                        'cash',
+                        $expense,
+                        "Dépense: {$expense->description}"
+                    );
+                }
             }
-        }
+        });
 
         return back()->with('success', 'Dépense approuvée avec succès.');
     }

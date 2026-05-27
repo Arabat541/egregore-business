@@ -142,8 +142,11 @@ class Reseller extends Model
             return;
         }
 
-        $this->current_debt = max(0, (float) $this->current_debt - $amount);
-        $this->save();
+        DB::statement(
+            'UPDATE resellers SET current_debt = GREATEST(0, current_debt - ?) WHERE id = ?',
+            [$amount, $this->id]
+        );
+        $this->refresh();
     }
 
     /**

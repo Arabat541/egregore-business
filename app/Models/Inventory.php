@@ -104,25 +104,27 @@ class Inventory extends Model
      */
     public function complete()
     {
-        $this->items()->whereNull('physical_quantity')->update([
-            'physical_quantity' => 0,
-            'counted' => true,
-        ]);
+        DB::transaction(function () {
+            $this->items()->whereNull('physical_quantity')->update([
+                'physical_quantity' => 0,
+                'counted' => true,
+            ]);
 
-        // Calculer les différences
-        foreach ($this->items as $item) {
-            $item->difference = $item->physical_quantity - $item->theoretical_quantity;
-            $item->difference_value = $item->difference * $item->product->normal_price;
-            $item->save();
-        }
+            // Calculer les différences
+            foreach ($this->items()->with('product')->get() as $item) {
+                $item->difference = $item->physical_quantity - $item->theoretical_quantity;
+                $item->difference_value = $item->difference * $item->product->normal_price;
+                $item->save();
+            }
 
-        // Statistiques
-        $this->total_products = $this->items()->count();
-        $this->products_with_difference = $this->items()->where('difference', '!=', 0)->count();
-        $this->total_difference_value = $this->items()->sum('difference_value');
-        $this->status = self::STATUS_COMPLETED;
-        $this->completed_at = now();
-        $this->save();
+            // Statistiques
+            $this->total_products = $this->items()->count();
+            $this->products_with_difference = $this->items()->where('difference', '!=', 0)->count();
+            $this->total_difference_value = $this->items()->sum('difference_value');
+            $this->status = self::STATUS_COMPLETED;
+            $this->completed_at = now();
+            $this->save();
+        });
     }
 
     /**
