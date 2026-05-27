@@ -319,8 +319,10 @@ final class SavReportService
             ->whereNotNull('resolved_at');
         if ($shopId) $q->where('shop_id', $shopId);
 
-        return $q->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, resolved_at)) as avg_hours')
+        $avg = $q->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, resolved_at)) as avg_hours')
             ->value('avg_hours');
+
+        return $avg !== null ? (float) $avg : null;
     }
 
     public function getOldOpenTickets(?int $shopId, int $daysOld = 7): Collection
