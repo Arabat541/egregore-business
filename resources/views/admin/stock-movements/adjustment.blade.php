@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'id'       => $p->id,
         'name'     => $p->name,
         'category' => $p->category->name ?? '-',
-        'stock'    => $p->quantity,
+        'stock'    => $p->quantity_in_stock,
         'shop_id'  => $p->shop_id,
     ]));
 

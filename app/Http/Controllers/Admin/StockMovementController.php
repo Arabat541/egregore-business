@@ -204,21 +204,21 @@ class StockMovementController extends Controller
                 break;
         }
         
-        // Créer le mouvement de stock
-        StockMovement::create([
-            'shop_id' => $request->shop_id,
-            'product_id' => $request->product_id,
-            'user_id' => Auth::id(),
-            'type' => 'adjustment',
-            'quantity' => $movementQuantity,
-            'quantity_before' => $currentStock,
-            'quantity_after' => $newStock,
-            'reference' => 'ADJ-' . strtoupper(uniqid()),
-            'reason' => $request->reason,
-        ]);
-        
-        // Mettre à jour le stock du produit
-        $product->update(['quantity_in_stock' => $newStock]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $product, $movementQuantity, $currentStock, $newStock) {
+            StockMovement::create([
+                'shop_id'         => $request->shop_id,
+                'product_id'      => $request->product_id,
+                'user_id'         => Auth::id(),
+                'type'            => StockMovement::TYPE_ADJUSTMENT,
+                'quantity'        => $movementQuantity,
+                'quantity_before' => $currentStock,
+                'quantity_after'  => $newStock,
+                'reference'       => 'ADJ-' . strtoupper(uniqid()),
+                'reason'          => $request->reason,
+            ]);
+
+            $product->update(['quantity_in_stock' => $newStock]);
+        });
         
         return redirect()->route('admin.stock-movements.index')
             ->with('success', 'Ajustement de stock enregistré avec succès.');
