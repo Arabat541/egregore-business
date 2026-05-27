@@ -80,6 +80,12 @@ final class SavService
             throw new \LogicException('Le retour en stock a déjà été effectué pour ce ticket.');
         }
 
+        // Force-load the linked sale without the BelongsToShop global scope so
+        // amount_paid is always correct (credit sales have amount_paid = 0).
+        if ($ticket->sale_id) {
+            $ticket->setRelation('sale', Sale::withoutGlobalScope('shop')->find($ticket->sale_id));
+        }
+
         return DB::transaction(function () use ($ticket, $validated, $userId): array {
             $totalReturned    = 0;
             $totalRefund      = 0.0;
@@ -211,6 +217,10 @@ final class SavService
     {
         if (!$ticket->stock_returned) {
             throw new \LogicException('Aucun retour en stock à annuler.');
+        }
+
+        if ($ticket->sale_id) {
+            $ticket->setRelation('sale', Sale::withoutGlobalScope('shop')->find($ticket->sale_id));
         }
 
         DB::transaction(function () use ($ticket, $userId): void {
