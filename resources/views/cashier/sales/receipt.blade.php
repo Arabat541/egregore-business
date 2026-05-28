@@ -7,34 +7,44 @@
         @page {
             margin: 0;
         }
+        * {
+            color: #000 !important;
+        }
         body {
             font-family: 'Courier New', monospace;
-            font-size: 12px;
+            font-size: 15px;
+            font-weight: 600;
             width: 80mm;
             margin: 0 auto;
             padding: 10px;
+            color: #000;
         }
         .header {
             text-align: center;
             margin-bottom: 15px;
         }
         .header h1 {
-            font-size: 16px;
+            font-size: 20px;
+            font-weight: 900;
             margin: 0;
+            letter-spacing: 1px;
         }
         .header p {
-            margin: 2px 0;
-            font-size: 10px;
+            margin: 3px 0;
+            font-size: 13px;
+            font-weight: 700;
         }
         .info {
-            border-top: 1px dashed #000;
-            border-bottom: 1px dashed #000;
-            padding: 5px 0;
+            border-top: 2px dashed #000;
+            border-bottom: 2px dashed #000;
+            padding: 6px 0;
             margin-bottom: 10px;
         }
         .info-row {
             display: flex;
             justify-content: space-between;
+            font-size: 14px;
+            padding: 1px 0;
         }
         table {
             width: 100%;
@@ -42,10 +52,17 @@
         }
         th, td {
             text-align: left;
-            padding: 3px 0;
+            padding: 4px 0;
+            font-size: 14px;
         }
         th {
-            border-bottom: 1px solid #000;
+            border-bottom: 2px solid #000;
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        td {
+            border-bottom: 1px dotted #555;
         }
         .text-right {
             text-align: right;
@@ -54,31 +71,38 @@
             text-align: center;
         }
         .total-section {
-            border-top: 1px dashed #000;
-            padding-top: 5px;
+            border-top: 2px dashed #000;
+            padding-top: 6px;
             margin-top: 10px;
         }
         .total-row {
             display: flex;
             justify-content: space-between;
-            font-weight: bold;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 2px 0;
         }
         .grand-total {
-            font-size: 14px;
-            border-top: 2px solid #000;
-            padding-top: 5px;
-            margin-top: 5px;
+            font-size: 18px;
+            font-weight: 900;
+            border-top: 3px solid #000;
+            border-bottom: 3px solid #000;
+            padding: 5px 0;
+            margin: 6px 0;
+            letter-spacing: 0.5px;
         }
         .footer {
             text-align: center;
             margin-top: 20px;
-            font-size: 10px;
-            border-top: 1px dashed #000;
+            font-size: 13px;
+            font-weight: 700;
+            border-top: 2px dashed #000;
             padding-top: 10px;
         }
         .barcode {
             text-align: center;
-            font-size: 10px;
+            font-size: 13px;
+            font-weight: 900;
             letter-spacing: 3px;
             margin: 10px 0;
         }
