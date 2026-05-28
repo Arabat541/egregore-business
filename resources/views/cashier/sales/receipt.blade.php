@@ -120,7 +120,7 @@
 <body>
     <div class="header">
         @if(($settings['print_logo'] ?? '1') == '1')
-            <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-height: 90px; margin-bottom: 5px;">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-height: 160px; width: auto; margin-bottom: 8px;">
         @endif
         <h1>{{ $settings['shop_name'] ?? $settings['company_name'] ?? 'EGREGORE BUSINESS' }}</h1>
         @if(!empty($settings['shop_activity']))
