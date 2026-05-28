@@ -144,13 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentStockInput = document.getElementById('current_stock');
 
     // Données produits embarquées
-    const allProducts = @json($products->map(fn($p) => [
-        'id'       => $p->id,
-        'name'     => $p->name,
-        'category' => $p->category?->name ?? '-',
-        'stock'    => $p->quantity_in_stock,
-        'shop_id'  => $p->shop_id,
-    ]));
+    const allProducts = @json($productsData);
 
     function getFilteredProducts(query) {
         const shopId = shopSelect.value;

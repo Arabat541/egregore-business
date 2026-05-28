@@ -166,8 +166,16 @@ class StockMovementController extends Controller
     {
         $shops = Shop::orderBy('name')->get();
         $products = Product::with('category')->orderBy('name')->get();
-        
-        return view('admin.stock-movements.adjustment', compact('shops', 'products'));
+
+        $productsData = $products->map(fn($p) => [
+            'id'       => $p->id,
+            'name'     => $p->name,
+            'category' => $p->category?->name ?? '-',
+            'stock'    => (int) $p->quantity_in_stock,
+            'shop_id'  => $p->shop_id,
+        ])->values();
+
+        return view('admin.stock-movements.adjustment', compact('shops', 'products', 'productsData'));
     }
 
     /**
