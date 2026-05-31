@@ -372,13 +372,20 @@ class ResellerController extends Controller
 
     public function mergePage(Request $request)
     {
-        $resellers          = Reseller::orderBy('company_name')->get();
+        $resellers           = Reseller::orderBy('company_name')->get();
         $suggestedDuplicates = $this->mergeService->suggestedDuplicates();
-        $selected           = $request->filled('ids')
-            ? Reseller::whereIn('id', explode(',', $request->ids))->get()
+        $selected            = $request->filled('ids')
+            ? Reseller::whereIn('id', explode(',', $request->get('ids')))->get()
             : collect();
 
-        return view('admin.resellers.merge', compact('resellers', 'suggestedDuplicates', 'selected'));
+        $resellersData = $resellers->map(fn($r) => [
+            'id'    => $r->id,
+            'name'  => $r->company_name,
+            'phone' => $r->phone ?? '',
+            'debt'  => (float) $r->current_debt,
+        ])->values();
+
+        return view('admin.resellers.merge', compact('resellers', 'suggestedDuplicates', 'selected', 'resellersData'));
     }
 
     public function merge(Request $request)

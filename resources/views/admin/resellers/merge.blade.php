@@ -157,12 +157,7 @@
 
 @push('scripts')
 <script>
-const allResellers = @json($resellers->map(fn($r) => [
-    'id'   => $r->id,
-    'name' => $r->company_name,
-    'phone'=> $r->phone ?? '',
-    'debt' => $r->current_debt,
-])->values());
+const allResellers = @json($resellersData);
 
 let selectedIds = new Set(@json($selected->pluck('id')));
 
