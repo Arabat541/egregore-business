@@ -488,21 +488,25 @@ function showCreateProductModal() {
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-semibold">Stock initial</label>
+                                <input type="number" name="quantity_in_stock" class="form-control form-control-lg" min="0" step="1" value="0">
+                            </div>
+                            <div class="col-md-3 mb-3">
                                 <label class="form-label fw-semibold">Prix demi-gros</label>
                                 <div class="input-group input-group-lg">
                                     <input type="number" name="semi_wholesale_price" class="form-control" min="0" step="1" value="0">
                                     <span class="input-group-text">FCFA</span>
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <label class="form-label fw-semibold">Prix de gros</label>
                                 <div class="input-group input-group-lg">
                                     <input type="number" name="wholesale_price" class="form-control" min="0" step="1" value="0">
                                     <span class="input-group-text">FCFA</span>
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <label class="form-label fw-semibold">Boutique <span class="text-danger">*</span></label>
                                 <select name="shop_id" class="form-select form-select-lg" required>${shopOptions}</select>
                             </div>
@@ -545,21 +549,24 @@ function saveQuickProduct() {
         },
         body: JSON.stringify(data)
     })
-    .then(r => r.json())
-    .then(result => {
-        if (result.success) {
-            products.push(result.product);
+    .then(r => r.json().then(data => ({ ok: r.ok, data })))
+    .then(({ ok, data }) => {
+        if (ok && data.success) {
+            products.push(data.product);
             bootstrap.Modal.getInstance(document.getElementById('createProductModal')).hide();
-            addProductRow(result.product.id, 1);
+            addProductRow(data.product.id, 1);
             showNotification('Produit créé et ajouté à la facture !', 'success');
         } else {
-            alert('Erreur : ' + result.message);
+            const msg = data.errors
+                ? Object.values(data.errors).flat().join('\n')
+                : (data.message || 'Erreur inconnue');
+            alert('Erreur :\n' + msg);
             btn.disabled = false;
             btn.innerHTML = '<i class="bi bi-check-lg"></i> Créer et ajouter';
         }
     })
     .catch(() => {
-        alert('Erreur lors de la création du produit.');
+        alert('Erreur réseau lors de la création du produit.');
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-check-lg"></i> Créer et ajouter';
     });
