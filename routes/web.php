@@ -276,6 +276,8 @@ Route::prefix('admin')
         // Fidélité revendeurs
         Route::get('/resellers-loyalty', [ResellerController::class, 'loyaltyReport'])->name('resellers.loyalty');
         Route::post('/resellers-loyalty/pay-bonus', [ResellerController::class, 'payBonus'])->name('resellers.pay-bonus');
+        Route::get('/resellers-merge', [ResellerController::class, 'mergePage'])->name('resellers.merge');
+        Route::post('/resellers-merge', [ResellerController::class, 'merge'])->name('resellers.merge.process');
 
         // Gestion des fournisseurs et commandes
         Route::resource('suppliers', \App\Http\Controllers\Admin\SupplierController::class);

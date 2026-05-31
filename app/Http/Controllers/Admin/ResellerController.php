@@ -10,6 +10,7 @@ use App\Models\Reseller;
 use App\Models\ResellerLoyaltyBonus;
 use App\Models\Shop;
 use App\Services\ResellerLoyaltyService;
+use App\Services\ResellerMergeService;
 use Illuminate\Http\Request;
 
 /**
@@ -19,6 +20,7 @@ class ResellerController extends Controller
 {
     public function __construct(
         private readonly ResellerLoyaltyService $loyaltyService,
+        private readonly ResellerMergeService   $mergeService,
     ) {}
 
     public function index(Request $request)
@@ -362,5 +364,45 @@ class ResellerController extends Controller
             "Paiement bonus fidélité: {$bonus->reseller->company_name} - {$bonus->year} ({$bonus->payment_type_label})");
 
         return back()->with('success', 'Bonus payé avec succès.');
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  Fusion de doublons
+    // ──────────────────────────────────────────────────────────────
+
+    public function mergePage(Request $request)
+    {
+        $resellers          = Reseller::orderBy('company_name')->get();
+        $suggestedDuplicates = $this->mergeService->suggestedDuplicates();
+        $selected           = $request->filled('ids')
+            ? Reseller::whereIn('id', explode(',', $request->ids))->get()
+            : collect();
+
+        return view('admin.resellers.merge', compact('resellers', 'suggestedDuplicates', 'selected'));
+    }
+
+    public function merge(Request $request)
+    {
+        $request->validate([
+            'primary_id'    => 'required|exists:resellers,id',
+            'duplicate_ids' => 'required|array|min:1',
+            'duplicate_ids.*' => 'exists:resellers,id',
+        ]);
+
+        $primaryId    = (int) $request->primary_id;
+        $duplicateIds = array_map('intval', $request->duplicate_ids);
+
+        if (in_array($primaryId, $duplicateIds)) {
+            return back()->withErrors(['duplicate_ids' => 'Le revendeur primaire ne peut pas être dans la liste des doublons.']);
+        }
+
+        $primary = $this->mergeService->merge($primaryId, $duplicateIds);
+
+        $names = Reseller::withTrashed()->whereIn('id', $duplicateIds)->pluck('company_name')->join(', ');
+        ActivityLog::log('update', $primary, null, null,
+            "Fusion revendeurs : {$primary->company_name} ← {$names}");
+
+        return redirect()->route('admin.resellers.show', $primary)
+            ->with('success', count($duplicateIds) . ' doublon(s) fusionné(s) dans ' . $primary->company_name . '.');
     }
 }

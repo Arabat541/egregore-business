@@ -15,9 +15,16 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="bi bi-person-badge"></i> Gestion des réparateurs</h2>
-    <a href="{{ route($routePrefix . '.resellers.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Nouveau réparateur
-    </a>
+    <div class="d-flex gap-2">
+        @if(auth()->user()->hasRole('admin'))
+        <a href="{{ route('admin.resellers.merge') }}" class="btn btn-outline-warning">
+            <i class="bi bi-scissors"></i> Fusionner des doublons
+        </a>
+        @endif
+        <a href="{{ route($routePrefix . '.resellers.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nouveau réparateur
+        </a>
+    </div>
 </div>
 
 <!-- Filtres -->
