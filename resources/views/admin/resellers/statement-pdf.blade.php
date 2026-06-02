@@ -95,6 +95,9 @@
         .summary-card.balance {
             background-color: #f8d7da;
         }
+        .summary-card.balance.ok {
+            background-color: #d1e7dd;
+        }
         .summary-card h4 {
             font-size: 8px;
             color: #666;
@@ -103,6 +106,11 @@
         .summary-card .amount {
             font-size: 12px;
             font-weight: bold;
+        }
+        .summary-card .sub-amount {
+            font-size: 7px;
+            color: #555;
+            margin-top: 2px;
         }
         .current-debt {
             text-align: center;
@@ -195,6 +203,37 @@
             padding: 2px 3px;
             border-bottom: none;
         }
+        .section-title {
+            font-size: 10px;
+            font-weight: bold;
+            color: #0d6efd;
+            border-bottom: 1px solid #0d6efd;
+            padding-bottom: 3px;
+            margin-bottom: 8px;
+            margin-top: 15px;
+        }
+        .bilan-table {
+            width: 60%;
+            margin: 0 auto 15px auto;
+        }
+        .bilan-table td {
+            padding: 4px 6px;
+            font-size: 9px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .bilan-table td.text-end {
+            text-align: right;
+            font-weight: bold;
+        }
+        .bilan-table tr.total-row td {
+            font-size: 11px;
+            font-weight: bold;
+            border-top: 2px solid #333;
+            background-color: #f8f9fa;
+        }
+        .bilan-table .danger { color: #dc3545; }
+        .bilan-table .success { color: #198754; }
+        .bilan-table .info { color: #0dcaf0; }
         .footer {
             margin-top: 20px;
             padding-top: 10px;
@@ -236,6 +275,12 @@
     </style>
 </head>
 <body>
+@php
+    $itemDiscounts   = $sales->flatMap->items->sum('discount');
+    $globalDiscounts = $summary['total_discount'];
+    $totalDiscounts  = $itemDiscounts + $globalDiscounts;
+    $grossTotal      = $sales->flatMap->items->sum(fn($i) => $i->unit_price * $i->quantity);
+@endphp
 <div class="content">
     <!-- En-tête -->
     <div class="header">
@@ -253,6 +298,11 @@
                 <p><strong>Téléphone:</strong> {{ $reseller->phone }}</p>
                 <p><strong>Email:</strong> {{ $reseller->email ?? 'Non renseigné' }}</p>
                 <p><strong>Adresse:</strong> {{ $reseller->address ?? 'Non renseignée' }}</p>
+                @if($reseller->loyalty_tier && $reseller->loyalty_tier !== 'Nouveau')
+                <p><strong>Fidélité:</strong> {{ $reseller->loyalty_tier }}
+                    @if($reseller->loyalty_bonus_rate > 0)(+{{ $reseller->loyalty_bonus_rate }}%)@endif
+                </p>
+                @endif
             </div>
         </div>
         <div class="info-right">
@@ -261,9 +311,6 @@
                 <p><strong>Période:</strong> {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
                 <p><strong>Boutique:</strong> {{ $shopName ?? 'Toutes boutiques' }}</p>
                 <p><strong>Date édition:</strong> {{ now()->format('d/m/Y à H:i') }}</p>
-                <p><strong>Palier fidélité:</strong> {{ $reseller->loyalty_tier }}
-                    @if($reseller->loyalty_bonus_rate > 0)({{ $reseller->loyalty_bonus_rate }}%)@endif
-                </p>
                 <p><strong>Plafond crédit:</strong> {{ number_format($reseller->credit_limit, 0, ',', ' ') }} F</p>
             </div>
         </div>
@@ -280,22 +327,39 @@
         <div class="summary-card purchases">
             <h4>TOTAL ACHATS</h4>
             <div class="amount">{{ number_format($summary['total_purchases'], 0, ',', ' ') }} F</div>
-        </div>
-        <div class="summary-card payments">
-            <h4>TOTAL PAIEMENTS</h4>
-            <div class="amount">{{ number_format($summary['total_payments'], 0, ',', ' ') }} F</div>
+            @if($grossTotal > $summary['total_purchases'])
+            <div class="sub-amount">Brut : {{ number_format($grossTotal, 0, ',', ' ') }} F</div>
+            @endif
         </div>
         <div class="summary-card discount">
-            <h4>REMISE OBTENUE</h4>
-            <div class="amount">{{ number_format($summary['total_discount'], 0, ',', ' ') }} F</div>
+            <h4>TOTAL REMISES</h4>
+            <div class="amount">{{ number_format($totalDiscounts, 0, ',', ' ') }} F</div>
+            @if($totalDiscounts > 0)
+            <div class="sub-amount">
+                @if($itemDiscounts > 0)Produits : {{ number_format($itemDiscounts, 0, ',', ' ') }} F@endif
+                @if($itemDiscounts > 0 && $globalDiscounts > 0) · @endif
+                @if($globalDiscounts > 0)Globales : {{ number_format($globalDiscounts, 0, ',', ' ') }} F@endif
+            </div>
+            @endif
         </div>
-        <div class="summary-card balance">
-            <h4>CRÉANCE PÉRIODE</h4>
+        <div class="summary-card payments">
+            <h4>TOTAL PAYÉ</h4>
+            <div class="amount">{{ number_format($summary['total_payments'], 0, ',', ' ') }} F</div>
+            @if($payments->isNotEmpty())
+            <div class="sub-amount">{{ $payments->count() }} versement(s)</div>
+            @endif
+        </div>
+        <div class="summary-card balance {{ $summary['balance'] <= 0 ? 'ok' : '' }}">
+            <h4>RESTE À PAYER</h4>
             <div class="amount">{{ number_format($summary['balance'], 0, ',', ' ') }} F</div>
+            @if($openingBalance > 0)
+            <div class="sub-amount">Ouverture : {{ number_format($openingBalance, 0, ',', ' ') }} F</div>
+            @endif
         </div>
     </div>
 
     <!-- Tableau des mouvements -->
+    <div class="section-title">MOUVEMENTS DE LA PÉRIODE</div>
     <table>
         <thead>
             <tr>
@@ -406,11 +470,9 @@
 
     @if(isset($payments) && $payments->isNotEmpty())
     <!-- Versements reçus -->
+    <div class="section-title">HISTORIQUE DES PAIEMENTS</div>
     <table>
         <thead>
-            <tr>
-                <th colspan="{{ (!isset($shopId) || !$shopId) ? 7 : 6 }}" style="text-align:left; background:#198754;">VERSEMENTS REÇUS SUR LA PÉRIODE</th>
-            </tr>
             <tr>
                 <th style="width:15%;">Date</th>
                 <th style="width:20%;">Référence</th>
@@ -423,20 +485,55 @@
             @foreach($payments as $p)
             <tr style="{{ (float)($p->debt_before ?? 0) <= 0 ? 'color:#888;background:#f8f9fa;' : 'background:#d1e7dd;' }}">
                 <td>{{ $p->created_at->format('d/m/Y') }}</td>
-                <td>{{ $p->reference ?? 'PAY-' . $p->id }}</td>
+                <td>{{ $p->reference ?? 'PAY-' . str_pad($p->id, 5, '0', STR_PAD_LEFT) }}</td>
                 <td>{{ $p->payment_method ?? 'Espèces' }}</td>
                 <td class="text-end">{{ number_format($p->amount, 0, ',', ' ') }} F</td>
-                <td style="font-size:7px;">{{ (float)($p->debt_before ?? 0) <= 0 ? 'Avance (dette = 0)' : ($p->notes ?? '') }}</td>
+                <td style="font-size:7px;">{{ (float)($p->debt_before ?? 0) <= 0 ? 'Avance (aucune dette)' : ($p->notes ?? '') }}</td>
             </tr>
             @endforeach
             <tr style="background:#e9ecef;font-weight:bold;">
-                <td colspan="3">Total versements</td>
+                <td colspan="3">Total versements reçus</td>
                 <td class="text-end">{{ number_format($payments->sum('amount'), 0, ',', ' ') }} F</td>
                 <td></td>
             </tr>
         </tbody>
     </table>
     @endif
+
+    <!-- Bilan de la période -->
+    <div class="section-title">BILAN DE LA PÉRIODE</div>
+    <table class="bilan-table">
+        <tbody>
+            <tr>
+                <td>Dette d'ouverture</td>
+                <td class="text-end">{{ number_format($openingBalance, 0, ',', ' ') }} F</td>
+            </tr>
+            <tr>
+                <td class="danger">+ Achats de la période</td>
+                <td class="text-end danger">+ {{ number_format($summary['total_purchases'], 0, ',', ' ') }} F</td>
+            </tr>
+            @if($totalDiscounts > 0)
+            <tr>
+                <td class="info">Remises obtenues</td>
+                <td class="text-end info" style="font-size:7px;">
+                    @if($itemDiscounts > 0)Produits : -{{ number_format($itemDiscounts, 0, ',', ' ') }} F · @endif
+                    @if($globalDiscounts > 0)Globales : -{{ number_format($globalDiscounts, 0, ',', ' ') }} F · @endif
+                    déjà incluses dans les achats
+                </td>
+            </tr>
+            @endif
+            <tr>
+                <td class="success">- Paiements reçus</td>
+                <td class="text-end success">- {{ number_format($summary['total_payments'], 0, ',', ' ') }} F</td>
+            </tr>
+            <tr class="total-row">
+                <td>Solde restant dû</td>
+                <td class="text-end {{ $summary['balance'] > 0 ? 'danger' : 'success' }}">
+                    {{ number_format($summary['balance'], 0, ',', ' ') }} F
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
     <!-- Signatures -->
     <div class="signature-section">

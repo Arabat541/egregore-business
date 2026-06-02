@@ -219,7 +219,7 @@ class ResellerController extends Controller
         }
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.resellers.statement-pdf', compact(
-            'reseller', 'movements', 'payments', 'startDate', 'endDate',
+            'reseller', 'movements', 'payments', 'sales', 'startDate', 'endDate',
             'openingBalance', 'summary',
             'shopName', 'shopAddress', 'shopPhone', 'shopId'
         ))->setPaper('A4', 'portrait');
