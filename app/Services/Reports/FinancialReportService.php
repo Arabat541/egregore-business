@@ -7,6 +7,7 @@ namespace App\Services\Reports;
 use App\Models\CashRegister;
 use App\Models\CashTransaction;
 use App\Models\Expense;
+use App\Models\ProductReturn;
 use App\Models\Repair;
 use App\Models\Reseller;
 use App\Models\Sale;
@@ -47,6 +48,12 @@ final class FinancialReportService
 
         $salesRevenue       = (float) (clone $salesQuery)->sum('total_amount');
         $totalCashCollected = (float) (clone $salesQuery)->sum('amount_paid');
+
+        $returnsQuery = ProductReturn::withoutGlobalScope('shop')
+            ->whereBetween('created_at', [$start, $end . ' 23:59:59']);
+        if ($shopId) $returnsQuery->where('shop_id', $shopId);
+        $productReturnsValue = (float) $returnsQuery->sum('total_value');
+        $salesRevenue -= $productReturnsValue;
 
         $repairsQuery = Repair::withoutGlobalScope('shop')
             ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
@@ -139,6 +146,13 @@ final class FinancialReportService
             if ($shopId) $q->where('shop_id', $shopId);
         })->join('products', 'sale_items.product_id', '=', 'products.id')
           ->sum(DB::raw('sale_items.quantity * products.purchase_price'));
+
+        $returnedPurchaseCost = (float) ProductReturn::withoutGlobalScope('shop')
+            ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
+            ->when($shopId, fn($q) => $q->where('product_returns.shop_id', $shopId))
+            ->join('products', 'product_returns.product_id', '=', 'products.id')
+            ->sum(DB::raw('product_returns.quantity * products.purchase_price'));
+        $costOfGoodsSold -= $returnedPurchaseCost;
 
         // La main d'œuvre est partagée : le technicien perçoit technician_labor_share %
         // (les pièces de rechange sont des ventes séparées, non impactées)
@@ -279,6 +293,12 @@ final class FinancialReportService
             ->select(DB::raw('DATE(expense_date) as date'), DB::raw('SUM(amount) as expenses'))
             ->groupBy('date')->get()->keyBy('date');
 
+        $returnsByDay = DB::table('product_returns')
+            ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
+            ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_value) as returns'))
+            ->groupBy('date')->get()->keyBy('date');
+
         $dates      = collect();
         $current    = Carbon::parse($start);
         $endCarbon  = Carbon::parse($end);
@@ -288,7 +308,8 @@ final class FinancialReportService
             $savRow = $savByDay->get($d);
 
             $salesTotal  = ($revenueByDay->get($d)->sales ?? 0)
-                         + ($repairsPartsByDay->get($d)->parts ?? 0);
+                         + ($repairsPartsByDay->get($d)->parts ?? 0)
+                         - ($returnsByDay->get($d)->returns ?? 0);
             $repairsTotal = $repairsByDay->get($d)->repairs ?? 0;
             $savLosses    = $savRow ? ($savRow->refunds + $savRow->exchange_losses) : 0;
             $expenses     = $expensesByDay->get($d)->expenses ?? 0;

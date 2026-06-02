@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Customer;
 use App\Models\Expense;
 use App\Models\Product;
+use App\Models\ProductReturn;
 use App\Models\Repair;
 use App\Models\Reseller;
 use App\Models\Sale;
@@ -140,13 +141,33 @@ final class DashboardService
             ->when($shopId, fn($q) => $q->where('sales.shop_id', $shopId))
             ->sum(DB::raw('sale_items.quantity * products.purchase_price'));
 
+        $todayReturns = (float) ProductReturn::whereDate('created_at', today())
+            ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
+            ->sum('total_value');
+
+        $monthReturns = (float) ProductReturn::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
+            ->sum('total_value');
+
+        $todayReturnsPurchaseCost = (float) ProductReturn::join('products', 'product_returns.product_id', '=', 'products.id')
+            ->whereDate('product_returns.created_at', today())
+            ->when($shopId, fn($q) => $q->where('product_returns.shop_id', $shopId))
+            ->sum(DB::raw('product_returns.quantity * products.purchase_price'));
+
+        $monthReturnsPurchaseCost = (float) ProductReturn::join('products', 'product_returns.product_id', '=', 'products.id')
+            ->whereMonth('product_returns.created_at', now()->month)
+            ->whereYear('product_returns.created_at', now()->year)
+            ->when($shopId, fn($q) => $q->where('product_returns.shop_id', $shopId))
+            ->sum(DB::raw('product_returns.quantity * products.purchase_price'));
+
         return [
             'today_sales_count'    => (int) ($todayStats->count ?? 0),
-            'today_sales_amount'   => (float) ($todayStats->total ?? 0),
+            'today_sales_amount'   => (float) ($todayStats->total ?? 0) - $todayReturns,
             'month_sales_count'    => (int) ($monthStats->count ?? 0),
-            'month_sales_amount'   => (float) ($monthStats->total ?? 0),
-            '_today_purchase_cost' => (float) $todayPurchaseCost,
-            '_month_purchase_cost' => (float) $monthPurchaseCost,
+            'month_sales_amount'   => (float) ($monthStats->total ?? 0) - $monthReturns,
+            '_today_purchase_cost' => (float) $todayPurchaseCost - $todayReturnsPurchaseCost,
+            '_month_purchase_cost' => (float) $monthPurchaseCost - $monthReturnsPurchaseCost,
         ];
     }
 
