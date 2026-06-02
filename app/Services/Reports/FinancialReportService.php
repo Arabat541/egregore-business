@@ -148,7 +148,7 @@ final class FinancialReportService
           ->sum(DB::raw('sale_items.quantity * products.purchase_price'));
 
         $returnedPurchaseCost = (float) ProductReturn::withoutGlobalScope('shop')
-            ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
+            ->whereBetween('product_returns.created_at', [$start, $end . ' 23:59:59'])
             ->when($shopId, fn($q) => $q->where('product_returns.shop_id', $shopId))
             ->join('products', 'product_returns.product_id', '=', 'products.id')
             ->sum(DB::raw('product_returns.quantity * products.purchase_price'));
