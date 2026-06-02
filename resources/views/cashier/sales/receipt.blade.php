@@ -13,7 +13,7 @@
         body {
             font-family: 'Courier New', monospace;
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 700;
             width: 80mm;
             margin: 0 auto;
             padding: 10px;
@@ -44,6 +44,7 @@
             display: flex;
             justify-content: space-between;
             font-size: 14px;
+            font-weight: 700;
             padding: 1px 0;
         }
         table {
@@ -63,6 +64,7 @@
         }
         td {
             border-bottom: 1px dotted #555;
+            font-weight: 700;
         }
         .text-right {
             text-align: right;
@@ -120,7 +122,7 @@
 <body>
     <div class="header">
         @if(($settings['print_logo'] ?? '1') == '1')
-            <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-height: 160px; width: auto; margin-bottom: 8px;">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-height: 220px; width: auto; margin-bottom: 8px;">
         @endif
         <h1>{{ $settings['shop_name'] ?? $settings['company_name'] ?? 'EGREGORE BUSINESS' }}</h1>
         @if(!empty($settings['shop_activity']))

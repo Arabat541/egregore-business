@@ -11,6 +11,7 @@
         body {
             font-family: 'Courier New', Courier, monospace;
             font-size: 12px;
+            font-weight: bold;
             line-height: 1.4;
             color: #000;
             background: #fff;
@@ -42,8 +43,7 @@
         .ticket-items th { text-align: left; border-bottom: 1px solid #000; padding: 2px; }
         .ticket-items td { padding: 2px; vertical-align: top; }
         .item-qty, .item-price { text-align: right; white-space: nowrap; }
-        .item-name { max-width: 35mm; }
-        .item-name small { font-size: 9px; color: #666; }
+        .item-name { max-width: 25mm; }
         
         .ticket-totals { margin: 3mm 0; }
         .total-row { display: flex; justify-content: space-between; padding: 1px 0; }
@@ -107,7 +107,7 @@
         <!-- En-tête boutique -->
         <div class="ticket-header">
             @if(($settings['print_logo'] ?? '1') == '1')
-                <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-height: 80px; margin-bottom: 4px;"><br>
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-height: 130px; margin-bottom: 4px;"><br>
             @endif
             <div class="shop-name">{{ $settings['shop_name'] ?? 'EGREGORE BUSINESS' }}</div>
             <div class="shop-info">
@@ -175,19 +175,16 @@
                 <tr>
                     <th>Article</th>
                     <th class="item-qty">Qté</th>
+                    <th class="item-price">P.U.</th>
                     <th class="item-price">Total</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($sale->items as $item)
                 <tr>
-                    <td class="item-name">
-                        {{ $item->product->name ?? $item->product_name ?? 'Article' }}
-                        @if($item->unit_price)
-                            <br><small>@ {{ number_format($item->unit_price, 0, ',', ' ') }} F</small>
-                        @endif
-                    </td>
+                    <td class="item-name">{{ $item->product->name ?? $item->product_name ?? 'Article' }}</td>
                     <td class="item-qty">{{ $item->quantity }}</td>
+                    <td class="item-price">{{ number_format($item->unit_price, 0, ',', ' ') }}</td>
                     <td class="item-price">{{ number_format($item->total_price ?? ($item->quantity * $item->unit_price), 0, ',', ' ') }}</td>
                 </tr>
                 @endforeach
