@@ -336,9 +336,9 @@
             <div class="amount">{{ number_format($totalDiscounts, 0, ',', ' ') }} F</div>
             @if($totalDiscounts > 0)
             <div class="sub-amount">
-                @if($itemDiscounts > 0)Produits : {{ number_format($itemDiscounts, 0, ',', ' ') }} F@endif
+                @if($itemDiscounts > 0)Produits : {{ number_format($itemDiscounts, 0, ',', ' ') }} F @endif
                 @if($itemDiscounts > 0 && $globalDiscounts > 0) · @endif
-                @if($globalDiscounts > 0)Globales : {{ number_format($globalDiscounts, 0, ',', ' ') }} F@endif
+                @if($globalDiscounts > 0)Globales : {{ number_format($globalDiscounts, 0, ',', ' ') }} F @endif
             </div>
             @endif
         </div>
