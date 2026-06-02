@@ -177,6 +177,7 @@ class ResellerController extends Controller
         [
             'openingBalance' => $openingBalance,
             'movements'      => $movements,
+            'sales'          => $sales,
             'payments'       => $payments,
             'summary'        => $summary,
         ] = $this->loyaltyService->buildStatement($reseller, $startDate, $endDate, $shopId);
@@ -184,7 +185,7 @@ class ResellerController extends Controller
         $shops = Shop::active()->orderBy('name')->get();
 
         return view('admin.resellers.statement', compact(
-            'reseller', 'movements', 'payments', 'startDate', 'endDate', 'openingBalance', 'summary', 'shops', 'shopId'
+            'reseller', 'sales', 'movements', 'payments', 'startDate', 'endDate', 'openingBalance', 'summary', 'shops', 'shopId'
         ));
     }
 
@@ -201,6 +202,7 @@ class ResellerController extends Controller
         [
             'openingBalance' => $openingBalance,
             'movements'      => $movements,
+            'sales'          => $sales,
             'payments'       => $payments,
             'summary'        => $summary,
         ] = $this->loyaltyService->buildStatement($reseller, $startDate, $endDate, $shopId);
