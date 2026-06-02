@@ -135,7 +135,7 @@
         }
 
         /* Print styles */
-        @media print {
+        @@media print {
             .sidebar, .navbar-top, .no-print {
                 display: none !important;
             }
@@ -147,7 +147,7 @@
     </style>
     @stack('styles')
     <style>
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @@keyframes spin { to { transform: rotate(360deg); } }
         .spin { display:inline-block; animation: spin .6s linear infinite; }
     </style>
 </head>

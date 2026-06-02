@@ -401,7 +401,7 @@
 <style>
     .accordion-button:not(.collapsed) { background: #f0f7ff; color: #0d6efd; }
     .accordion-button::after { flex-shrink: 0; }
-    @media print {
+    @@media print {
         .no-print, .btn, .breadcrumb, nav, .sidebar, form, .accordion-button::after { display: none !important; }
         .accordion-collapse { display: block !important; }
         .card { border: 1px solid #ddd !important; box-shadow: none !important; }
