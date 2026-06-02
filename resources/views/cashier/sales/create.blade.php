@@ -106,14 +106,15 @@
                         <th style="width:12%; padding:.75rem 1rem;">Référence</th>
                         <th style="padding:.75rem 1rem;">Désignation</th>
                         <th class="text-center" style="width:110px; padding:.75rem 1rem;">Quantité</th>
-                        <th class="text-end" style="width:150px; padding:.75rem 1rem;">P.U. TTC</th>
-                        <th class="text-end" style="width:160px; padding:.75rem 1rem;">Montant TTC</th>
+                        <th class="text-end" style="width:140px; padding:.75rem 1rem;">P.U. TTC</th>
+                        <th class="text-end" style="width:120px; padding:.75rem 1rem;">Remise (F)</th>
+                        <th class="text-end" style="width:150px; padding:.75rem 1rem;">Montant TTC</th>
                         <th style="width:52px;"></th>
                     </tr>
                 </thead>
                 <tbody id="cartItems">
                     <tr id="emptyCartRow">
-                        <td colspan="6" class="text-center text-muted py-5">
+                        <td colspan="7" class="text-center text-muted py-5">
                             <i class="bi bi-cart3 fs-2 d-block mb-2"></i>
                             Aucun article — recherchez un produit ci-dessus
                         </td>
@@ -387,6 +388,7 @@ function addToCart(product, qty = 1) {
             name:                product.name,
             quantity:            qty,
             unit_price:          getPriceForQuantity(product, qty, clientType),
+            discount:            0,
             normal_price:        product.normal_price,
             reseller_price:      product.reseller_price,
             semi_wholesale_price:product.semi_wholesale_price,
@@ -413,6 +415,8 @@ function updateQuantity(index, qty) {
         item.quantity   = qty;
         const product   = products.find(p => p.id === item.product_id);
         if (product) item.unit_price = getPriceForQuantity(product, qty);
+        const maxDiscount = item.unit_price * item.quantity - 1;
+        if ((item.discount || 0) > maxDiscount) item.discount = 0;
         renderCart();
     }
 }
@@ -449,6 +453,7 @@ function renderCart() {
         const product = products.find(p => p.id === item.product_id);
         const sku     = product?.sku || '—';
         const label   = product ? getPriceLabel(item.quantity, product) : '';
+        const lineTotal = item.quantity * item.unit_price - (item.discount || 0);
         return `<tr>
             <td class="font-monospace small text-muted">${esc(sku)}</td>
             <td class="small">${esc(item.name)}${label}</td>
@@ -458,7 +463,13 @@ function renderCart() {
                        onchange="updateQuantity(${i}, this.value)" style="width:65px;">
             </td>
             <td class="text-end small text-muted text-nowrap">${fmt(item.unit_price)} FCFA</td>
-            <td class="text-end small fw-bold text-nowrap">${fmt(item.quantity * item.unit_price)} FCFA</td>
+            <td class="text-end">
+                <input type="number" class="form-control form-control-sm text-end"
+                       value="${item.discount || 0}" min="0" max="${item.unit_price * item.quantity - 1}"
+                       oninput="updateDiscount(${i}, this.value)"
+                       placeholder="0" style="width:100px;" id="discountInput_${i}">
+            </td>
+            <td class="text-end small fw-bold text-nowrap" id="lineTotal_${i}">${fmt(lineTotal)} FCFA</td>
             <td class="text-center">
                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFromCart(${i})">
                     <i class="bi bi-x"></i>
@@ -471,13 +482,27 @@ function renderCart() {
         <input type="hidden" name="items[${i}][product_id]" value="${item.product_id}">
         <input type="hidden" name="items[${i}][quantity]" value="${item.quantity}">
         <input type="hidden" name="items[${i}][unit_price]" value="${item.unit_price}">
+        <input type="hidden" id="hiddenDiscount_${i}" name="items[${i}][discount]" value="${item.discount || 0}">
     `).join('');
 
     calculateTotals();
 }
 
+function updateDiscount(index, value) {
+    const item = cart[index];
+    const raw  = parseFloat(value) || 0;
+    const max  = item.unit_price * item.quantity - 1;
+    item.discount = Math.max(0, Math.min(raw, max));
+    const lineTotal = item.unit_price * item.quantity - item.discount;
+    const lineTotalEl = document.getElementById('lineTotal_' + index);
+    if (lineTotalEl) lineTotalEl.textContent = fmt(lineTotal) + ' FCFA';
+    const hiddenEl = document.getElementById('hiddenDiscount_' + index);
+    if (hiddenEl) hiddenEl.value = item.discount;
+    calculateTotals();
+}
+
 function calculateTotals() {
-    const subtotal     = cart.reduce((s, i) => s + i.quantity * i.unit_price, 0);
+    const subtotal     = cart.reduce((s, i) => s + i.quantity * i.unit_price - (i.discount || 0), 0);
     const discountEl   = document.getElementById('discountAmount');
     const discountErr  = document.getElementById('discountError');
     let discountAmount = parseFloat(discountEl.value) || 0;
