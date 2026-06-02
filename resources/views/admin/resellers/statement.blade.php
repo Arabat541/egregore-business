@@ -136,9 +136,9 @@
                     <div class="fw-bold fs-4 text-info">{{ number_format($totalDiscounts, 0, ',', ' ') }} F</div>
                     @if($totalDiscounts > 0)
                     <div class="text-muted" style="font-size:.78rem;">
-                        @if($itemDiscounts > 0)Produits : {{ number_format($itemDiscounts, 0, ',', ' ') }} F@endif
+                        @if($itemDiscounts > 0)Produits : {{ number_format($itemDiscounts, 0, ',', ' ') }} F @endif
                         @if($itemDiscounts > 0 && $globalDiscounts > 0) · @endif
-                        @if($globalDiscounts > 0)Globales : {{ number_format($globalDiscounts, 0, ',', ' ') }} F@endif
+                        @if($globalDiscounts > 0)Globales : {{ number_format($globalDiscounts, 0, ',', ' ') }} F @endif
                     </div>
                     @endif
                 </div>
