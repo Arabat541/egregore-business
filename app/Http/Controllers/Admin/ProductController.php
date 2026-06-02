@@ -306,7 +306,7 @@ class ProductController extends Controller
         StockMovement::recordEntry(
             $product,
             Auth::user(),
-            $validated['quantity'],
+            (int) $validated['quantity'],
             $reason
         );
 
