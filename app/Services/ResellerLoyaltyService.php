@@ -105,7 +105,8 @@ final class ResellerLoyaltyService
 
         $payments = $reseller->payments()
             ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
-            ->orderBy('created_at')
+            ->with(['productReturns.product', 'sale', 'cancelledBy'])
+            ->orderBy('created_at', 'desc')
             ->get();
 
         $movements = $this->buildMovements($sales, $openingBalance);

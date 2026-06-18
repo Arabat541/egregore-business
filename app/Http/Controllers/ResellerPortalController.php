@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\ProductReturn;
 use App\Models\Reseller;
 use App\Services\ResellerLoyaltyService;
 use Carbon\Carbon;
@@ -83,11 +84,25 @@ class ResellerPortalController extends Controller
         [
             'openingBalance' => $openingBalance,
             'movements'      => $movements,
+            'payments'       => $payments,
             'summary'        => $summary,
         ] = $this->loyaltyService->buildStatement($reseller, $startDate, $endDate);
 
+        // Recalculer total_payments depuis les vrais ResellerPayments actifs de la période
+        $activePaymentsAmount = (float) $payments->filter(fn($p) => !$p->cancelled_at)->sum('amount');
+        $summary['total_payments'] = $activePaymentsAmount;
+        $summary['balance'] = max(0.0, $summary['total_purchases'] - $activePaymentsAmount);
+
+        // Retours produits dans la période
+        $productReturns = ProductReturn::where('reseller_id', $reseller->id)
+            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->with(['product'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('public.reseller-portal.dashboard', compact(
-            'reseller', 'movements', 'openingBalance', 'summary', 'startDate', 'endDate'
+            'reseller', 'movements', 'payments', 'productReturns',
+            'openingBalance', 'summary', 'startDate', 'endDate'
         ));
     }
 
