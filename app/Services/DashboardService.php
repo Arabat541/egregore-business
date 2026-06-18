@@ -184,7 +184,7 @@ final class DashboardService
     /** @return array<string,mixed> */
     public function getRepairStats(?int $shopId): array
     {
-        $techSharePercent  = (int) Setting::get('technician_labor_share', 50);
+        $techSharePercent  = (int) Setting::get('technician_labor_share', 50, $shopId);
         $adminSharePercent = 100 - $techSharePercent;
 
         $monthDeliveredRepairs = Repair::where('status', Repair::STATUS_DELIVERED)

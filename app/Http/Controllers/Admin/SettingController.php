@@ -152,6 +152,10 @@ class SettingController extends Controller
             ['value' => (string) $request->integer('global_share'), 'type' => 'integer', 'group' => 'repairs', 'is_global' => true]
         );
         Cache::forget('setting.technician_labor_share.global');
+        // Invalider aussi les caches boutiques (qui pourraient avoir mis en cache le taux global)
+        foreach (Shop::pluck('id') as $sid) {
+            Cache::forget("setting.technician_labor_share.shop.{$sid}");
+        }
 
         // Valeurs par boutique
         foreach ((array) $request->input('shop_shares', []) as $shopId => $percent) {
