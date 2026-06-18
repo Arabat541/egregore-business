@@ -156,7 +156,7 @@ final class ResellerPaymentService
                             'shop_id'       => $payment->shop_id,
                             'type'          => 'exit',
                             'quantity'      => $ret->quantity,
-                            'reason'        => 'Annulation paiement PAY-' . str_pad($payment->id, 5, '0', STR_PAD_LEFT),
+                            'reason'        => 'Annulation paiement PAY-' . str_pad((string) $payment->id, 5, '0', STR_PAD_LEFT),
                         ]);
                     }
                 }
@@ -217,7 +217,7 @@ final class ResellerPaymentService
                     (float) $payment->cash_amount,
                     $payment->payment_method,
                     $payment,
-                    'Annulation paiement PAY-' . str_pad($payment->id, 5, '0', STR_PAD_LEFT) . ' — ' . $reason
+                    'Annulation paiement PAY-' . str_pad((string) $payment->id, 5, '0', STR_PAD_LEFT) . ' — ' . $reason
                 );
             }
 
@@ -228,7 +228,7 @@ final class ResellerPaymentService
                 null,
                 ['reason' => $reason, 'amount' => $payment->amount],
                 'Annulation paiement créance ' . $reseller->company_name
-                    . ' — PAY-' . str_pad($payment->id, 5, '0', STR_PAD_LEFT)
+                    . ' — PAY-' . str_pad((string) $payment->id, 5, '0', STR_PAD_LEFT)
             );
         });
     }
