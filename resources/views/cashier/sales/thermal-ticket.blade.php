@@ -6,8 +6,8 @@
     <title>Facture #{{ $sale->invoice_number }}</title>
     <style>
         /* Reset */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-weight: bold; }
+
         body {
             font-family: 'Courier New', Courier, monospace;
             font-size: 12px;
@@ -187,6 +187,14 @@
                     <td class="item-price">{{ number_format($item->unit_price, 0, ',', ' ') }}</td>
                     <td class="item-price">{{ number_format($item->total_price ?? ($item->quantity * $item->unit_price), 0, ',', ' ') }}</td>
                 </tr>
+                @if(($item->discount ?? 0) > 0)
+                <tr>
+                    <td colspan="3" style="font-size:10px;padding-top:0;border-bottom:none;padding-left:4px;">
+                        └ Remise: -{{ number_format($item->discount, 0, ',', ' ') }} F
+                    </td>
+                    <td></td>
+                </tr>
+                @endif
                 @endforeach
             </tbody>
         </table>

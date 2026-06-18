@@ -10,10 +10,12 @@
         body {
             font-family: 'Courier New', monospace;
             font-size: 12px;
+            font-weight: 700;
             width: 80mm;
             margin: 0 auto;
             padding: 10px;
         }
+        td, p, span, div { font-weight: 700; }
         .header {
             text-align: center;
             margin-bottom: 15px;

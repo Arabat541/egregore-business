@@ -6,11 +6,12 @@
     <title>Ticket #{{ $repair->repair_number }}</title>
     <style>
         /* Reset */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-weight: bold; }
+
         body {
             font-family: 'Courier New', Courier, monospace;
             font-size: 12px;
+            font-weight: bold;
             line-height: 1.4;
             color: #000;
             background: #fff;

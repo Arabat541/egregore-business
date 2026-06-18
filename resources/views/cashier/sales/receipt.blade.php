@@ -170,6 +170,14 @@
                 <td class="text-right">{{ number_format($item->unit_price, 0, ',', ' ') }}</td>
                 <td class="text-right">{{ number_format($item->total_price, 0, ',', ' ') }}</td>
             </tr>
+            @if(($item->discount ?? 0) > 0)
+            <tr>
+                <td colspan="3" style="font-size:12px;border-bottom:none;padding-top:0;padding-left:6px;">
+                    └ Remise: -{{ number_format($item->discount, 0, ',', ' ') }} F
+                </td>
+                <td></td>
+            </tr>
+            @endif
             @endforeach
         </tbody>
     </table>
