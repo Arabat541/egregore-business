@@ -443,6 +443,7 @@ Route::prefix('caisse')
         // Créances revendeurs - Consultation (pas besoin de caisse ouverte)
         Route::get('/creances', [ResellerPaymentController::class, 'index'])->name('reseller-payments.index');
         Route::get('/creances/{reseller}', [ResellerPaymentController::class, 'show'])->name('reseller-payments.show');
+        Route::get('/creances/{reseller}/paiement/{payment}/recu', [ResellerPaymentController::class, 'paymentReceipt'])->name('reseller-payments.receipt');
         Route::get('/historique-paiements', [ResellerPaymentController::class, 'paymentHistory'])->name('reseller-payments.history');
 
         // Gestion des réparateurs (accès caissière)

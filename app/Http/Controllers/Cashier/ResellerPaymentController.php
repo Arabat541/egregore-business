@@ -12,6 +12,8 @@ use App\Models\Reseller;
 use App\Models\ResellerPayment;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use App\Models\Setting;
+use App\Models\Shop;
 use App\Services\ResellerPaymentService;
 use Illuminate\Http\Request;
 
@@ -269,7 +271,8 @@ class ResellerPaymentController extends Controller
             }
             $message .= 'Nouvelle dette: ' . number_format((float) $payment->debt_after, 0, ',', ' ') . ' FCFA';
 
-            return redirect()->route('cashier.reseller-payments.show', $reseller)->with('success', $message);
+            return redirect()->route('cashier.reseller-payments.receipt', [$reseller, $payment])
+                ->with('success', $message);
 
         } catch (\Exception $e) {
             return back()->with('error', $this->handleException($e, 'Erreur lors du paiement'));
@@ -317,11 +320,29 @@ class ResellerPaymentController extends Controller
             }
             $message .= 'Nouvelle dette totale: ' . number_format((float) $payment->debt_after, 0, ',', ' ') . ' FCFA';
 
-            return redirect()->route('cashier.reseller-payments.show', $reseller)->with('success', $message);
+            return redirect()->route('cashier.reseller-payments.receipt', [$reseller, $payment])
+                ->with('success', $message);
 
         } catch (\Exception $e) {
             return back()->with('error', $this->handleException($e, 'Erreur lors du paiement'));
         }
+    }
+
+    /**
+     * Reçu d'un paiement de créance
+     */
+    public function paymentReceipt(Reseller $reseller, ResellerPayment $payment)
+    {
+        $payment->load(['user', 'sale.items.product', 'productReturns.product']);
+
+        $shop = Shop::find(auth()->user()->shop_id);
+        $settings = [
+            'shop_name'    => $shop?->name    ?: Setting::get('shop_name',    'EGREGORE BUSINESS'),
+            'shop_address' => $shop?->address ?: Setting::get('shop_address', ''),
+            'shop_phone'   => $shop?->phone   ?: Setting::get('shop_phone',   ''),
+        ];
+
+        return view('cashier.reseller-payments.payment-receipt', compact('reseller', 'payment', 'settings'));
     }
 
     /**
