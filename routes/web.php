@@ -444,6 +444,8 @@ Route::prefix('caisse')
         Route::get('/creances', [ResellerPaymentController::class, 'index'])->name('reseller-payments.index');
         Route::get('/creances/{reseller}', [ResellerPaymentController::class, 'show'])->name('reseller-payments.show');
         Route::get('/creances/{reseller}/paiement/{payment}/recu', [ResellerPaymentController::class, 'paymentReceipt'])->name('reseller-payments.receipt');
+        Route::get('/creances/{reseller}/paiement/{payment}/annuler', [ResellerPaymentController::class, 'cancelForm'])->name('reseller-payments.cancel-form');
+        Route::post('/creances/{reseller}/paiement/{payment}/annuler', [ResellerPaymentController::class, 'cancel'])->name('reseller-payments.cancel');
         Route::get('/historique-paiements', [ResellerPaymentController::class, 'paymentHistory'])->name('reseller-payments.history');
 
         // Gestion des réparateurs (accès caissière)

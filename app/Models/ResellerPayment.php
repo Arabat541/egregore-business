@@ -27,16 +27,35 @@ class ResellerPayment extends Model
         'debt_after',
         'payment_method',
         'notes',
+        'cancelled_at',
+        'cancelled_by',
+        'cancellation_reason',
     ];
 
     protected $casts = [
-        'amount' => 'decimal:2',
-        'cash_amount' => 'decimal:2',
-        'return_amount' => 'decimal:2',
+        'amount'             => 'decimal:2',
+        'cash_amount'        => 'decimal:2',
+        'return_amount'      => 'decimal:2',
         'has_product_return' => 'boolean',
-        'debt_before' => 'decimal:2',
-        'debt_after' => 'decimal:2',
+        'debt_before'        => 'decimal:2',
+        'debt_after'         => 'decimal:2',
+        'cancelled_at'       => 'datetime',
     ];
+
+    public function cancelledBy()
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
+    }
+
+    public function getIsCancelledAttribute(): bool
+    {
+        return $this->cancelled_at !== null;
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->whereNull('cancelled_at');
+    }
 
     // Relations
     public function reseller()

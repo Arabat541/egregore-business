@@ -116,17 +116,30 @@
                                 <th>Référence</th>
                                 <th>Montant</th>
                                 <th>Détail</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($reseller->payments()->with('productReturns.product')->latest()->take(10)->get() as $payment)
-                            <tr>
+                            <tr class="{{ $payment->is_cancelled ? 'table-secondary text-muted' : '' }}">
                                 <td>{{ $payment->created_at->format('d/m/Y') }}</td>
-                                <td><code>PAY-{{ str_pad($payment->id, 5, '0', STR_PAD_LEFT) }}</code></td>
-                                <td class="text-success fw-bold">{{ number_format($payment->amount, 0, ',', ' ') }}</td>
                                 <td>
-                                    @if($payment->has_product_return)
-                                        <span class="badge bg-info" data-bs-toggle="tooltip" 
+                                    <code>PAY-{{ str_pad($payment->id, 5, '0', STR_PAD_LEFT) }}</code>
+                                    @if($payment->is_cancelled)
+                                        <span class="badge bg-danger ms-1">ANNULÉ</span>
+                                    @endif
+                                </td>
+                                <td class="{{ $payment->is_cancelled ? 'text-muted text-decoration-line-through' : 'text-success fw-bold' }}">
+                                    {{ number_format($payment->amount, 0, ',', ' ') }}
+                                </td>
+                                <td>
+                                    @if($payment->is_cancelled)
+                                        <span class="text-muted small" title="{{ $payment->cancellation_reason }}">
+                                            <i class="bi bi-x-circle"></i>
+                                            {{ $payment->cancelled_at->format('d/m/Y') }}
+                                        </span>
+                                    @elseif($payment->has_product_return)
+                                        <span class="badge bg-info" data-bs-toggle="tooltip"
                                               title="Espèces: {{ number_format($payment->cash_amount, 0, ',', ' ') }} + Retours: {{ number_format($payment->return_amount, 0, ',', ' ') }}">
                                             <i class="bi bi-box-arrow-in-left"></i> Mixte
                                         </span>
@@ -134,10 +147,24 @@
                                         <span class="badge bg-secondary">{{ $payment->payment_method_label }}</span>
                                     @endif
                                 </td>
+                                <td class="text-end text-nowrap">
+                                    @if(!$payment->is_cancelled)
+                                        <a href="{{ route('cashier.reseller-payments.receipt', [$reseller, $payment]) }}"
+                                           class="btn btn-xs btn-outline-primary btn-sm py-0 px-1 me-1"
+                                           title="Reçu" target="_blank">
+                                            <i class="bi bi-printer"></i>
+                                        </a>
+                                        <a href="{{ route('cashier.reseller-payments.cancel-form', [$reseller, $payment]) }}"
+                                           class="btn btn-xs btn-outline-danger btn-sm py-0 px-1"
+                                           title="Annuler ce paiement">
+                                            <i class="bi bi-x-circle"></i>
+                                        </a>
+                                    @endif
+                                </td>
                             </tr>
-                            @if($payment->has_product_return && $payment->productReturns->count() > 0)
+                            @if(!$payment->is_cancelled && $payment->has_product_return && $payment->productReturns->count() > 0)
                             <tr class="table-light">
-                                <td colspan="4" class="small ps-4">
+                                <td colspan="5" class="small ps-4">
                                     <i class="bi bi-arrow-return-left text-muted"></i>
                                     <strong>Retours:</strong>
                                     @foreach($payment->productReturns as $return)
@@ -146,9 +173,20 @@
                                 </td>
                             </tr>
                             @endif
+                            @if($payment->is_cancelled && $payment->cancellation_reason)
+                            <tr class="table-secondary">
+                                <td colspan="5" class="small ps-4 text-muted fst-italic">
+                                    <i class="bi bi-chat-left-text"></i>
+                                    Motif : {{ $payment->cancellation_reason }}
+                                    @if($payment->cancelledBy)
+                                        — par {{ $payment->cancelledBy->name }}
+                                    @endif
+                                </td>
+                            </tr>
+                            @endif
                             @empty
                             <tr>
-                                <td colspan="4" class="text-muted text-center">Aucun paiement</td>
+                                <td colspan="5" class="text-muted text-center">Aucun paiement</td>
                             </tr>
                             @endforelse
                         </tbody>

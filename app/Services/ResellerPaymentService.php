@@ -13,6 +13,7 @@ use App\Models\ProductReturn;
 use App\Models\Reseller;
 use App\Models\ResellerPayment;
 use App\Models\Sale;
+use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 
 final class ResellerPaymentService
@@ -117,6 +118,118 @@ final class ResellerPaymentService
             ActivityLog::log('payment', $payment, null, $payment->toArray(), "Paiement créance: {$reseller->company_name}");
 
             return $payment;
+        });
+    }
+
+    /**
+     * Annuler un paiement et inverser toutes ses répercussions.
+     *
+     * Stratégie : reset complet des ventes concernées + rejouer les paiements actifs (FIFO).
+     * Cela garantit la cohérence quelle que soit la méthode d'origine (global ou par facture).
+     */
+    public function cancelPayment(ResellerPayment $payment, string $reason, int $cancelledBy): void
+    {
+        if ($payment->is_cancelled) {
+            throw new \LogicException('Ce paiement est déjà annulé.');
+        }
+
+        DB::transaction(function () use ($payment, $reason, $cancelledBy): void {
+            $reseller = $payment->reseller;
+            $payment->load('productReturns.product');
+
+            // 1. Marquer comme annulé
+            $payment->update([
+                'cancelled_at'        => now(),
+                'cancelled_by'        => $cancelledBy,
+                'cancellation_reason' => $reason,
+            ]);
+
+            // 2. Inverser les retours produits (dé-stocker ce qui avait été remis en stock)
+            foreach ($payment->productReturns as $ret) {
+                if ($ret->restock && $ret->condition !== ProductReturn::CONDITION_DAMAGED) {
+                    $product = $ret->product;
+                    if ($product) {
+                        $product->decrement('quantity_in_stock', $ret->quantity);
+                        StockMovement::create([
+                            'product_id'    => $product->id,
+                            'user_id'       => $cancelledBy,
+                            'shop_id'       => $payment->shop_id,
+                            'type'          => 'exit',
+                            'quantity'      => $ret->quantity,
+                            'reason'        => 'Annulation paiement PAY-' . str_pad($payment->id, 5, '0', STR_PAD_LEFT),
+                        ]);
+                    }
+                }
+                $ret->delete();
+            }
+
+            // 3. Remettre à zéro les ventes crédit du revendeur (tous shops)
+            // et rejouer uniquement les paiements actifs (non annulés) en ordre chronologique.
+            Sale::withoutGlobalScope('shop')
+                ->where('reseller_id', $reseller->id)
+                ->where('payment_status', '!=', 'cancelled')
+                ->update([
+                    'amount_paid'    => 0,
+                    'amount_due'     => DB::raw('total_amount'),
+                    'payment_status' => 'credit',
+                ]);
+
+            $activePayments = ResellerPayment::where('reseller_id', $reseller->id)
+                ->whereNull('cancelled_at')
+                ->orderBy('created_at')
+                ->get();
+
+            foreach ($activePayments as $p) {
+                if ($p->sale_id) {
+                    // Paiement direct sur une facture précise
+                    $sale = Sale::withoutGlobalScope('shop')->find($p->sale_id);
+                    if ($sale) {
+                        $newPaid = (float) $sale->amount_paid + (float) $p->cash_amount;
+                        $newDue  = max(0.0, (float) $sale->amount_due - (float) $p->cash_amount);
+                        $sale->update([
+                            'amount_paid'    => $newPaid,
+                            'amount_due'     => $newDue,
+                            'payment_status' => $newDue <= 0 ? 'paid' : 'credit',
+                        ]);
+                    }
+                } else {
+                    // Distribution FIFO multi-factures
+                    ResellerPayment::distributePaymentToSales($reseller, (float) $p->amount, $p->shop_id);
+                }
+            }
+
+            // 4. Recalculer current_debt = somme des amount_due restants
+            $newDebt = (float) Sale::withoutGlobalScope('shop')
+                ->where('reseller_id', $reseller->id)
+                ->where('payment_status', '!=', 'cancelled')
+                ->sum('amount_due');
+            $reseller->update(['current_debt' => $newDebt]);
+
+            // 5. Annuler la transaction de caisse (entrée créée lors du paiement)
+            $cashTx = CashTransaction::where('transactionable_type', ResellerPayment::class)
+                ->where('transactionable_id', $payment->id)
+                ->first();
+            if ($cashTx && (float) $payment->cash_amount > 0) {
+                // Créer une transaction corrective (sortie) dans le même registre
+                $cashTx->cashRegister->addTransaction(
+                    CashTransaction::TYPE_EXPENSE,
+                    CashTransaction::CATEGORY_ADJUSTMENT,
+                    (float) $payment->cash_amount,
+                    $payment->payment_method,
+                    $payment,
+                    'Annulation paiement PAY-' . str_pad($payment->id, 5, '0', STR_PAD_LEFT) . ' — ' . $reason
+                );
+            }
+
+            // 6. Journaliser
+            ActivityLog::log(
+                'cancel',
+                $payment,
+                null,
+                ['reason' => $reason, 'amount' => $payment->amount],
+                'Annulation paiement créance ' . $reseller->company_name
+                    . ' — PAY-' . str_pad($payment->id, 5, '0', STR_PAD_LEFT)
+            );
         });
     }
 

@@ -162,7 +162,29 @@
     </div>
 
     {{-- Titre du document --}}
-    <div class="title-band">REÇU DE PAIEMENT CRÉANCE</div>
+    <div class="title-band">
+        @if($payment->is_cancelled)
+            *** ANNULÉ *** REÇU DE PAIEMENT CRÉANCE *** ANNULÉ ***
+        @else
+            REÇU DE PAIEMENT CRÉANCE
+        @endif
+    </div>
+
+    {{-- Bandeau annulation --}}
+    @if($payment->is_cancelled)
+    <div style="border:3px solid #000;padding:8px;margin-bottom:10px;text-align:center;background:#000;color:#fff;">
+        <div style="font-size:18px;font-weight:900;letter-spacing:2px;">PAIEMENT ANNULÉ</div>
+        <div style="font-size:12px;margin-top:4px;">
+            Le {{ $payment->cancelled_at->format('d/m/Y à H:i') }}
+            @if($payment->cancelledBy) — par {{ $payment->cancelledBy->name }} @endif
+        </div>
+        @if($payment->cancellation_reason)
+        <div style="font-size:12px;margin-top:2px;font-style:italic;">
+            Motif : {{ $payment->cancellation_reason }}
+        </div>
+        @endif
+    </div>
+    @endif
 
     {{-- Infos document --}}
     <div class="info-block">
@@ -285,21 +307,31 @@
 
     {{-- Boutons no-print --}}
     <div class="no-print" style="text-align:center;margin-top:20px;padding:15px;background:#f5f5f5;">
+        @if(!$payment->is_cancelled)
         <button onclick="window.print()"
                 style="padding:12px 25px;cursor:pointer;font-size:14px;background:#007bff;color:white;border:none;border-radius:5px;">
-            🖨️ Imprimer
+            Imprimer
         </button>
+        @endif
         <a href="{{ route('cashier.reseller-payments.show', $reseller) }}"
            style="padding:12px 25px;font-size:14px;background:#6c757d;color:white;border-radius:5px;text-decoration:none;display:inline-block;margin-left:10px;">
-            ← Retour
+            Retour
         </a>
+        @if(!$payment->is_cancelled)
+        <a href="{{ route('cashier.reseller-payments.cancel-form', [$reseller, $payment]) }}"
+           style="padding:12px 25px;font-size:14px;background:#dc3545;color:white;border-radius:5px;text-decoration:none;display:inline-block;margin-left:10px;">
+            Annuler ce paiement
+        </a>
+        @endif
     </div>
 
     <script>
+        @if(!$payment->is_cancelled)
         window.onload = function() { window.print(); };
         window.onafterprint = function() {
             if (window.opener) { window.close(); }
         };
+        @endif
     </script>
 </body>
 </html>

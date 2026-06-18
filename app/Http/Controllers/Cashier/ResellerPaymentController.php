@@ -333,7 +333,7 @@ class ResellerPaymentController extends Controller
      */
     public function paymentReceipt(Reseller $reseller, ResellerPayment $payment)
     {
-        $payment->load(['user', 'sale.items.product', 'productReturns.product']);
+        $payment->load(['user', 'sale.items.product', 'productReturns.product', 'cancelledBy']);
 
         $shop = Shop::find(auth()->user()->shop_id);
         $settings = [
@@ -343,6 +343,45 @@ class ResellerPaymentController extends Controller
         ];
 
         return view('cashier.reseller-payments.payment-receipt', compact('reseller', 'payment', 'settings'));
+    }
+
+    /**
+     * Formulaire de confirmation d'annulation
+     */
+    public function cancelForm(Reseller $reseller, ResellerPayment $payment)
+    {
+        if ($payment->is_cancelled) {
+            return redirect()->route('cashier.reseller-payments.show', $reseller)
+                ->with('error', 'Ce paiement est déjà annulé.');
+        }
+
+        $payment->load(['user', 'sale', 'productReturns.product']);
+
+        return view('cashier.reseller-payments.cancel-form', compact('reseller', 'payment'));
+    }
+
+    /**
+     * Exécuter l'annulation
+     */
+    public function cancel(Request $request, Reseller $reseller, ResellerPayment $payment)
+    {
+        $request->validate([
+            'cancellation_reason' => 'required|string|min:5|max:500',
+        ]);
+
+        if ($payment->is_cancelled) {
+            return redirect()->route('cashier.reseller-payments.show', $reseller)
+                ->with('error', 'Ce paiement est déjà annulé.');
+        }
+
+        try {
+            $this->resellerPaymentService->cancelPayment($payment, $request->cancellation_reason, auth()->id());
+
+            return redirect()->route('cashier.reseller-payments.show', $reseller)
+                ->with('success', 'Paiement PAY-' . str_pad($payment->id, 5, '0', STR_PAD_LEFT) . ' annulé. La dette du revendeur a été recalculée.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erreur lors de l\'annulation : ' . $e->getMessage());
+        }
     }
 
     /**
