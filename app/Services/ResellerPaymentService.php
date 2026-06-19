@@ -163,42 +163,47 @@ final class ResellerPaymentService
                 $ret->delete();
             }
 
-            // 3. Remettre à zéro les ventes crédit du revendeur (tous shops)
-            // et rejouer uniquement les paiements actifs (non annulés) en ordre chronologique.
-            Sale::withoutGlobalScope('shop')
-                ->where('reseller_id', $reseller->id)
-                ->where('payment_status', '!=', 'cancelled')
-                ->update([
-                    'amount_paid'    => 0,
-                    'amount_due'     => DB::raw('total_amount'),
-                    'payment_status' => 'credit',
-                ]);
+            // 3. Annuler l'effet de CE paiement sur les ventes (sans toucher aux autres)
+            $amountToReverse = (float) $payment->amount;
 
-            $activePayments = ResellerPayment::where('reseller_id', $reseller->id)
-                ->whereNull('cancelled_at')
-                ->orderBy('created_at')
-                ->get();
+            if ($payment->sale_id) {
+                $sale = Sale::withoutGlobalScope('shop')->find($payment->sale_id);
+                if ($sale) {
+                    $newPaid = max(0.0, (float) $sale->amount_paid - $amountToReverse);
+                    $newDue  = min((float) $sale->total_amount, (float) $sale->amount_due + $amountToReverse);
+                    $sale->update([
+                        'amount_paid'    => $newPaid,
+                        'amount_due'     => $newDue,
+                        'payment_status' => $newDue > 0 ? 'credit' : 'paid',
+                    ]);
+                }
+            } else {
+                // FIFO inverse : dé-distribuer depuis les factures les plus récentes
+                $remaining = $amountToReverse;
+                $sales = Sale::withoutGlobalScope('shop')
+                    ->where('reseller_id', $reseller->id)
+                    ->where('payment_status', '!=', 'cancelled')
+                    ->where('amount_paid', '>', 0)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
 
-            foreach ($activePayments as $p) {
-                if ($p->sale_id) {
-                    // Paiement direct sur une facture précise
-                    $sale = Sale::withoutGlobalScope('shop')->find($p->sale_id);
-                    if ($sale) {
-                        $newPaid = (float) $sale->amount_paid + (float) $p->cash_amount;
-                        $newDue  = max(0.0, (float) $sale->amount_due - (float) $p->cash_amount);
-                        $sale->update([
-                            'amount_paid'    => $newPaid,
-                            'amount_due'     => $newDue,
-                            'payment_status' => $newDue <= 0 ? 'paid' : 'credit',
-                        ]);
+                foreach ($sales as $sale) {
+                    if ($remaining <= 0) {
+                        break;
                     }
-                } else {
-                    // Distribution FIFO multi-factures
-                    ResellerPayment::distributePaymentToSales($reseller, (float) $p->amount, $p->shop_id);
+                    $canUndo = min($remaining, (float) $sale->amount_paid);
+                    $newPaid = (float) $sale->amount_paid - $canUndo;
+                    $newDue  = (float) $sale->amount_due + $canUndo;
+                    $sale->update([
+                        'amount_paid'    => max(0.0, $newPaid),
+                        'amount_due'     => min((float) $sale->total_amount, $newDue),
+                        'payment_status' => $newDue > 0 ? 'credit' : 'paid',
+                    ]);
+                    $remaining -= $canUndo;
                 }
             }
 
-            // 4. Recalculer current_debt = somme des amount_due restants
+            // 4. Recalculer current_debt
             $newDebt = (float) Sale::withoutGlobalScope('shop')
                 ->where('reseller_id', $reseller->id)
                 ->where('payment_status', '!=', 'cancelled')
