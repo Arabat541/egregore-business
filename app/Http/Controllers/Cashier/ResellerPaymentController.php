@@ -378,7 +378,7 @@ class ResellerPaymentController extends Controller
             $this->resellerPaymentService->cancelPayment($payment, $request->cancellation_reason, auth()->id());
 
             return redirect()->route('cashier.reseller-payments.show', $reseller)
-                ->with('success', 'Paiement PAY-' . str_pad($payment->id, 5, '0', STR_PAD_LEFT) . ' annulé. La dette du revendeur a été recalculée.');
+                ->with('success', 'Paiement PAY-' . str_pad((string) $payment->id, 5, '0', STR_PAD_LEFT) . ' annulé. La dette du revendeur a été recalculée.');
         } catch (\Exception $e) {
             return back()->with('error', 'Erreur lors de l\'annulation : ' . $e->getMessage());
         }
