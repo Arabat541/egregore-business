@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\ProductReturn;
 use App\Models\Reseller;
+use App\Models\Sale;
 use App\Services\ResellerLoyaltyService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -93,15 +93,16 @@ class ResellerPortalController extends Controller
         $summary['total_payments'] = $activePaymentsAmount;
         $summary['balance'] = max(0.0, $summary['total_purchases'] - $activePaymentsAmount);
 
-        // Retours produits dans la période
-        $productReturns = ProductReturn::where('reseller_id', $reseller->id)
-            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
-            ->with(['product'])
+        // Ventes à crédit non soldées
+        $unpaidSales = Sale::withoutGlobalScope('shop')
+            ->where('reseller_id', $reseller->id)
+            ->where('payment_status', 'credit')
+            ->where('amount_due', '>', 0)
             ->orderBy('created_at', 'desc')
             ->get();
 
         return view('public.reseller-portal.dashboard', compact(
-            'reseller', 'movements', 'payments', 'productReturns',
+            'reseller', 'movements', 'payments', 'unpaidSales',
             'openingBalance', 'summary', 'startDate', 'endDate'
         ));
     }
