@@ -215,21 +215,38 @@
                         <th>Mode</th>
                         <th>Reçu par</th>
                         <th>Notes</th>
+                        <th>Statut</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($reseller->payments()->latest()->take(10)->get() as $payment)
-                    <tr>
+                    <tr class="{{ $payment->cancelled_at ? 'table-danger text-decoration-line-through' : '' }}">
                         <td>{{ $payment->created_at->format('d/m/Y H:i') }}</td>
                         <td><code>{{ $payment->reference }}</code></td>
-                        <td class="text-success fw-bold">{{ number_format($payment->amount, 0, ',', ' ') }} FCFA</td>
+                        <td class="{{ $payment->cancelled_at ? 'text-danger' : 'text-success' }} fw-bold">{{ number_format($payment->amount, 0, ',', ' ') }} FCFA</td>
                         <td>{{ $payment->paymentMethod->name ?? '-' }}</td>
                         <td>{{ $payment->user->name ?? '-' }}</td>
                         <td>{{ $payment->notes ?: '-' }}</td>
+                        <td>
+                            @if($payment->cancelled_at)
+                                <span class="badge bg-danger">ANNULÉ</span>
+                            @else
+                                <span class="badge bg-success">Validé</span>
+                            @endif
+                        </td>
                     </tr>
+                    @if($payment->cancelled_at)
+                    <tr class="table-danger">
+                        <td colspan="7" class="small text-muted ps-4">
+                            Annulé le {{ $payment->cancelled_at->format('d/m/Y H:i') }}
+                            @if($payment->cancelledBy) par {{ $payment->cancelledBy->name }} @endif
+                            @if($payment->cancellation_reason) — {{ $payment->cancellation_reason }} @endif
+                        </td>
+                    </tr>
+                    @endif
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center text-muted">Aucun paiement</td>
+                        <td colspan="7" class="text-center text-muted">Aucun paiement</td>
                     </tr>
                     @endforelse
                 </tbody>

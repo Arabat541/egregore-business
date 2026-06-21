@@ -84,7 +84,7 @@ class ResellerController extends Controller
     {
         $reseller->load([
             'sales'    => fn($q) => $q->latest()->take(10),
-            'payments' => fn($q) => $q->latest()->take(10),
+            'payments' => fn($q) => $q->with('cancelledBy')->latest()->take(10),
         ]);
 
         $isAdmin     = auth()->user()->hasRole('admin');
