@@ -92,7 +92,7 @@ class PendingSaleController extends Controller
 
         $product = Product::findOrFail($validated['product_id']);
 
-        if (!$product->hasStock($validated['quantity'])) {
+        if (!$product->hasStock((int) $validated['quantity'])) {
             return back()->with('error', "Stock insuffisant pour {$product->name}. Disponible: {$product->quantity_in_stock}");
         }
 
@@ -128,7 +128,7 @@ class PendingSaleController extends Controller
 
         $product = $item->product;
 
-        if (!$product->hasStock($validated['quantity'])) {
+        if (!$product->hasStock((int) $validated['quantity'])) {
             return back()->with('error', "Stock insuffisant pour {$product->name}. Disponible: {$product->quantity_in_stock}");
         }
 
