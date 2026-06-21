@@ -140,6 +140,7 @@
                                 <tr>
                                     <th>Produit</th>
                                     <th class="text-center">Qté</th>
+                                    <th class="text-center">Remise</th>
                                     <th class="text-end">Total</th>
                                     <th></th>
                                 </tr>
@@ -149,23 +150,22 @@
                                     <tr>
                                         <td>
                                             <span class="fw-semibold">{{ $item->product->name }}</span>
-                                            @if($item->product->category)
-                                                <br><span class="badge bg-secondary" style="font-size:.65rem;">{{ $item->product->category->name }}</span>
-                                            @endif
-                                            <br><small class="text-muted">{{ number_format($item->unit_price, 0, ',', ' ') }}/u
-                                                @if($item->discount > 0)
-                                                    <span class="text-success ms-1">-{{ number_format($item->discount, 0, ',', ' ') }}</span>
-                                                @endif
-                                            </small>
+                                            <br><small class="text-muted">{{ number_format($item->unit_price, 0, ',', ' ') }}/u</small>
                                         </td>
                                         <td class="text-center">
-                                            <form action="{{ route('cashier.pending-sales.update-item', $item) }}" method="POST" class="d-inline">
+                                            <form action="{{ route('cashier.pending-sales.update-item', $item) }}" method="POST" class="d-inline" id="updateForm-{{ $item->id }}">
                                                 @csrf
                                                 @method('PUT')
                                                 <input type="number" name="quantity" value="{{ $item->quantity }}"
                                                        class="form-control form-control-sm text-center"
-                                                       style="width: 60px;" min="1"
-                                                       onchange="this.form.submit()">
+                                                       style="width: 55px;" min="1"
+                                                       onchange="document.getElementById('updateForm-{{ $item->id }}').submit()">
+                                        </td>
+                                        <td class="text-center">
+                                                <input type="number" name="discount" value="{{ (int) $item->discount }}"
+                                                       class="form-control form-control-sm text-center"
+                                                       style="width: 65px;" min="0"
+                                                       onchange="document.getElementById('updateForm-{{ $item->id }}').submit()">
                                             </form>
                                         </td>
                                         <td class="text-end">

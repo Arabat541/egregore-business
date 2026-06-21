@@ -124,6 +124,7 @@ class PendingSaleController extends Controller
     {
         $validated = $request->validate([
             'quantity' => 'required|integer|min:1',
+            'discount' => 'nullable|numeric|min:0',
         ]);
 
         $product = $item->product;
@@ -132,12 +133,14 @@ class PendingSaleController extends Controller
             return back()->with('error', "Stock insuffisant pour {$product->name}. Disponible: {$product->quantity_in_stock}");
         }
 
+        $discount = (float) ($validated['discount'] ?? $item->discount);
         $item->update([
             'quantity'    => $validated['quantity'],
-            'total_price' => ($item->unit_price * $validated['quantity']) - $item->discount,
+            'discount'    => $discount,
+            'total_price' => ($item->unit_price * (int) $validated['quantity']) - $discount,
         ]);
 
-        return back()->with('success', 'Quantité mise à jour');
+        return back()->with('success', 'Article mis à jour');
     }
 
     /**
