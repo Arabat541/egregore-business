@@ -110,12 +110,6 @@
     <div class="debt-hero mb-3 {{ $reseller->current_debt <= 0 ? 'zero' : '' }}">
         <div style="font-size:0.85rem;opacity:0.9;margin-bottom:0.3rem;">Créance actuelle</div>
         <div class="debt-amount">{{ number_format($reseller->current_debt, 0, ',', ' ') }} F</div>
-        @if($reseller->credit_limit > 0)
-        <div style="font-size:0.78rem;opacity:0.8;margin-top:0.4rem;">
-            Crédit dispo : {{ number_format($reseller->available_credit, 0, ',', ' ') }} F
-            / {{ number_format($reseller->credit_limit, 0, ',', ' ') }} F
-        </div>
-        @endif
     </div>
 
     {{-- VENTES IMPAYÉES --}}
