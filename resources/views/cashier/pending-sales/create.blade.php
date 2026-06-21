@@ -39,25 +39,30 @@
             <div class="card-body">
                 <form method="GET" id="resellerForm">
                     <div class="row g-2">
-                        <div class="col-md-8">
-                            <select name="reseller_id" class="form-select" id="resellerSelect" required>
-                                <option value="">— Sélectionner un réparateur —</option>
-                                @foreach($resellers as $reseller)
-                                    <option value="{{ $reseller->id }}"
-                                            data-credit="{{ $reseller->available_credit }}"
-                                            {{ $selectedReseller && $selectedReseller->id == $reseller->id ? 'selected' : '' }}>
-                                        {{ $reseller->company_name }} — {{ $reseller->contact_name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        <div class="col-md-8 position-relative">
+                            <input type="hidden" name="reseller_id" id="resellerIdInput" value="{{ $selectedReseller?->id }}">
+                            <input type="text"
+                                   class="form-control"
+                                   id="resellerSearch"
+                                   placeholder="Tapez un nom de réparateur..."
+                                   autocomplete="off"
+                                   value="{{ $selectedReseller ? $selectedReseller->company_name . ' — ' . $selectedReseller->contact_name : '' }}">
+                            <div id="resellerDropdown" class="list-group position-absolute w-100 shadow" style="z-index:1050;max-height:220px;overflow-y:auto;display:none;"></div>
                         </div>
                         <div class="col-md-4">
-                            <button type="submit" class="btn btn-primary w-100">
+                            <button type="submit" class="btn btn-primary w-100" id="resellerSubmitBtn" {{ $selectedReseller ? '' : 'disabled' }}>
                                 <i class="bi bi-check"></i> Sélectionner
                             </button>
                         </div>
                     </div>
                 </form>
+                @php
+                    $resellersJson = $resellers->map(fn($r) => [
+                        'id' => $r->id,
+                        'name' => $r->company_name . ' — ' . $r->contact_name,
+                        'credit' => $r->available_credit,
+                    ]);
+                @endphp
 
                 @if($selectedReseller)
                     <div class="mt-2 p-2 bg-light rounded d-flex justify-content-between align-items-center">
@@ -223,6 +228,42 @@
 @endif
 
 @push('scripts')
+<script>
+const resellers = @json($resellersJson);
+const searchInput = document.getElementById('resellerSearch');
+const dropdown = document.getElementById('resellerDropdown');
+const idInput = document.getElementById('resellerIdInput');
+const submitBtn = document.getElementById('resellerSubmitBtn');
+
+searchInput.addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    idInput.value = '';
+    submitBtn.disabled = true;
+    if (q.length === 0) { dropdown.style.display = 'none'; return; }
+    const matches = resellers.filter(r => r.name.toLowerCase().includes(q)).slice(0, 8);
+    if (matches.length === 0) { dropdown.innerHTML = '<div class="list-group-item text-muted small">Aucun résultat</div>'; dropdown.style.display = 'block'; return; }
+    dropdown.innerHTML = matches.map(r => `<button type="button" class="list-group-item list-group-item-action py-2" data-id="${r.id}" data-name="${r.name}">${r.name}</button>`).join('');
+    dropdown.style.display = 'block';
+});
+
+searchInput.addEventListener('focus', function() {
+    if (this.value.trim().length > 0 && !idInput.value) this.dispatchEvent(new Event('input'));
+});
+
+dropdown.addEventListener('click', function(e) {
+    const item = e.target.closest('[data-id]');
+    if (!item) return;
+    idInput.value = item.dataset.id;
+    searchInput.value = item.dataset.name;
+    dropdown.style.display = 'none';
+    submitBtn.disabled = false;
+    submitBtn.click();
+});
+
+document.addEventListener('click', function(e) {
+    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) dropdown.style.display = 'none';
+});
+</script>
 @if($selectedReseller)
 <script>
 const products = @json($products);
