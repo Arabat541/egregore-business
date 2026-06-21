@@ -230,13 +230,28 @@
                         <td class="text-end">{{ number_format($openingBalance, 0, ',', ' ') }}</td>
                     </tr>
                     @foreach($movements as $m)
-                    <tr class="{{ $m['type'] === 'sale' ? 'row-sale' : 'row-payment' }}">
+                    <tr class="{{ $m['type'] === 'sale' ? 'row-sale' : 'row-payment' }}" @if($m['type'] === 'sale' && !empty($m['products'])) style="cursor:pointer;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'table-row':'none'" @endif>
                         <td>{{ \Carbon\Carbon::parse($m['date'])->format('d/m') }}</td>
-                        <td style="font-size:.72rem;">{{ $m['reference'] }}</td>
+                        <td style="font-size:.72rem;">{{ $m['reference'] }} @if($m['type'] === 'sale' && !empty($m['products']))<i class="bi bi-chevron-down" style="font-size:.6rem;"></i>@endif</td>
                         <td class="text-end text-danger">{{ $m['debit'] > 0 ? number_format($m['debit'], 0, ',', ' ') : '—' }}</td>
                         <td class="text-end text-success">{{ $m['credit'] > 0 ? number_format($m['credit'], 0, ',', ' ') : '—' }}</td>
                         <td class="text-end fw-bold {{ $m['running_balance'] > 0 ? 'text-danger' : 'text-success' }}">{{ number_format($m['running_balance'], 0, ',', ' ') }}</td>
                     </tr>
+                    @if($m['type'] === 'sale' && !empty($m['products']))
+                    <tr style="display:none;">
+                        <td colspan="5" style="padding:0.3rem 0.5rem;background:#fffde7;">
+                            @foreach($m['products'] as $p)
+                            <div class="d-flex justify-content-between" style="font-size:.72rem;color:#555;padding:1px 0;">
+                                <span>{{ $p['name'] }} <span style="color:#999;">x{{ $p['quantity'] }}</span></span>
+                                <span>{{ number_format($p['total'], 0, ',', ' ') }} F</span>
+                            </div>
+                            @if($p['discount'] > 0)
+                            <div style="font-size:.68rem;color:#e67e22;padding:0 0 1px 8px;">└ Remise: -{{ number_format($p['discount'], 0, ',', ' ') }} F</div>
+                            @endif
+                            @endforeach
+                        </td>
+                    </tr>
+                    @endif
                     @endforeach
                     <tr class="row-closing">
                         <td>{{ \Carbon\Carbon::parse($endDate)->format('d/m') }}</td>
