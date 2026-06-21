@@ -141,7 +141,16 @@
                 <span>{{ $item->product->name ?? 'Produit' }} <span style="color:#999;">x{{ $item->quantity }}</span></span>
                 <span>{{ number_format($item->total_price, 0, ',', ' ') }} F</span>
             </div>
+            @if(($item->discount ?? 0) > 0)
+            <div style="font-size:0.72rem;color:#e67e22;padding:0 0 1px 8px;">└ Remise: -{{ number_format($item->discount, 0, ',', ' ') }} F</div>
+            @endif
             @endforeach
+            @if($sale->discount_amount > 0)
+            <div class="d-flex justify-content-between" style="font-size:0.78rem;color:#e67e22;padding-top:3px;border-top:1px dashed #eee;margin-top:3px;">
+                <span>Remise globale</span>
+                <span>-{{ number_format($sale->discount_amount, 0, ',', ' ') }} F</span>
+            </div>
+            @endif
         </div>
         @endif
     </div>
