@@ -310,6 +310,9 @@
                     <div class="mb-3">
                         <label class="form-label fw-bold">Type de paiement</label>
                         <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-warning flex-fill payment-type-btn" data-type="custom" id="btnPayCustom">
+                                <i class="bi bi-pencil-square"></i> Avance libre
+                            </button>
                             <button type="button" class="btn btn-outline-primary flex-fill payment-type-btn active" data-type="advance" id="btnPayAdvance">
                                 <i class="bi bi-wallet2"></i> Avance (pièces)
                             </button>
@@ -321,7 +324,8 @@
 
                     <div class="mb-3">
                         <label class="form-label">Montant à payer (FCFA)</label>
-                        <div class="form-control form-control-lg text-center bg-primary text-white fw-bold" id="amountToPay">0 FCFA</div>
+                        <div class="form-control form-control-lg text-center bg-primary text-white fw-bold" id="amountToPayFixed" style="display:block;">0 FCFA</div>
+                        <input type="number" class="form-control form-control-lg text-center fw-bold" id="amountToPayInput" min="0" style="display:none;" placeholder="Saisir le montant...">
                         <small class="text-muted" id="paymentHint">= Coût des pièces de rechange</small>
                         <input type="hidden" name="amount_paid" id="amountPaid" value="{{ old('amount_paid', 0) }}">
                     </div>
@@ -437,7 +441,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const laborCost = document.getElementById('laborCost');
     const amountPaid = document.getElementById('amountPaid');
     const amountGiven = document.getElementById('amountGiven');
-    const amountToPay = document.getElementById('amountToPay');
     const changeAmount = document.getElementById('changeAmount');
     const partsCostDisplay = document.getElementById('partsCostDisplay');
     const laborCostDisplay = document.getElementById('laborCostDisplay');
@@ -476,12 +479,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return num.toLocaleString('fr-FR');
     }
 
-    let paymentType = 'advance'; // 'advance' ou 'full'
+    let paymentType = 'advance'; // 'advance', 'full' ou 'custom'
     const fullTotalDisplay = document.getElementById('fullTotalDisplay');
     const remainingBlock = document.getElementById('remainingBlock');
     const paymentHint = document.getElementById('paymentHint');
-    const btnPayAdvance = document.getElementById('btnPayAdvance');
-    const btnPayFull = document.getElementById('btnPayFull');
+    const amountToPayFixed = document.getElementById('amountToPayFixed');
+    const amountToPayInput = document.getElementById('amountToPayInput');
 
     // Gestion des boutons de type de paiement
     document.querySelectorAll('.payment-type-btn').forEach(btn => {
@@ -493,46 +496,60 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    amountToPayInput.addEventListener('input', function() {
+        const val = parseInt(this.value) || 0;
+        amountPaid.value = val;
+        const total = currentPartsTotal + (parseInt(laborCost.value) || 0);
+        const remaining = Math.max(0, total - val);
+        remainingDisplay.textContent = formatNumber(remaining) + ' FCFA';
+        updateChange();
+    });
+
     function updateTotals() {
-        // Calculer le total des pièces
         currentPartsTotal = 0;
         addedParts.forEach(p => currentPartsTotal += p.price * p.qty);
-        
-        // Récupérer la main d'œuvre
+
         const labor = parseInt(laborCost.value) || 0;
-        
-        // Calculer le total
         const total = currentPartsTotal + labor;
-        
-        // Mettre à jour l'affichage des coûts
+
         partsCostDisplay.textContent = formatNumber(currentPartsTotal) + ' FCFA';
         laborCostDisplay.textContent = formatNumber(labor) + ' FCFA';
         totalCostDisplay.textContent = formatNumber(total) + ' FCFA';
         partsTotal.textContent = formatNumber(currentPartsTotal) + ' FCFA';
         advanceDisplay.textContent = formatNumber(currentPartsTotal) + ' FCFA';
         fullTotalDisplay.textContent = formatNumber(total) + ' FCFA';
-        
-        // Selon le type de paiement
+
         let toPay;
         if (paymentType === 'full') {
             toPay = total;
             remainingBlock.style.display = 'none';
             paymentHint.textContent = '= Pièces + Main d\'œuvre';
+            amountToPayFixed.style.display = 'block';
+            amountToPayInput.style.display = 'none';
+            amountToPayFixed.textContent = formatNumber(toPay) + ' FCFA';
+        } else if (paymentType === 'custom') {
+            toPay = parseInt(amountToPayInput.value) || 0;
+            remainingBlock.style.display = 'block';
+            remainingDisplay.textContent = formatNumber(Math.max(0, total - toPay)) + ' FCFA';
+            paymentHint.textContent = 'Saisissez le montant de l\'avance';
+            amountToPayFixed.style.display = 'none';
+            amountToPayInput.style.display = 'block';
+            amountToPayInput.max = total;
+            amountToPayInput.focus();
         } else {
             toPay = currentPartsTotal;
             remainingBlock.style.display = 'block';
             remainingDisplay.textContent = formatNumber(labor) + ' FCFA';
             paymentHint.textContent = '= Coût des pièces de rechange';
+            amountToPayFixed.style.display = 'block';
+            amountToPayInput.style.display = 'none';
+            amountToPayFixed.textContent = formatNumber(toPay) + ' FCFA';
         }
-        
-        amountToPay.textContent = formatNumber(toPay) + ' FCFA';
-        
-        // Mettre à jour les champs cachés
+
         finalCost.value = total;
         advanceAmount.value = currentPartsTotal;
         amountPaid.value = toPay;
-        
-        // Mettre à jour la monnaie rendue
+
         updateChange();
     }
 
