@@ -98,6 +98,7 @@ class ResellerPortalController extends Controller
             ->where('reseller_id', $reseller->id)
             ->where('payment_status', 'credit')
             ->where('amount_due', '>', 0)
+            ->with('items.product')
             ->orderBy('created_at', 'desc')
             ->get();
 

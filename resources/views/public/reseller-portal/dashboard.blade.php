@@ -119,19 +119,31 @@
     </div>
 
     @forelse($unpaidSales as $sale)
-    <div class="sale-card">
-        <div>
-            <div class="invoice">{{ $sale->invoice_number }}</div>
-            <div class="date">{{ $sale->created_at->format('d/m/Y') }}</div>
+    <div class="sale-card" style="flex-direction:column;align-items:stretch;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="invoice">{{ $sale->invoice_number }}</div>
+                <div class="date">{{ $sale->created_at->format('d/m/Y') }}</div>
+            </div>
+            <div class="amounts">
+                <div class="due">{{ number_format($sale->amount_due, 0, ',', ' ') }} F</div>
+                @if($sale->amount_paid > 0)
+                <div class="total">payé {{ number_format($sale->amount_paid, 0, ',', ' ') }} / {{ number_format($sale->total_amount, 0, ',', ' ') }}</div>
+                @else
+                <div class="total">total {{ number_format($sale->total_amount, 0, ',', ' ') }} F</div>
+                @endif
+            </div>
         </div>
-        <div class="amounts">
-            <div class="due">{{ number_format($sale->amount_due, 0, ',', ' ') }} F</div>
-            @if($sale->amount_paid > 0)
-            <div class="total">payé {{ number_format($sale->amount_paid, 0, ',', ' ') }} / {{ number_format($sale->total_amount, 0, ',', ' ') }}</div>
-            @else
-            <div class="total">total {{ number_format($sale->total_amount, 0, ',', ' ') }} F</div>
-            @endif
+        @if($sale->items->isNotEmpty())
+        <div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid #f0f0f0;">
+            @foreach($sale->items as $item)
+            <div class="d-flex justify-content-between" style="font-size:0.78rem;color:#555;padding:1px 0;">
+                <span>{{ $item->product->name ?? 'Produit' }} <span style="color:#999;">x{{ $item->quantity }}</span></span>
+                <span>{{ number_format($item->total_price, 0, ',', ' ') }} F</span>
+            </div>
+            @endforeach
         </div>
+        @endif
     </div>
     @empty
     <div class="text-center py-4 text-muted" style="font-size:0.9rem;">
